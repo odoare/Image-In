@@ -37,6 +37,8 @@ private:
     void timerCallback() override;
     void changeListenerCallback (juce::ChangeBroadcaster* source) override;
 
+    juce::Rectangle<int> displayArea;
+
     MapOscillator& oscillator;
     juce::OpenGLContext openGLContext;
     

@@ -45,7 +45,7 @@ void MapSynthAudioProcessorEditor::paint (juce::Graphics& g)
 {
     // (Our component is opaque, so we must completely fill the background with a solid colour)
 
-    g.fillAll (getLookAndFeel().findColour (juce::ResizableWindow::backgroundColourId));
+    g.fillAll (getLookAndFeel().findColour (juce::ResizableWindow::backgroundColourId).darker (0.2f));
 }
 
 void MapSynthAudioProcessorEditor::resized()
@@ -53,23 +53,22 @@ void MapSynthAudioProcessorEditor::resized()
     // This is generally where you'll want to lay out the positions of any
     // subcomponents in your editor..
     auto bounds = getLocalBounds();
-    auto controlsHeight = juce::jmin (180, bounds.getHeight() / 2);
 
-    auto displayArea = bounds.removeFromTop (bounds.getHeight() - controlsHeight);
-    int squareSize = juce::jmin (displayArea.getWidth(), displayArea.getHeight());
-    auto squareBounds = juce::Rectangle<int> (squareSize, squareSize).withCentre (displayArea.getCentre());
-    mapDisplayComponent.setBounds (squareBounds);
+    juce::FlexBox mainFb;
+    mainFb.flexDirection = juce::FlexBox::Direction::column;
 
-    auto controlsBounds = bounds;
+    auto controlsHeight = juce::jmin (240, bounds.getHeight() / 2);
 
     juce::FlexBox controlsFb;
     controlsFb.flexDirection = juce::FlexBox::Direction::row;
     controlsFb.items.add (juce::FlexItem (lineReaderComponent).withFlex (2.5f).withMargin(5.0f));
     controlsFb.items.add (juce::FlexItem (circleReaderComponent).withFlex (2.0f).withMargin(5.0f));
-    
     controlsFb.items.add (juce::FlexItem (globalControlsGroup).withFlex (1.5f).withMargin(5.0f));
-    
-    controlsFb.performLayout (controlsBounds);
+
+    mainFb.items.add (juce::FlexItem (mapDisplayComponent).withFlex (1.0f).withMargin (5.0f));
+    mainFb.items.add (juce::FlexItem (controlsFb).withHeight (controlsHeight));
+
+    mainFb.performLayout (bounds);
 
     auto globalContentBounds = globalControlsGroup.getBounds().reduced(5).withTrimmedTop(15);
 

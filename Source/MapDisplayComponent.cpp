@@ -72,7 +72,13 @@ void MapDisplayComponent::paint (juce::Graphics& g)
 
 void MapDisplayComponent::resized()
 {
-    loadImageButton.setBounds (getWidth() - 80 - 10, 10, 80, 24);
+    auto bounds = getLocalBounds();
+    int squareSize = juce::jmin (bounds.getWidth(), bounds.getHeight());
+    displayArea = juce::Rectangle<int> (squareSize, squareSize).withCentre (bounds.getCentre());
+
+    // Position the button within the square display area
+    loadImageButton.setBounds (displayArea.getRight() - 80 - 10, displayArea.getY() + 10, 80, 24);
+
     openGLContext.triggerRepaint();
 }
 
@@ -90,6 +96,12 @@ void MapDisplayComponent::openGLContextClosing()
 void MapDisplayComponent::renderOpenGL()
 {
     juce::OpenGLHelpers::clear (juce::Colours::darkgrey);
+
+    if (displayArea.isEmpty())
+        return;
+
+    // Set the viewport to the square display area
+    juce::gl::glViewport (displayArea.getX(), getHeight() - displayArea.getBottom(), displayArea.getWidth(), displayArea.getHeight());
     
     auto image = oscillator.getImageBuffer().getImage();
 
@@ -126,16 +138,21 @@ void MapDisplayComponent::renderOpenGL()
     {
         if (const auto* lineReader = dynamic_cast<const LineReader*> (readerBase))
         {
+            const float w = (float) displayArea.getWidth();
+            const float h = (float) displayArea.getHeight();
             g.setColour (juce::Colours::white);
-            g.drawLine (lineReader->getX1() * getWidth(), lineReader->getY1() * getHeight(), lineReader->getX2() * getWidth(), lineReader->getY2() * getHeight(), 2.0f);
+            g.drawLine (displayArea.getX() + lineReader->getX1() * w, displayArea.getY() + lineReader->getY1() * h,
+                        displayArea.getX() + lineReader->getX2() * w, displayArea.getY() + lineReader->getY2() * h, 2.0f);
         }
         else if (const auto* circleReader = dynamic_cast<const CircleReader*> (readerBase))
         {
             g.setColour (juce::Colours::orange);
-            const float w = (float) getWidth();
-            const float h = (float) getHeight();
+            const float w = (float) displayArea.getWidth();
+            const float h = (float) displayArea.getHeight();
             const float radius = circleReader->getRadius() * juce::jmin (w, h);
-            g.drawEllipse (circleReader->getCX() * w - radius, circleReader->getCY() * h - radius, radius * 2.0f, radius * 2.0f, 2.0f);
+            g.drawEllipse (displayArea.getX() + circleReader->getCX() * w - radius,
+                           displayArea.getY() + circleReader->getCY() * h - radius,
+                           radius * 2.0f, radius * 2.0f, 2.0f);
         }
     }
 
