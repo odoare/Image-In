@@ -41,10 +41,5 @@ protected:
     LFO* lfo = nullptr;
     std::atomic<float> lastLfoValue { 0.0f };
 
-    // For CircleReader trigonometric optimization
-    float cos_val = 1.0f,      sin_val = 0.0f;
-    float cos_val_low = 1.0f,  sin_val_low = 0.0f;
-    float cos_val_high = 1.0f, sin_val_high = 0.0f;
-
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ReaderBase)
 };

@@ -81,25 +81,6 @@ void CircleReader::processBlock (const juce::Image& imageToRead, juce::AudioBuff
 
     const auto twoPi = juce::MathConstants<float>::twoPi;
 
-    // Re-sync trig values at the start of each block to prevent error accumulation
-    cos_val = juce::dsp::FastMathApproximations::cos (phase * twoPi);
-    sin_val = juce::dsp::FastMathApproximations::sin (phase * twoPi);
-    cos_val_low = juce::dsp::FastMathApproximations::cos (phaseLow * twoPi);
-    sin_val_low = juce::dsp::FastMathApproximations::sin (phaseLow * twoPi);
-    cos_val_high = juce::dsp::FastMathApproximations::cos (phaseHigh * twoPi);
-    sin_val_high = juce::dsp::FastMathApproximations::sin (phaseHigh * twoPi);
-
-    // Calculate increments for trigonometric recurrence
-    const float angle_inc = phaseIncrement * twoPi;
-    const float cos_inc = juce::dsp::FastMathApproximations::cos (angle_inc);
-    const float sin_inc = juce::dsp::FastMathApproximations::sin (angle_inc);
-    const float angle_inc_low = phaseIncrementLow * twoPi;
-    const float cos_inc_low = juce::dsp::FastMathApproximations::cos (angle_inc_low);
-    const float sin_inc_low = juce::dsp::FastMathApproximations::sin (angle_inc_low);
-    const float angle_inc_high = phaseIncrementHigh * twoPi;
-    const float cos_inc_high = juce::dsp::FastMathApproximations::cos (angle_inc_high);
-    const float sin_inc_high = juce::dsp::FastMathApproximations::sin (angle_inc_high);
-
     const float imageWidth = (float) (bitmapData.width - 1);
     const float imageHeight = (float) (bitmapData.height - 1);
     const int numChannels = buffer.getNumChannels();
@@ -132,8 +113,12 @@ void CircleReader::processBlock (const juce::Image& imageToRead, juce::AudioBuff
 
         float finalSampleValue = 0.0f;
 
-        auto getSampleAtTrig = [&] (float c, float s) -> float
+        auto getSampleAtPhase = [&] (float currentPhase) -> float
         {
+            const float angle = currentPhase * twoPi;
+            const float c = juce::dsp::FastMathApproximations::cos (angle);
+            const float s = juce::dsp::FastMathApproximations::sin (angle);
+
             const float currentX = cx_sv + r_sv * c;
             const float currentY = cy_sv + r_sv * s;
 
@@ -167,25 +152,14 @@ void CircleReader::processBlock (const juce::Image& imageToRead, juce::AudioBuff
             return (top + fy * (bottom - top)) * 2.0f - 1.0f;
         };
 
-        if (ampLow > 0.0f)  finalSampleValue += ampLow  * getSampleAtTrig (cos_val_low, sin_val_low);
-        if (ampBase > 0.0f) finalSampleValue += ampBase * getSampleAtTrig (cos_val, sin_val);
-        if (ampHigh > 0.0f) finalSampleValue += ampHigh * getSampleAtTrig (cos_val_high, sin_val_high);
+        if (ampLow > 0.0f)  finalSampleValue += ampLow  * getSampleAtPhase (phaseLow);
+        if (ampBase > 0.0f) finalSampleValue += ampBase * getSampleAtPhase (phase);
+        if (ampHigh > 0.0f) finalSampleValue += ampHigh * getSampleAtPhase (phaseHigh);
 
         finalSampleValue *= volumeSmoother.getNextValue();
 
         for (int channel = 0; channel < numChannels; ++channel)
             buffer.setSample (channel, sample, finalSampleValue);
-
-        // Update trigonometric values using recurrence relation
-        auto updateTrig = [](float& c, float& s, float c_inc, float s_inc) {
-            float next_c = c * c_inc - s * s_inc;
-            s = c * s_inc + s * c_inc;
-            c = next_c;
-        };
-
-        updateTrig (cos_val, sin_val, cos_inc, sin_inc);
-        updateTrig (cos_val_low, sin_val_low, cos_inc_low, sin_inc_low);
-        updateTrig (cos_val_high, sin_val_high, cos_inc_high, sin_inc_high);
 
         // Keep phase variables updated for state saving and re-syncing
         phase += phaseIncrement;

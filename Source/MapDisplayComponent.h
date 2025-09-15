@@ -39,9 +39,12 @@ private:
 
     MapOscillator& oscillator;
     juce::OpenGLContext openGLContext;
-
+    
     juce::Image lastImage;
     juce::OpenGLTexture imageTexture;
+
+    juce::TextButton loadImageButton;
+    std::unique_ptr<juce::FileChooser> fileChooser;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MapDisplayComponent)
 };

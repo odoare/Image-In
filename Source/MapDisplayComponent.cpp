@@ -25,6 +25,36 @@ MapDisplayComponent::MapDisplayComponent (MapOscillator& osc)
     // We don't need to listen to the readers anymore, as we are repainting
     // on a timer for smooth animation.
     startTimerHz (60);
+
+    addAndMakeVisible (loadImageButton);
+    loadImageButton.setButtonText ("Load Image");
+    loadImageButton.onClick = [this]
+    {
+        fileChooser = std::make_unique<juce::FileChooser> ("Select an image file...",
+                                                           juce::File{},
+                                                           "*.png,*.jpg,*.jpeg,*.gif");
+
+        auto chooserFlags = juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles;
+
+        fileChooser->launchAsync (chooserFlags, [this] (const juce::FileChooser& fc)
+        {
+            auto file = fc.getResult();
+
+            if (file != juce::File{})
+            {
+                juce::Image newImage = juce::ImageFileFormat::loadFrom (file);
+
+                if (newImage.isValid())
+                {
+                    oscillator.getImageBuffer().setImage (newImage);
+                }
+                else
+                {
+                    juce::AlertWindow::showMessageBoxAsync (juce::AlertWindow::WarningIcon, "Image Load Error", "Could not load the image file: " + file.getFileName());
+                }
+            }
+        });
+    };
 }
 
 MapDisplayComponent::~MapDisplayComponent()
@@ -42,6 +72,7 @@ void MapDisplayComponent::paint (juce::Graphics& g)
 
 void MapDisplayComponent::resized()
 {
+    loadImageButton.setBounds (getWidth() - 80 - 10, 10, 80, 24);
     openGLContext.triggerRepaint();
 }
 
@@ -79,10 +110,10 @@ void MapDisplayComponent::renderOpenGL()
 
             // Draw a quad that fills the whole component
             juce::gl::glBegin (juce::gl::GL_QUADS);
-                juce::gl::glTexCoord2f (0.0f, 1.0f); juce::gl::glVertex2f (-1.0f, -1.0f); // Bottom-Left
-                juce::gl::glTexCoord2f (1.0f, 1.0f); juce::gl::glVertex2f ( 1.0f, -1.0f); // Bottom-Right
-                juce::gl::glTexCoord2f (1.0f, 0.0f); juce::gl::glVertex2f ( 1.0f,  1.0f); // Top-Right
-                juce::gl::glTexCoord2f (0.0f, 0.0f); juce::gl::glVertex2f (-1.0f,  1.0f); // Top-Left
+                juce::gl::glTexCoord2f (0.0f, 0.0f); juce::gl::glVertex2f (-1.0f, -1.0f); // Bottom-Left
+                juce::gl::glTexCoord2f (1.0f, 0.0f); juce::gl::glVertex2f ( 1.0f, -1.0f); // Bottom-Right
+                juce::gl::glTexCoord2f (1.0f, 1.0f); juce::gl::glVertex2f ( 1.0f,  1.0f); // Top-Right
+                juce::gl::glTexCoord2f (0.0f, 1.0f); juce::gl::glVertex2f (-1.0f,  1.0f); // Top-Left
             juce::gl::glEnd();
         }
     }
@@ -107,6 +138,7 @@ void MapDisplayComponent::renderOpenGL()
             g.drawEllipse (circleReader->getCX() * w - radius, circleReader->getCY() * h - radius, radius * 2.0f, radius * 2.0f, 2.0f);
         }
     }
+
 }
 
 void MapDisplayComponent::timerCallback()

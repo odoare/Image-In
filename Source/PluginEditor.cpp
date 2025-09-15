@@ -51,7 +51,11 @@ void MapSynthAudioProcessorEditor::resized()
     // subcomponents in your editor..
     auto bounds = getLocalBounds();
     auto controlsHeight = juce::jmin (180, bounds.getHeight() / 2);
-    mapDisplayComponent.setBounds (bounds.removeFromTop (bounds.getHeight() - controlsHeight));
+
+    auto displayArea = bounds.removeFromTop (bounds.getHeight() - controlsHeight);
+    int squareSize = juce::jmin (displayArea.getWidth(), displayArea.getHeight());
+    auto squareBounds = juce::Rectangle<int> (squareSize, squareSize).withCentre (displayArea.getCentre());
+    mapDisplayComponent.setBounds (squareBounds);
 
     auto controlsBounds = bounds;
 
@@ -67,8 +71,14 @@ void MapSynthAudioProcessorEditor::resized()
     auto globalContentBounds = globalControlsGroup.getBounds().reduced(5).withTrimmedTop(15);
 
     juce::FlexBox globalFb;
-    globalFb.flexDirection = juce::FlexBox::Direction::row;
-    globalFb.items.add (juce::FlexItem (frequencyKnob.flex()).withFlex (1.0));
-    globalFb.items.add (juce::FlexItem (lfoFreqKnob.flex()).withFlex (1.0));
+    globalFb.flexDirection = juce::FlexBox::Direction::column;
+
+    juce::FlexBox knobBox;
+    knobBox.flexDirection = juce::FlexBox::Direction::row;
+    knobBox.items.add (juce::FlexItem (frequencyKnob.flex()).withFlex (1.0));
+    knobBox.items.add (juce::FlexItem (lfoFreqKnob.flex()).withFlex (1.0));
+
+    globalFb.items.add (juce::FlexItem(knobBox).withFlex(1.0));
+
     globalFb.performLayout(globalContentBounds);
 }
