@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<JUCERPROJECT id="tGIUSL" name="MapSynth" projectType="audioplug" useAppConfig="0"
+              addUsingNamespaceToJuceHeader="0" jucerFormatVersion="1" pluginFormats="buildStandalone,buildVST,buildVST3"
+              pluginCharacteristicsValue="pluginIsSynth,pluginWantsMidiIn">
+  <MAINGROUP id="qPv3X3" name="MapSynth">
+    <GROUP id="{27D00790-75A2-E8C7-052E-0DD0E88BB159}" name="Assets">
+      <FILE id="BXxvYB" name="world.png" compile="0" resource="1" file="Source/Assets/world.png"/>
+    </GROUP>
+    <GROUP id="{633F86FB-EABC-E5B3-C698-8086F97CD0F3}" name="Source">
+      <FILE id="Pgsbs2" name="PluginProcessor.cpp" compile="1" resource="0"
+            file="Source/PluginProcessor.cpp"/>
+      <FILE id="bBFspA" name="PluginProcessor.h" compile="0" resource="0"
+            file="Source/PluginProcessor.h"/>
+      <FILE id="M3MeOu" name="PluginEditor.cpp" compile="1" resource="0"
+            file="Source/PluginEditor.cpp"/>
+      <FILE id="CyHx9I" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
+      <FILE id="Ee2Qvb" name="ImageBuffer.cpp" compile="1" resource="0" file="Source/ImageBuffer.cpp"/>
+      <FILE id="JcMVl2" name="ImageBuffer.h" compile="0" resource="0" file="Source/ImageBuffer.h"/>
+      <FILE id="Llq0cY" name="LineReader.cpp" compile="1" resource="0" file="Source/LineReader.cpp"/>
+      <FILE id="TgTJIg" name="LineReader.h" compile="0" resource="0" file="Source/LineReader.h"/>
+      <FILE id="IzwupY" name="MapDisplayComponent.cpp" compile="1" resource="0"
+            file="Source/MapDisplayComponent.cpp"/>
+      <FILE id="CxwgNk" name="MapDisplayComponent.h" compile="0" resource="0"
+            file="Source/MapDisplayComponent.h"/>
+      <FILE id="vf7MXx" name="MapOscillator.cpp" compile="1" resource="0"
+            file="Source/MapOscillator.cpp"/>
+      <FILE id="abtaQR" name="MapOscillator.h" compile="0" resource="0" file="Source/MapOscillator.h"/>
+    </GROUP>
+    <FILE id="G3cMFp" name="CircleReader.cpp" compile="1" resource="0"
+          file="Source/CircleReader.cpp"/>
+    <FILE id="QIOL62" name="CircleReader.h" compile="0" resource="0" file="Source/CircleReader.h"/>
+    <FILE id="rUHJYj" name="CircleReaderComponent.cpp" compile="1" resource="0"
+          file="Source/CircleReaderComponent.cpp"/>
+    <FILE id="PZ00wX" name="CircleReaderComponent.h" compile="0" resource="0"
+          file="Source/CircleReaderComponent.h"/>
+    <FILE id="VhHstY" name="LineReaderComponent.cpp" compile="1" resource="0"
+          file="Source/LineReaderComponent.cpp"/>
+    <FILE id="Ji0Mw1" name="LineReaderComponent.h" compile="0" resource="0"
+          file="Source/LineReaderComponent.h"/>
+    <FILE id="JPqJ1f" name="ReaderBase.cpp" compile="1" resource="0" file="Source/ReaderBase.cpp"/>
+    <FILE id="OGihh3" name="ReaderBase.h" compile="0" resource="0" file="Source/ReaderBase.h"/>
+    <FILE id="yhLOWD" name="ReaderComponent.cpp" compile="1" resource="0"
+          file="Source/ReaderComponent.cpp"/>
+    <FILE id="zgEx8J" name="ReaderComponent.h" compile="0" resource="0"
+          file="Source/ReaderComponent.h"/>
+  </MAINGROUP>
+  <MODULES>
+    <MODULE id="fxme_juce_tools" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_devices" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_formats" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_plugin_client" showAllCode="1" useLocalCopy="0"
+            useGlobalPath="1"/>
+    <MODULE id="juce_audio_processors" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_audio_utils" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_core" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_data_structures" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_events" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_graphics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_gui_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_gui_extra" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+    <MODULE id="juce_opengl" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
+  </MODULES>
+  <JUCEOPTIONS JUCE_STRICT_REFCOUNTEDPOINTER="1" JUCE_VST3_CAN_REPLACE_VST2="0"/>
+  <EXPORTFORMATS>
+    <LINUX_MAKE targetFolder="Builds/LinuxMakefile">
+      <CONFIGURATIONS>
+        <CONFIGURATION isDebug="1" name="Debug" targetName="MapSynth"/>
+        <CONFIGURATION isDebug="0" name="Release" targetName="MapSynth"/>
+      </CONFIGURATIONS>
+      <MODULEPATHS>
+        <MODULEPATH id="juce_audio_basics" path="../JUCE/modules"/>
+        <MODULEPATH id="juce_audio_devices" path="../JUCE/modules"/>
+        <MODULEPATH id="juce_audio_formats" path="../JUCE/modules"/>
+        <MODULEPATH id="juce_audio_plugin_client" path="../JUCE/modules"/>
+        <MODULEPATH id="juce_audio_processors" path="../JUCE/modules"/>
+        <MODULEPATH id="juce_audio_utils" path="../JUCE/modules"/>
+        <MODULEPATH id="juce_core" path="../JUCE/modules"/>
+        <MODULEPATH id="juce_data_structures" path="../JUCE/modules"/>
+        <MODULEPATH id="juce_events" path="../JUCE/modules"/>
+        <MODULEPATH id="juce_graphics" path="../JUCE/modules"/>
+        <MODULEPATH id="juce_gui_basics" path="../JUCE/modules"/>
+        <MODULEPATH id="juce_gui_extra" path="../JUCE/modules"/>
+        <MODULEPATH id="fxme_juce_tools" path="../JUCE/usermodules"/>
+        <MODULEPATH id="juce_opengl" path="../JUCE/modules"/>
+      </MODULEPATHS>
+    </LINUX_MAKE>
+    <VS2022 targetFolder="Builds/VisualStudio2022">
+      <CONFIGURATIONS>
+        <CONFIGURATION isDebug="1" name="Debug" targetName="MapSynth"/>
+        <CONFIGURATION isDebug="0" name="Release" targetName="MapSynth"/>
+      </CONFIGURATIONS>
+      <MODULEPATHS>
+        <MODULEPATH id="juce_audio_basics" path="../JUCE/modules"/>
+        <MODULEPATH id="juce_audio_devices" path="../JUCE/modules"/>
+        <MODULEPATH id="juce_audio_formats" path="../JUCE/modules"/>
+        <MODULEPATH id="juce_audio_plugin_client" path="../JUCE/modules"/>
+        <MODULEPATH id="juce_audio_processors" path="../JUCE/modules"/>
+        <MODULEPATH id="juce_audio_utils" path="../JUCE/modules"/>
+        <MODULEPATH id="juce_core" path="../JUCE/modules"/>
+        <MODULEPATH id="juce_data_structures" path="../JUCE/modules"/>
+        <MODULEPATH id="juce_events" path="../JUCE/modules"/>
+        <MODULEPATH id="juce_graphics" path="../JUCE/modules"/>
+        <MODULEPATH id="juce_gui_basics" path="../JUCE/modules"/>
+        <MODULEPATH id="juce_gui_extra" path="../JUCE/modules"/>
+        <MODULEPATH id="fxme_juce_tools" path="../JUCE/usermodules"/>
+        <MODULEPATH id="juce_opengl" path="../JUCE/modules"/>
+      </MODULEPATHS>
+    </VS2022>
+  </EXPORTFORMATS>
+</JUCERPROJECT>
