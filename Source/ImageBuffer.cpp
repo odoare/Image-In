@@ -23,6 +23,7 @@ void ImageBuffer::setImage (const juce::Image& newImage)
     if (! newImage.isValid())
     {
         const juce::ScopedLock lock (imageLock);
+        sourceFile = juce::File();
         image = {};
         sendChangeMessage();
         return;
@@ -95,12 +96,36 @@ void ImageBuffer::setImage (const juce::Image& newImage)
     }
 
     const juce::ScopedLock lock (imageLock);
-    image = processedImage;
+    image = processedImage;    
+    sourceFile = juce::File(); // An image from memory has no source file path
     sendChangeMessage();
+}
+
+bool ImageBuffer::setImage (const juce::File& imageFile)
+{
+    juce::Image newImage = juce::ImageFileFormat::loadFrom (imageFile);
+
+    if (newImage.isValid())
+    {
+        // This will process the image and also clear the sourceFile path
+        setImage (newImage);
+
+        // We restore the path immediately after
+        const juce::ScopedLock lock (imageLock);
+        sourceFile = imageFile;
+        return true;
+    }
+
+    return false;
 }
 
 juce::Image ImageBuffer::getImage() const
 {
     const juce::ScopedLock lock (imageLock);
     return image;
+}
+juce::File ImageBuffer::getFile() const
+{
+    const juce::ScopedLock lock (imageLock);
+    return sourceFile;
 }

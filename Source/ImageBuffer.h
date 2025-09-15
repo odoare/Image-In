@@ -23,10 +23,13 @@ public:
     ~ImageBuffer() override;
 
     void setImage (const juce::Image& newImage);
+    bool setImage (const juce::File& imageFile);
     juce::Image getImage() const;
+    juce::File getFile() const;
 
 private:
     juce::Image image;
+    juce::File sourceFile;
     juce::CriticalSection imageLock;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ImageBuffer)

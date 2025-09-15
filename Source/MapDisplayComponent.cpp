@@ -42,13 +42,7 @@ MapDisplayComponent::MapDisplayComponent (MapOscillator& osc)
 
             if (file != juce::File{})
             {
-                juce::Image newImage = juce::ImageFileFormat::loadFrom (file);
-
-                if (newImage.isValid())
-                {
-                    oscillator.getImageBuffer().setImage (newImage);
-                }
-                else
+                if (! oscillator.getImageBuffer().setImage (file))
                 {
                     juce::AlertWindow::showMessageBoxAsync (juce::AlertWindow::WarningIcon, "Image Load Error", "Could not load the image file: " + file.getFileName());
                 }

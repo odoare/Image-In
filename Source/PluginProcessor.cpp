@@ -190,15 +190,72 @@ juce::AudioProcessorEditor* MapSynthAudioProcessor::createEditor()
 //==============================================================================
 void MapSynthAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
 {
-    // You should use this method to store your parameters in the memory block.
-    // You could do that either as raw data, or use the XML or ValueTree classes
-    // as intermediaries to make it easy to save and load complex data.
+    // Get the parameters' state from APVTS
+    auto state = apvts.copyState();
+    std::unique_ptr<juce::XmlElement> xml (state.createXml());
+
+    // Get the source file for the current image
+    auto imageFile = mapOscillator.getImageBuffer().getFile();
+
+    if (imageFile.existsAsFile())
+    {
+        // If we have a valid file, save its path
+        xml->setAttribute ("imagePath", imageFile.getFullPathName());
+    }
+    else
+    {
+        // Otherwise (e.g. for the default image), save the raw image data as a fallback
+        auto image = mapOscillator.getImageBuffer().getImage();
+        if (image.isValid())
+        {
+            juce::MemoryOutputStream memoryStream;
+            juce::PNGImageFormat pngFormat;
+            if (pngFormat.writeImageToStream (image, memoryStream))
+            {
+                xml->setAttribute ("imageData", memoryStream.getMemoryBlock().toBase64Encoding());
+            }
+        }
+    }
+    
+    // Store the combined XML state in the memory block
+    copyXmlToBinary (*xml, destData);
 }
 
 void MapSynthAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
-    // You should use this method to restore your parameters from this memory block,
-    // whose contents will have been created by the getStateInformation() call.
+    // Restore the state from XML
+    std::unique_ptr<juce::XmlElement> xmlState (getXmlFromBinary (data, sizeInBytes));
+
+    if (xmlState != nullptr)
+    {
+        if (xmlState->hasTagName (apvts.state.getType()))
+        {
+            // First, try to restore from a file path
+            if (xmlState->hasAttribute ("imagePath"))
+            {
+                auto imagePath = xmlState->getStringAttribute ("imagePath");
+                if (! mapOscillator.getImageBuffer().setImage (juce::File (imagePath)))
+                {
+                    // If loading from path fails, do nothing, keep current/default image.
+                    // You could show an error message here if you wanted.
+                }
+            }
+            // If no path, try to restore from embedded data (for older presets or default state)
+            else if (xmlState->hasAttribute ("imageData"))
+            {
+                auto base64Data = xmlState->getStringAttribute ("imageData");
+                juce::MemoryBlock imageData;
+                if (imageData.fromBase64Encoding (base64Data))
+                {
+                    juce::Image loadedImage = juce::ImageFileFormat::loadFrom (imageData.getData(), imageData.getSize());
+                    mapOscillator.getImageBuffer().setImage (loadedImage);
+                }
+            }
+
+            // Then, restore the parameters using the APVTS
+            apvts.replaceState (juce::ValueTree::fromXml (*xmlState));
+        }
+    }
 }
 
 //==============================================================================
