@@ -63,36 +63,40 @@ void LineReader::setAngle (float newAngle)
 
 float LineReader::getX1() const
 {
-    const float lfoVal = lastLfoValue.load();
-    const float currentAngle = angle.load() * (1.0f + 2.0f * (lfoAngleAmount.load() - 0.5f) * (lfoVal - 0.5f));
-    const float currentLength = length.load() * (1.0f + 2.0f * (lfoLengthAmount.load() - 0.5f) * (lfoVal - 0.5f));
+    const float lfoValAngle = lastLfoValues[lfoAngleSelect.load() ? 1 : 0].load();
+    const float currentAngle = angle.load() * (1.0f + 2.0f * (lfoAngleAmount.load() - 0.5f) * (lfoValAngle - 0.5f));
+    const float lfoValLength = lastLfoValues[lfoLengthSelect.load() ? 1 : 0].load();
+    const float currentLength = length.load() * (1.0f + 2.0f * (lfoLengthAmount.load() - 0.5f) * (lfoValLength - 0.5f));
     const float halfLength = currentLength * 0.5f;
     return cx.load() - halfLength * juce::dsp::FastMathApproximations::cos (currentAngle);
 }
 
 float LineReader::getY1() const
 {
-    const float lfoVal = lastLfoValue.load();
-    const float currentAngle = angle.load() * (1.0f + 2.0f * (lfoAngleAmount.load() - 0.5f) * (lfoVal - 0.5f));
-    const float currentLength = length.load() * (1.0f + 2.0f * (lfoLengthAmount.load() - 0.5f) * (lfoVal - 0.5f));
+    const float lfoValAngle = lastLfoValues[lfoAngleSelect.load() ? 1 : 0].load();
+    const float currentAngle = angle.load() * (1.0f + 2.0f * (lfoAngleAmount.load() - 0.5f) * (lfoValAngle - 0.5f));
+    const float lfoValLength = lastLfoValues[lfoLengthSelect.load() ? 1 : 0].load();
+    const float currentLength = length.load() * (1.0f + 2.0f * (lfoLengthAmount.load() - 0.5f) * (lfoValLength - 0.5f));
     const float halfLength = currentLength * 0.5f;
     return cy.load() - halfLength * juce::dsp::FastMathApproximations::sin (currentAngle);
 }
 
 float LineReader::getX2() const
 {
-    const float lfoVal = lastLfoValue.load();
-    const float currentAngle = angle.load() * (1.0f + 2.0f * (lfoAngleAmount.load() - 0.5f) * (lfoVal - 0.5f));
-    const float currentLength = length.load() * (1.0f + 2.0f * (lfoLengthAmount.load() - 0.5f) * (lfoVal - 0.5f));
+    const float lfoValAngle = lastLfoValues[lfoAngleSelect.load() ? 1 : 0].load();
+    const float currentAngle = angle.load() * (1.0f + 2.0f * (lfoAngleAmount.load() - 0.5f) * (lfoValAngle - 0.5f));
+    const float lfoValLength = lastLfoValues[lfoLengthSelect.load() ? 1 : 0].load();
+    const float currentLength = length.load() * (1.0f + 2.0f * (lfoLengthAmount.load() - 0.5f) * (lfoValLength - 0.5f));
     const float halfLength = currentLength * 0.5f;
     return cx.load() + halfLength * juce::dsp::FastMathApproximations::cos (currentAngle);
 }
 
 float LineReader::getY2() const
 {
-    const float lfoVal = lastLfoValue.load();
-    const float currentAngle = angle.load() * (1.0f + 2.0f * (lfoAngleAmount.load() - 0.5f) * (lfoVal - 0.5f));
-    const float currentLength = length.load() * (1.0f + 2.0f * (lfoLengthAmount.load() - 0.5f) * (lfoVal - 0.5f));
+    const float lfoValAngle = lastLfoValues[lfoAngleSelect.load() ? 1 : 0].load();
+    const float currentAngle = angle.load() * (1.0f + 2.0f * (lfoAngleAmount.load() - 0.5f) * (lfoValAngle - 0.5f));
+    const float lfoValLength = lastLfoValues[lfoLengthSelect.load() ? 1 : 0].load();
+    const float currentLength = length.load() * (1.0f + 2.0f * (lfoLengthAmount.load() - 0.5f) * (lfoValLength - 0.5f));
     const float halfLength = currentLength * 0.5f;
     return cy.load() + halfLength * juce::dsp::FastMathApproximations::sin (currentAngle);
 }
@@ -123,22 +127,27 @@ void LineReader::processBlock (const juce::Image& imageToRead, juce::AudioBuffer
 
     for (int sample = startSample; sample < startSample + numSamples; ++sample)
     {
-        float lfoValue = 0.0f;
-        if (lfo != nullptr)
-            lfoValue = lfo->process();
+        float lfoValues[2] = { 0.0f, 0.0f };
+        if (lfos[0] != nullptr)
+            lfoValues[0] = lfos[0]->process();
+        if (lfos[1] != nullptr)
+            lfoValues[1] = lfos[1]->process();
 
         const float cx_sv = cxs.getNextValue();
         const float cy_sv = cys.getNextValue();
 
+        const float lfoValLength = lfoValues[lfoLengthSelect.load() ? 1 : 0];
         float length_sv = lengths.getNextValue();
-        length_sv *= (1.0f + 2.0f * (lfoLengthAmount.load() - 0.5f) * (lfoValue - 0.5f));
+        length_sv *= (1.0f + 2.0f * (lfoLengthAmount.load() - 0.5f) * (lfoValLength - 0.5f));
 
+        const float lfoValAngle = lfoValues[lfoAngleSelect.load() ? 1 : 0];
         float angle_sv = angles.getNextValue();
-        angle_sv *= (1.0f + 2.0f * (lfoAngleAmount.load() - 0.5f) * (lfoValue - 0.5f));
+        angle_sv *= (1.0f + 2.0f * (lfoAngleAmount.load() - 0.5f) * (lfoValAngle - 0.5f));
 
         if (sample == startSample + numSamples - 1)
         {
-            lastLfoValue = lfoValue;
+            lastLfoValues[0] = lfoValues[0];
+            lastLfoValues[1] = lfoValues[1];
         }
 
         const float halfLength = length_sv * 0.5f;

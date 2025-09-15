@@ -31,6 +31,9 @@ public:
     std::atomic<float> lfoCxAmount { 0.5f };
     std::atomic<float> lfoRadiusAmount { 0.5f };
 
+    std::atomic<bool> lfoCxSelect { false };
+    std::atomic<bool> lfoRadiusSelect { false };
+
 private:
     void prepareToPlay (double sampleRate) override;
 

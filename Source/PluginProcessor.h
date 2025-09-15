@@ -58,6 +58,7 @@ public:
     MapOscillator mapOscillator;
     juce::AudioProcessorValueTreeState apvts{*this,nullptr,"Parameters",createParameters()};
     LFO lfo;
+    LFO lfo2;
 
 private:
 

@@ -40,13 +40,13 @@ public:
     ReaderBase* getReader (int index);
     const juce::OwnedArray<ReaderBase>& getReaders() const { return readers; }
 
-    void setLFO (LFO* lfoToUse);
+    void setLFOs (LFO* lfo1, LFO* lfo2);
 
 private:
     ImageBuffer imageBuffer;
     juce::OwnedArray<ReaderBase> readers;
     juce::AudioBuffer<float> readerBuffer;
-    LFO* lfo = nullptr;
+    LFO* lfos[2] = { nullptr, nullptr };
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MapOscillator)
 };

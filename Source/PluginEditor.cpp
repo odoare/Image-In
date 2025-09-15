@@ -27,10 +27,13 @@ MapSynthAudioProcessorEditor::MapSynthAudioProcessorEditor (MapSynthAudioProcess
     addAndMakeVisible (lfoFreqKnob.slider);
     lfoFreqKnob.slider.setLookAndFeel (&fxmeLookAndFeel);
 
+    addAndMakeVisible (lfo2FreqKnob.slider);
+    lfo2FreqKnob.slider.setLookAndFeel (&fxmeLookAndFeel);
+
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
     setResizable(true, true);    
-    setSize (600, 400);
+    setSize (800, 600);
 }
 
 MapSynthAudioProcessorEditor::~MapSynthAudioProcessorEditor()
@@ -64,7 +67,7 @@ void MapSynthAudioProcessorEditor::resized()
     controlsFb.items.add (juce::FlexItem (lineReaderComponent).withFlex (2.5f).withMargin(5.0f));
     controlsFb.items.add (juce::FlexItem (circleReaderComponent).withFlex (2.0f).withMargin(5.0f));
     
-    controlsFb.items.add (juce::FlexItem (globalControlsGroup).withFlex (1.0f).withMargin(5.0f));
+    controlsFb.items.add (juce::FlexItem (globalControlsGroup).withFlex (1.5f).withMargin(5.0f));
     
     controlsFb.performLayout (controlsBounds);
 
@@ -77,6 +80,7 @@ void MapSynthAudioProcessorEditor::resized()
     knobBox.flexDirection = juce::FlexBox::Direction::row;
     knobBox.items.add (juce::FlexItem (frequencyKnob.flex()).withFlex (1.0));
     knobBox.items.add (juce::FlexItem (lfoFreqKnob.flex()).withFlex (1.0));
+    knobBox.items.add (juce::FlexItem (lfo2FreqKnob.flex()).withFlex (1.0));
 
     globalFb.items.add (juce::FlexItem(knobBox).withFlex(1.0));
 

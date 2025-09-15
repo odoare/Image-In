@@ -96,7 +96,8 @@ void MapSynthAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlo
 {
     mapOscillator.prepareToPlay (sampleRate, samplesPerBlock);
     lfo.prepareToPlay (sampleRate);
-    mapOscillator.setLFO (&lfo);
+    lfo2.prepareToPlay (sampleRate);
+    mapOscillator.setLFOs (&lfo, &lfo2);
 }
 
 void MapSynthAudioProcessor::releaseResources()
@@ -135,7 +136,8 @@ void MapSynthAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
 {
     juce::ScopedNoDenormals noDenormals;
 
-    lfo.setFrequency (apvts.getRawParameterValue ("LFOFreq")->load());    
+    lfo.setFrequency (apvts.getRawParameterValue ("LFOFreq")->load());
+    lfo2.setFrequency (apvts.getRawParameterValue ("LFO2Freq")->load());
 
     for (auto* readerBase : mapOscillator.getReaders())
     {
@@ -150,6 +152,9 @@ void MapSynthAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
 
             lineReader->lfoAngleAmount = apvts.getRawParameterValue ("LFO_LineAngle_Amount")->load();
             lineReader->lfoLengthAmount = apvts.getRawParameterValue ("LFO_LineLength_Amount")->load();
+
+            lineReader->lfoAngleSelect = apvts.getRawParameterValue ("LFO_LineAngle_Select")->load();
+            lineReader->lfoLengthSelect = apvts.getRawParameterValue ("LFO_LineLength_Select")->load();
         }
         else if (auto* circleReader = dynamic_cast<CircleReader*> (readerBase))
         {
@@ -161,6 +166,9 @@ void MapSynthAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
 
             circleReader->lfoCxAmount = apvts.getRawParameterValue ("LFO_CX_Amount")->load();
             circleReader->lfoRadiusAmount = apvts.getRawParameterValue ("LFO_R_Amount")->load();
+
+            circleReader->lfoCxSelect = apvts.getRawParameterValue ("LFO_CX_Select")->load();
+            circleReader->lfoRadiusSelect = apvts.getRawParameterValue ("LFO_R_Select")->load();
         }
     }
 
@@ -209,17 +217,26 @@ juce::AudioProcessorValueTreeState::ParameterLayout MapSynthAudioProcessor::crea
     layout.add(std::make_unique<juce::AudioParameterFloat>("LineCY", "LineCY", juce::NormalisableRange<float>(0.f, 1.f, .01f, 1.f), 0.5f));
     layout.add(std::make_unique<juce::AudioParameterFloat>("LineLength", "LineLength", juce::NormalisableRange<float>(0.f, 1.f, .01f, 1.f), 0.6f));
     layout.add(std::make_unique<juce::AudioParameterFloat>("LineAngle", "LineAngle", juce::NormalisableRange<float>(0.f, juce::MathConstants<float>::twoPi, .01f, 1.f), 0.0f));    
-    layout.add(std::make_unique<juce::AudioParameterFloat>("Frequency","Frequency",juce::NormalisableRange<float>(20.f,20000.f,1.f,1.f),440.f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>("Frequency","Frequency",juce::NormalisableRange<float>(20.f,1000.f,1.f,1.f),110.f));
     layout.add(std::make_unique<juce::AudioParameterFloat>("CX", "CX", juce::NormalisableRange<float>(0.f, 1.f, .01f, 1.f), 0.5f));
     layout.add(std::make_unique<juce::AudioParameterFloat>("CY", "CY", juce::NormalisableRange<float>(0.f, 1.f, .01f, 1.f), 0.5f));
     layout.add(std::make_unique<juce::AudioParameterFloat>("R", "R", juce::NormalisableRange<float>(0.f, 0.5f, .01f, 1.f), 0.25f));
     layout.add(std::make_unique<juce::AudioParameterFloat>("LineVolume", "LineVolume", juce::NormalisableRange<float>(0.f, 1.f, .01f, 1.f), 1.0f));
     layout.add(std::make_unique<juce::AudioParameterFloat>("CircleVolume", "CircleVolume", juce::NormalisableRange<float>(0.f, 1.f, .01f, 1.f), 1.0f));
-    layout.add(std::make_unique<juce::AudioParameterFloat>("LFOFreq", "LFO Freq", juce::NormalisableRange<float>(0.01f, 200.0f, 0.01f, 0.3f), 1.0f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>("LFOFreq", "LFO 1 Freq", juce::NormalisableRange<float>(0.01f, 200.0f, 0.01f, 0.3f), 1.0f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>("LFO2Freq", "LFO 2 Freq", juce::NormalisableRange<float>(0.01f, 200.0f, 0.01f, 0.3f), 1.0f));
+
     layout.add(std::make_unique<juce::AudioParameterFloat>("LFO_LineAngle_Amount", "LFO->Angle", juce::NormalisableRange<float>(0.f, 1.f, .01f, 1.f), 0.5f));
+    layout.add(std::make_unique<juce::AudioParameterBool>("LFO_LineAngle_Select", "LFO Select", false));
+
     layout.add(std::make_unique<juce::AudioParameterFloat>("LFO_LineLength_Amount", "LFO->Length", juce::NormalisableRange<float>(0.f, 1.f, .01f, 1.f), 0.5f));
+    layout.add(std::make_unique<juce::AudioParameterBool>("LFO_LineLength_Select", "LFO Select", false));
+
     layout.add(std::make_unique<juce::AudioParameterFloat>("LFO_CX_Amount", "LFO->CX", juce::NormalisableRange<float>(0.f, 1.f, .01f, 1.f), 0.5f));
+    layout.add(std::make_unique<juce::AudioParameterBool>("LFO_CX_Select", "LFO Select", false));
+
     layout.add(std::make_unique<juce::AudioParameterFloat>("LFO_R_Amount", "LFO->Radius", juce::NormalisableRange<float>(0.f, 1.f, .01f, 1.f), 0.5f));
+    layout.add(std::make_unique<juce::AudioParameterBool>("LFO_R_Select", "LFO Select", false));
 
     return layout;
 }

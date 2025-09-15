@@ -45,5 +45,8 @@ public:
     std::atomic<float> lfoAngleAmount { 0.5f };
     std::atomic<float> lfoLengthAmount { 0.5f };
 
+    std::atomic<bool> lfoAngleSelect { false };
+    std::atomic<bool> lfoLengthSelect { false };
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (LineReader)
 };

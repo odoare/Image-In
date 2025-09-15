@@ -49,13 +49,13 @@ void CircleReader::setRadius (float newRadius)
 
 float CircleReader::getCX() const
 {
-    const float lfoVal = lastLfoValue.load();
+    const float lfoVal = lastLfoValues[lfoCxSelect.load() ? 1 : 0].load();
     return cx.load() * (1.0f + 2.0f * (lfoCxAmount.load() - 0.5f) * (lfoVal - 0.5f));
 }
 
 float CircleReader::getRadius() const
 {
-    const float lfoVal = lastLfoValue.load();
+    const float lfoVal = lastLfoValues[lfoRadiusSelect.load() ? 1 : 0].load();
     return radius.load() * (1.0f + 2.0f * (lfoRadiusAmount.load() - 0.5f) * (lfoVal - 0.5f));
 }
 
@@ -87,21 +87,26 @@ void CircleReader::processBlock (const juce::Image& imageToRead, juce::AudioBuff
 
     for (int sample = startSample; sample < startSample + numSamples; ++sample)
     {
-        float lfoValue = 0.0f;
-        if (lfo != nullptr)
-            lfoValue = lfo->process();
+        float lfoValues[2] = { 0.0f, 0.0f };
+        if (lfos[0] != nullptr)
+            lfoValues[0] = lfos[0]->process();
+        if (lfos[1] != nullptr)
+            lfoValues[1] = lfos[1]->process();
 
+        const float lfoValCx = lfoValues[lfoCxSelect.load() ? 1 : 0];
         float cx_sv = cxs.getNextValue();
-        cx_sv *= (1.0f + 2.0f * (lfoCxAmount.load() - 0.5f) * (lfoValue - 0.5f));
+        cx_sv *= (1.0f + 2.0f * (lfoCxAmount.load() - 0.5f) * (lfoValCx - 0.5f));
 
         const float cy_sv = cys.getNextValue();
 
+        const float lfoValRadius = lfoValues[lfoRadiusSelect.load() ? 1 : 0];
         float r_sv = rs.getNextValue();
-        r_sv *= (1.0f + 2.0f * (lfoRadiusAmount.load() - 0.5f) * (lfoValue - 0.5f));
+        r_sv *= (1.0f + 2.0f * (lfoRadiusAmount.load() - 0.5f) * (lfoValRadius - 0.5f));
 
         if (sample == startSample + numSamples - 1)
         {
-            lastLfoValue = lfoValue;
+            lastLfoValues[0] = lfoValues[0];
+            lastLfoValues[1] = lfoValues[1];
         }
 
         // --- Amplitudes from radius ---

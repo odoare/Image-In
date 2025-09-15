@@ -18,7 +18,9 @@ LineReaderComponent::LineReaderComponent(MapSynthAudioProcessor& p)
       lineAngleKnob(p.apvts, "LineAngle", COLOUR),
       lineVolumeKnob(p.apvts, "LineVolume", COLOUR),
       lfoLineAngleAmountKnob(p.apvts, "LFO_LineAngle_Amount", juce::Colours::hotpink),
-      lfoLineLengthAmountKnob(p.apvts, "LFO_LineLength_Amount", juce::Colours::hotpink)
+      lfoLineLengthAmountKnob(p.apvts, "LFO_LineLength_Amount", juce::Colours::hotpink),
+      lfoLineAngleSelectButton(p.apvts, "LFO_LineAngle_Select", juce::Colours::hotpink),
+      lfoLineLengthSelectButton(p.apvts, "LFO_LineLength_Select", juce::Colours::hotpink)
 {
     setupKnob(lineCxKnob);
     setupKnob(lineCyKnob);
@@ -28,6 +30,9 @@ LineReaderComponent::LineReaderComponent(MapSynthAudioProcessor& p)
 
     setupKnob(lfoLineAngleAmountKnob);
     setupKnob(lfoLineLengthAmountKnob);
+
+    setupButton(lfoLineAngleSelectButton);
+    setupButton(lfoLineLengthSelectButton);
 }
 
 void LineReaderComponent::paint(juce::Graphics& g)
@@ -53,8 +58,22 @@ void LineReaderComponent::resized()
     fb.items.add (juce::FlexItem (lineLengthKnob.flex()).withMinWidth(70.0f).withMinHeight(70.0f).withFlex(1.0));
     fb.items.add (juce::FlexItem (lineAngleKnob.flex()).withMinWidth(70.0f).withMinHeight(70.0f).withFlex(1.0));
     fb.items.add (juce::FlexItem (lineVolumeKnob.flex()).withMinWidth(70.0f).withMinHeight(70.0f).withFlex(1.0));
-    fb.items.add (juce::FlexItem (lfoLineAngleAmountKnob.flex()).withMinWidth(70.0f).withMinHeight(70.0f).withFlex(1.0));
-    fb.items.add (juce::FlexItem (lfoLineLengthAmountKnob.flex()).withMinWidth(70.0f).withMinHeight(70.0f).withFlex(1.0));
+
+    auto createLfoControlBox = [] (fxme::FxmeKnob& knob, fxme::FxmeButton& button)
+    {
+        juce::FlexBox box;
+        box.flexDirection = juce::FlexBox::Direction::column;
+        box.items.add (juce::FlexItem (knob.flex()).withFlex (3.0f));
+        box.items.add (juce::FlexItem (button.flex()).withFlex (1.0f));
+        return box;
+    };
+
+    auto lfoAngleBox = createLfoControlBox(lfoLineAngleAmountKnob, lfoLineAngleSelectButton);
+    fb.items.add (juce::FlexItem (lfoAngleBox)
+                    .withMinWidth(70.0f).withMinHeight(70.0f).withFlex(1.0));
+    auto lfoLengthBox = createLfoControlBox(lfoLineLengthAmountKnob, lfoLineLengthSelectButton);
+    fb.items.add (juce::FlexItem (lfoLengthBox)
+                    .withMinWidth(70.0f).withMinHeight(70.0f).withFlex(1.0));
 
     fb.performLayout (bounds.toFloat());
 }

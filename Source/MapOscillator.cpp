@@ -63,8 +63,8 @@ LineReader* MapOscillator::addLineReader()
 {
     // In a real application, you might want to notify listeners that a reader was added.
     auto* newReader = new LineReader();
-    if (lfo != nullptr)
-        newReader->setLFO (lfo);
+    if (lfos[0] != nullptr && lfos[1] != nullptr)
+        newReader->setLFOs (lfos[0], lfos[1]);
     readers.add (newReader);
     return newReader;
 }
@@ -73,8 +73,8 @@ CircleReader* MapOscillator::addCircleReader()
 {
     // In a real application, you might want to notify listeners that a reader was added.
     auto* newReader = new CircleReader();
-    if (lfo != nullptr)
-        newReader->setLFO (lfo);
+    if (lfos[0] != nullptr && lfos[1] != nullptr)
+        newReader->setLFOs (lfos[0], lfos[1]);
     readers.add (newReader);
     return newReader;
 }
@@ -87,9 +87,10 @@ void MapOscillator::removeReader (int index)
 int MapOscillator::getNumReaders() const { return readers.size(); }
 ReaderBase* MapOscillator::getReader (int index) { return readers[index]; }
 
-void MapOscillator::setLFO (LFO* lfoToUse)
+void MapOscillator::setLFOs (LFO* lfo1, LFO* lfo2)
 {
-    lfo = lfoToUse;
+    lfos[0] = lfo1;
+    lfos[1] = lfo2;
     for (auto* reader : readers)
-        reader->setLFO (lfo);
+        reader->setLFOs (lfo1, lfo2);
 }

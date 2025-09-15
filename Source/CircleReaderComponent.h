@@ -23,4 +23,6 @@ public:
 private:
     fxme::FxmeKnob cxKnob, cyKnob, rKnob, circleVolumeKnob,
                      lfoCxAmountKnob, lfoRadiusAmountKnob;
+
+    fxme::FxmeButton lfoCxSelectButton, lfoRadiusSelectButton;
 };

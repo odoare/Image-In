@@ -25,4 +25,6 @@ public:
 private:
     fxme::FxmeKnob lineCxKnob, lineCyKnob, lineLengthKnob, lineAngleKnob, lineVolumeKnob,
                      lfoLineAngleAmountKnob, lfoLineLengthAmountKnob;
+
+    fxme::FxmeButton lfoLineAngleSelectButton, lfoLineLengthSelectButton;
 };

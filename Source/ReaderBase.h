@@ -28,7 +28,7 @@ public:
     void setVolume (float newVolume);
     float getVolume() const;
 
-    void setLFO (LFO* newLfo);
+    void setLFOs (LFO* lfo1, LFO* lfo2);
 
 protected:
     float frequency = 440.0f;
@@ -38,8 +38,8 @@ protected:
     float phaseHigh = 0.0f;
     float volume = 1.0f;
     juce::LinearSmoothedValue<float> volumeSmoother;
-    LFO* lfo = nullptr;
-    std::atomic<float> lastLfoValue { 0.0f };
+    LFO* lfos[2] = { nullptr, nullptr };
+    std::atomic<float> lastLfoValues[2] = { { 0.0f }, { 0.0f } };
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ReaderBase)
 };

@@ -43,6 +43,7 @@ private:
 
     fxme::FxmeKnob frequencyKnob {audioProcessor.apvts, "Frequency", juce::Colours::red};
     fxme::FxmeKnob lfoFreqKnob {audioProcessor.apvts, "LFOFreq", juce::Colours::hotpink};
+    fxme::FxmeKnob lfo2FreqKnob {audioProcessor.apvts, "LFO2Freq", juce::Colours::hotpink};
 
     juce::GroupComponent globalControlsGroup;
 
