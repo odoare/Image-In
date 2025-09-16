@@ -9,6 +9,7 @@
 */
 
 #include "ReaderComponent.h"
+#include "PluginProcessor.h"
 
 ReaderComponent::ReaderComponent(MapSynthAudioProcessor& p) : audioProcessor(p)
 {

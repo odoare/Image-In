@@ -11,6 +11,10 @@
 #include <JuceHeader.h>
 #include "MapOscillator.h"
 #include "LFO.h"
+#include "SynthSound.h"
+
+// Let's define the number of voices for our synth
+#define NUM_VOICES 4
 
 //==============================================================================
 /**
@@ -55,14 +59,15 @@ public:
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
 
-    MapOscillator mapOscillator;
-    juce::AudioProcessorValueTreeState apvts{*this,nullptr,"Parameters",createParameters()};
+    ImageBuffer imageBuffer;
+    juce::AudioProcessorValueTreeState apvts {*this, nullptr, "Parameters", createParameters()};
     LFO lfo;
     LFO lfo2;
 
 private:
-
+    juce::Synthesiser synth;
     static juce::AudioProcessorValueTreeState::ParameterLayout createParameters();  
+
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MapSynthAudioProcessor)

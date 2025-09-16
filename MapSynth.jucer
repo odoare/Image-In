@@ -8,6 +8,9 @@
       <FILE id="BXxvYB" name="world.png" compile="0" resource="1" file="Source/Assets/world.png"/>
     </GROUP>
     <GROUP id="{633F86FB-EABC-E5B3-C698-8086F97CD0F3}" name="Source">
+      <FILE id="oQLqbS" name="SynthSound.h" compile="0" resource="0" file="Source/SynthSound.h"/>
+      <FILE id="rJSLuX" name="SynthVoice.cpp" compile="1" resource="0" file="Source/SynthVoice.cpp"/>
+      <FILE id="kOUxNo" name="SynthVoice.h" compile="0" resource="0" file="Source/SynthVoice.h"/>
       <FILE id="Pgsbs2" name="PluginProcessor.cpp" compile="1" resource="0"
             file="Source/PluginProcessor.cpp"/>
       <FILE id="bBFspA" name="PluginProcessor.h" compile="0" resource="0"

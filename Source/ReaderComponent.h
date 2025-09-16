@@ -11,7 +11,8 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include "PluginProcessor.h"
+
+class MapSynthAudioProcessor;
 
 class ReaderComponent : public juce::Component
 {

@@ -10,15 +10,15 @@
 
 #pragma once
 
-#include <JuceHeader.h>
+#include "Modulator.h"
 
-class LFO
+class LFO : public Modulator
 {
 public:
     LFO() = default;
     ~LFO() = default;
 
-    void prepareToPlay (double sr)
+    void prepareToPlay (double sr) override
     {
         sampleRate = sr;
         phase = 0.0f;
@@ -30,9 +30,11 @@ public:
     }
 
     // Returns a sine value between 0.0 and 1.0
-    float process()
+    float process() override
     {
         const float value = (juce::dsp::FastMathApproximations::sin (phase) + 1.0f) * 0.5f;
+
+        latestValue.store (value, std::memory_order_relaxed);
 
         phase += (frequency * juce::MathConstants<float>::twoPi) / (float)sampleRate;
         if (phase >= juce::MathConstants<float>::twoPi)
@@ -43,6 +45,5 @@ public:
 
 private:
     float frequency = 1.0f;
-    double sampleRate = 44100.0;
     float phase = 0.0f;
 };

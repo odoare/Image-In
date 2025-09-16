@@ -27,12 +27,8 @@ public:
     MapOscillator();
     ~MapOscillator();
 
-    void prepareToPlay (double sampleRate, int samplesPerBlock);
-    void processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages);
-
-    ImageBuffer& getImageBuffer() { return imageBuffer; }
-    const ImageBuffer& getImageBuffer() const { return imageBuffer; }
-
+    void prepareToPlay (double sampleRate);
+    void processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages, int startSample, int numSamples, ImageBuffer& imageBuffer);
     LineReader* addLineReader();
     CircleReader* addCircleReader();
     void removeReader (int index);
@@ -43,7 +39,6 @@ public:
     void setLFOs (LFO* lfo1, LFO* lfo2);
 
 private:
-    ImageBuffer imageBuffer;
     juce::OwnedArray<ReaderBase> readers;
     juce::AudioBuffer<float> readerBuffer;
     LFO* lfos[2] = { nullptr, nullptr };

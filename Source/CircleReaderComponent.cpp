@@ -9,6 +9,7 @@
 */
 
 #include "CircleReaderComponent.h"
+#include "PluginProcessor.h"
 
 CircleReaderComponent::CircleReaderComponent(MapSynthAudioProcessor& p)
     : ReaderComponent(p),

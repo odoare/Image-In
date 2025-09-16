@@ -164,7 +164,7 @@ void CircleReader::processBlock (const juce::Image& imageToRead, juce::AudioBuff
         finalSampleValue *= volumeSmoother.getNextValue();
 
         for (int channel = 0; channel < numChannels; ++channel)
-            buffer.setSample (channel, sample, finalSampleValue);
+            buffer.addSample (channel, sample, finalSampleValue);
 
         // Keep phase variables updated for state saving and re-syncing
         phase += phaseIncrement;

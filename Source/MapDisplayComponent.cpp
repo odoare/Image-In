@@ -9,9 +9,10 @@
 */
 
 #include "MapDisplayComponent.h"
+#include "PluginProcessor.h"
 
-MapDisplayComponent::MapDisplayComponent (MapOscillator& osc)
-    : oscillator (osc)
+MapDisplayComponent::MapDisplayComponent (MapSynthAudioProcessor& p)
+    : processor (p)
 {
     // Using OpenGL, so this component should be opaque.
     setOpaque (true);
@@ -20,7 +21,7 @@ MapDisplayComponent::MapDisplayComponent (MapOscillator& osc)
     openGLContext.attachTo (*this);
     openGLContext.setContinuousRepainting (false); // We'll trigger repaints from a timer
 
-    oscillator.getImageBuffer().addChangeListener (this);
+    processor.imageBuffer.addChangeListener (this);
 
     // We don't need to listen to the readers anymore, as we are repainting
     // on a timer for smooth animation.
@@ -42,7 +43,7 @@ MapDisplayComponent::MapDisplayComponent (MapOscillator& osc)
 
             if (file != juce::File{})
             {
-                if (! oscillator.getImageBuffer().setImage (file))
+                if (! processor.imageBuffer.setImage (file))
                 {
                     juce::AlertWindow::showMessageBoxAsync (juce::AlertWindow::WarningIcon, "Image Load Error", "Could not load the image file: " + file.getFileName());
                 }
@@ -55,7 +56,7 @@ MapDisplayComponent::~MapDisplayComponent()
 {
     stopTimer();
     openGLContext.detach();
-    oscillator.getImageBuffer().removeChangeListener (this);
+    processor.imageBuffer.removeChangeListener (this);
 }
 
 void MapDisplayComponent::paint (juce::Graphics& g)
@@ -97,7 +98,7 @@ void MapDisplayComponent::renderOpenGL()
     // Set the viewport to the square display area
     juce::gl::glViewport (displayArea.getX(), getHeight() - displayArea.getBottom(), displayArea.getWidth(), displayArea.getHeight());
     
-    auto image = oscillator.getImageBuffer().getImage();
+    auto image = processor.imageBuffer.getImage();
 
     if (image.isValid())
     {
@@ -128,28 +129,71 @@ void MapDisplayComponent::renderOpenGL()
     std::unique_ptr<juce::LowLevelGraphicsContext> glContext (createOpenGLGraphicsContext (openGLContext, getWidth(), getHeight()));
     juce::Graphics g (*glContext);
     
-    for (const auto* readerBase : oscillator.getReaders())
+    auto& apvts = processor.apvts;
+
+    // Get latest LFO values from the audio thread
+    const float lfo1Val = processor.lfo.getLatestValue();
+    const float lfo2Val = processor.lfo2.getLatestValue();
+
+    const float w = (float) displayArea.getWidth();
+    const float h = (float) displayArea.getHeight();
+
+    // Draw LineReader
     {
-        if (const auto* lineReader = dynamic_cast<const LineReader*> (readerBase))
-        {
-            const float w = (float) displayArea.getWidth();
-            const float h = (float) displayArea.getHeight();
-            g.setColour (juce::Colours::white);
-            g.drawLine (displayArea.getX() + lineReader->getX1() * w, displayArea.getY() + lineReader->getY1() * h,
-                        displayArea.getX() + lineReader->getX2() * w, displayArea.getY() + lineReader->getY2() * h, 2.0f);
-        }
-        else if (const auto* circleReader = dynamic_cast<const CircleReader*> (readerBase))
-        {
-            g.setColour (juce::Colours::orange);
-            const float w = (float) displayArea.getWidth();
-            const float h = (float) displayArea.getHeight();
-            const float radius = circleReader->getRadius() * juce::jmin (w, h);
-            g.drawEllipse (displayArea.getX() + circleReader->getCX() * w - radius,
-                           displayArea.getY() + circleReader->getCY() * h - radius,
-                           radius * 2.0f, radius * 2.0f, 2.0f);
-        }
+        const float cx_base = apvts.getRawParameterValue ("LineCX")->load();
+        const float cy_base = apvts.getRawParameterValue ("LineCY")->load();
+        const float length_base = apvts.getRawParameterValue ("LineLength")->load();
+        const float angle_base = apvts.getRawParameterValue ("LineAngle")->load();
+
+        // Get LFO modulation parameters
+        const float lfoAngleAmount = apvts.getRawParameterValue ("LFO_LineAngle_Amount")->load();
+        const bool  lfoAngleSelect = apvts.getRawParameterValue ("LFO_LineAngle_Select")->load() > 0.5f;
+        const float lfoLengthAmount = apvts.getRawParameterValue ("LFO_LineLength_Amount")->load();
+        const bool  lfoLengthSelect = apvts.getRawParameterValue ("LFO_LineLength_Select")->load() > 0.5f;
+
+        // Apply LFO modulation
+        const float lfoValForAngle = lfoAngleSelect ? lfo2Val : lfo1Val;
+        const float angle = angle_base * (1.0f + 2.0f * (lfoAngleAmount - 0.5f) * (lfoValForAngle - 0.5f));
+
+        const float lfoValForLength = lfoLengthSelect ? lfo2Val : lfo1Val;
+        const float length = length_base * (1.0f + 2.0f * (lfoLengthAmount - 0.5f) * (lfoValForLength - 0.5f));
+
+        const float halfLength = length * 0.5f;
+        const float dx = halfLength * std::cos (angle);
+        const float dy = halfLength * std::sin (angle);
+
+        const float x1 = cx_base - dx;
+        const float y1 = cy_base - dy;
+        const float x2 = cx_base + dx;
+        const float y2 = cy_base + dy;
+
+        g.setColour (juce::Colours::white);
+        g.drawLine (displayArea.getX() + x1 * w, displayArea.getY() + y1 * h,
+                    displayArea.getX() + x2 * w, displayArea.getY() + y2 * h, 2.0f);
     }
 
+    // Draw CircleReader
+    {
+        const float cx_base = apvts.getRawParameterValue ("CX")->load();
+        const float cy_base = apvts.getRawParameterValue ("CY")->load();
+        const float radius_base = apvts.getRawParameterValue ("R")->load();
+
+        const float lfoCxAmount = apvts.getRawParameterValue("LFO_CX_Amount")->load();
+        const bool lfoCxSelect = apvts.getRawParameterValue("LFO_CX_Select")->load() > 0.5f;
+        const float lfoValForCx = lfoCxSelect ? lfo2Val : lfo1Val;
+        const float cx = cx_base * (1.0f + 2.0f * (lfoCxAmount - 0.5f) * (lfoValForCx - 0.5f));
+
+        const float lfoRadiusAmount = apvts.getRawParameterValue("LFO_R_Amount")->load();
+        const bool lfoRadiusSelect = apvts.getRawParameterValue("LFO_R_Select")->load() > 0.5f;
+        const float lfoValForRadius = lfoRadiusSelect ? lfo2Val : lfo1Val;
+        const float radiusParam = radius_base * (1.0f + 2.0f * (lfoRadiusAmount - 0.5f) * (lfoValForRadius - 0.5f));
+        
+        g.setColour (juce::Colours::orange);
+        const float radius = radiusParam * juce::jmin (w, h);
+        g.drawEllipse (displayArea.getX() + cx * w - radius,
+                       displayArea.getY() + cy_base * h - radius,
+                       radius * 2.0f, radius * 2.0f, 2.0f);
+    }
 }
 
 void MapDisplayComponent::timerCallback()
@@ -159,7 +203,7 @@ void MapDisplayComponent::timerCallback()
 
 void MapDisplayComponent::changeListenerCallback (juce::ChangeBroadcaster* source)
 {
-    if (source == &oscillator.getImageBuffer())
+    if (source == &processor.imageBuffer)
     {
         // The image has changed. Invalidate our cached image so the texture
         // gets recreated on the next render pass.

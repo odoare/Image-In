@@ -19,18 +19,14 @@ MapOscillator::~MapOscillator()
 {
 }
 
-void MapOscillator::prepareToPlay (double sampleRate, int samplesPerBlock)
+void MapOscillator::prepareToPlay (double sampleRate)
 {
     for (auto* reader : readers)
         reader->prepareToPlay (sampleRate);
-
-    readerBuffer.setSize (2, samplesPerBlock);
 }
 
-void MapOscillator::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& /*midiMessages*/)
+void MapOscillator::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& /*midiMessages*/, int startSample, int numSamples, ImageBuffer& imageBuffer)
 {
-    buffer.clear();
-
     if (readers.isEmpty())
         return;
 
@@ -38,24 +34,27 @@ void MapOscillator::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBu
     if (! image.isValid())
         return;
 
-    auto numSamples = buffer.getNumSamples();
     auto numChannels = buffer.getNumChannels();
 
+    // If there's only one reader, we can process it directly.
+    // Since the reader now uses addSample, this will correctly add its output.
     if (readers.size() == 1)
     {
-        readers[0]->processBlock (image, buffer, 0, numSamples);
+        readers[0]->processBlock (image, buffer, startSample, numSamples);
     }
     else
     {
-        readerBuffer.setSize (numChannels, numSamples, false, true, false);
+        // For multiple readers, we use an intermediate buffer to sum their outputs.
+        readerBuffer.setSize (numChannels, numSamples, false, true, true);
+        readerBuffer.clear();
 
+        // Each reader adds its output to the intermediate buffer.
         for (auto* reader : readers)
-        {
             reader->processBlock (image, readerBuffer, 0, numSamples);
 
-            for (int channel = 0; channel < numChannels; ++channel)
-                buffer.addFrom (channel, 0, readerBuffer, channel, 0, numSamples);
-        }
+        // Finally, add the summed output to the main output buffer.
+        for (int channel = 0; channel < numChannels; ++channel)
+            buffer.addFrom (channel, startSample, readerBuffer, channel, 0, numSamples);
     }
 }
 

@@ -9,6 +9,7 @@
 */
 
 #include "LineReaderComponent.h"
+#include "PluginProcessor.h"
 
 LineReaderComponent::LineReaderComponent(MapSynthAudioProcessor& p)
     : ReaderComponent(p),

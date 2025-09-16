@@ -8,6 +8,8 @@
 
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
+#include "SynthSound.h"
+#include "SynthVoice.h"
 
 //==============================================================================
 MapSynthAudioProcessor::MapSynthAudioProcessor()
@@ -20,9 +22,13 @@ MapSynthAudioProcessor::MapSynthAudioProcessor()
                      #endif
                        )
 {
-    mapOscillator.getImageBuffer().setImage (juce::ImageCache::getFromMemory (BinaryData::world_png, BinaryData::world_pngSize));
-    mapOscillator.addLineReader();
-    mapOscillator.addCircleReader();
+    imageBuffer.setImage (juce::ImageCache::getFromMemory (BinaryData::world_png, BinaryData::world_pngSize));
+
+    synth.addSound (new SynthSound());
+    for (int i = 0; i < NUM_VOICES; ++i)
+    {
+        synth.addVoice (new SynthVoice (*this));
+    }
 }
 
 MapSynthAudioProcessor::~MapSynthAudioProcessor()
@@ -94,10 +100,10 @@ void MapSynthAudioProcessor::changeProgramName (int index, const juce::String& n
 //==============================================================================
 void MapSynthAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
-    mapOscillator.prepareToPlay (sampleRate, samplesPerBlock);
+    synth.setCurrentPlaybackSampleRate (sampleRate);
+
     lfo.prepareToPlay (sampleRate);
     lfo2.prepareToPlay (sampleRate);
-    mapOscillator.setLFOs (&lfo, &lfo2);
 }
 
 void MapSynthAudioProcessor::releaseResources()
@@ -139,41 +145,8 @@ void MapSynthAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
     lfo.setFrequency (apvts.getRawParameterValue ("LFOFreq")->load());
     lfo2.setFrequency (apvts.getRawParameterValue ("LFO2Freq")->load());
 
-    for (auto* readerBase : mapOscillator.getReaders())
-    {
-        if (auto* lineReader = dynamic_cast<LineReader*> (readerBase))
-        {
-            lineReader->setCentre (apvts.getRawParameterValue ("LineCX")->load(),
-                                   apvts.getRawParameterValue ("LineCY")->load());
-            lineReader->setLength (apvts.getRawParameterValue ("LineLength")->load());
-            lineReader->setAngle (apvts.getRawParameterValue ("LineAngle")->load());
-            lineReader->setFrequency (apvts.getRawParameterValue ("Frequency")->load());
-            lineReader->setVolume (apvts.getRawParameterValue ("LineVolume")->load());
-
-            lineReader->lfoAngleAmount = apvts.getRawParameterValue ("LFO_LineAngle_Amount")->load();
-            lineReader->lfoLengthAmount = apvts.getRawParameterValue ("LFO_LineLength_Amount")->load();
-
-            lineReader->lfoAngleSelect = apvts.getRawParameterValue ("LFO_LineAngle_Select")->load();
-            lineReader->lfoLengthSelect = apvts.getRawParameterValue ("LFO_LineLength_Select")->load();
-        }
-        else if (auto* circleReader = dynamic_cast<CircleReader*> (readerBase))
-        {
-            circleReader->setCentre (apvts.getRawParameterValue ("CX")->load(),
-                                     apvts.getRawParameterValue ("CY")->load());
-            circleReader->setRadius (apvts.getRawParameterValue ("R")->load());
-            circleReader->setFrequency (apvts.getRawParameterValue ("Frequency")->load());
-            circleReader->setVolume (apvts.getRawParameterValue ("CircleVolume")->load());
-
-            circleReader->lfoCxAmount = apvts.getRawParameterValue ("LFO_CX_Amount")->load();
-            circleReader->lfoRadiusAmount = apvts.getRawParameterValue ("LFO_R_Amount")->load();
-
-            circleReader->lfoCxSelect = apvts.getRawParameterValue ("LFO_CX_Select")->load();
-            circleReader->lfoRadiusSelect = apvts.getRawParameterValue ("LFO_R_Select")->load();
-        }
-    }
-
-    // The mapOscillator.processBlock will clear the buffer, so no need to do it here.
-    mapOscillator.processBlock (buffer, midiMessages);
+    buffer.clear();
+    synth.renderNextBlock (buffer, midiMessages, 0, buffer.getNumSamples());
 }
 
 //==============================================================================
@@ -195,7 +168,7 @@ void MapSynthAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
     std::unique_ptr<juce::XmlElement> xml (state.createXml());
 
     // Get the source file for the current image
-    auto imageFile = mapOscillator.getImageBuffer().getFile();
+    auto imageFile = imageBuffer.getFile();
 
     if (imageFile.existsAsFile())
     {
@@ -205,7 +178,7 @@ void MapSynthAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
     else
     {
         // Otherwise (e.g. for the default image), save the raw image data as a fallback
-        auto image = mapOscillator.getImageBuffer().getImage();
+        auto image = imageBuffer.getImage();
         if (image.isValid())
         {
             juce::MemoryOutputStream memoryStream;
@@ -234,7 +207,7 @@ void MapSynthAudioProcessor::setStateInformation (const void* data, int sizeInBy
             if (xmlState->hasAttribute ("imagePath"))
             {
                 auto imagePath = xmlState->getStringAttribute ("imagePath");
-                if (! mapOscillator.getImageBuffer().setImage (juce::File (imagePath)))
+                if (! imageBuffer.setImage (juce::File (imagePath)))
                 {
                     // If loading from path fails, do nothing, keep current/default image.
                     // You could show an error message here if you wanted.
@@ -248,7 +221,7 @@ void MapSynthAudioProcessor::setStateInformation (const void* data, int sizeInBy
                 if (imageData.fromBase64Encoding (base64Data))
                 {
                     juce::Image loadedImage = juce::ImageFileFormat::loadFrom (imageData.getData(), imageData.getSize());
-                    mapOscillator.getImageBuffer().setImage (loadedImage);
+                    imageBuffer.setImage (loadedImage);
                 }
             }
 
@@ -274,7 +247,6 @@ juce::AudioProcessorValueTreeState::ParameterLayout MapSynthAudioProcessor::crea
     layout.add(std::make_unique<juce::AudioParameterFloat>("LineCY", "LineCY", juce::NormalisableRange<float>(0.f, 1.f, .01f, 1.f), 0.5f));
     layout.add(std::make_unique<juce::AudioParameterFloat>("LineLength", "LineLength", juce::NormalisableRange<float>(0.f, 1.f, .01f, 1.f), 0.6f));
     layout.add(std::make_unique<juce::AudioParameterFloat>("LineAngle", "LineAngle", juce::NormalisableRange<float>(0.f, juce::MathConstants<float>::twoPi, .01f, 1.f), 0.0f));    
-    layout.add(std::make_unique<juce::AudioParameterFloat>("Frequency","Frequency",juce::NormalisableRange<float>(20.f,1000.f,1.f,1.f),110.f));
     layout.add(std::make_unique<juce::AudioParameterFloat>("CX", "CX", juce::NormalisableRange<float>(0.f, 1.f, .01f, 1.f), 0.5f));
     layout.add(std::make_unique<juce::AudioParameterFloat>("CY", "CY", juce::NormalisableRange<float>(0.f, 1.f, .01f, 1.f), 0.5f));
     layout.add(std::make_unique<juce::AudioParameterFloat>("R", "R", juce::NormalisableRange<float>(0.f, 0.5f, .01f, 1.f), 0.25f));

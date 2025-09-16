@@ -10,8 +10,9 @@
 
 #pragma once
 
-#include "MapOscillator.h"
 #include <juce_opengl/juce_opengl.h>
+
+class MapSynthAudioProcessor;
 
 /**
     This component displays the image from an ImageBuffer and overlays the
@@ -23,7 +24,7 @@ class MapDisplayComponent  : public juce::Component,
                              private juce::Timer
 {
 public:
-    MapDisplayComponent (MapOscillator& osc);
+    MapDisplayComponent (MapSynthAudioProcessor& p);
     ~MapDisplayComponent() override;
 
     void paint (juce::Graphics& g) override;
@@ -39,7 +40,7 @@ private:
 
     juce::Rectangle<int> displayArea;
 
-    MapOscillator& oscillator;
+    MapSynthAudioProcessor& processor;
     juce::OpenGLContext openGLContext;
     
     juce::Image lastImage;

@@ -9,12 +9,12 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include "PluginProcessor.h"
+// #include "PluginProcessor.h" // We will forward-declare to break the include cycle
+class MapSynthAudioProcessor;
+
 #include "MapDisplayComponent.h"
 #include "LineReaderComponent.h"
 #include "CircleReaderComponent.h"
-
-#define COLOUR juce::Colour::fromRGB(100, 100, 250)
 
 //==============================================================================
 /**
@@ -40,10 +40,8 @@ private:
 
     LineReaderComponent lineReaderComponent;
     CircleReaderComponent circleReaderComponent;
-
-    fxme::FxmeKnob frequencyKnob {audioProcessor.apvts, "Frequency", juce::Colours::red};
-    fxme::FxmeKnob lfoFreqKnob {audioProcessor.apvts, "LFOFreq", juce::Colours::hotpink};
-    fxme::FxmeKnob lfo2FreqKnob {audioProcessor.apvts, "LFO2Freq", juce::Colours::hotpink};
+    fxme::FxmeKnob lfoFreqKnob;
+    fxme::FxmeKnob lfo2FreqKnob;
 
     juce::GroupComponent globalControlsGroup;
 

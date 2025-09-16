@@ -11,8 +11,13 @@
 
 //==============================================================================
 MapSynthAudioProcessorEditor::MapSynthAudioProcessorEditor (MapSynthAudioProcessor& p)
-    : AudioProcessorEditor (&p), audioProcessor (p), mapDisplayComponent (p.mapOscillator),
-      lineReaderComponent(p), circleReaderComponent(p)
+    : AudioProcessorEditor (&p), 
+      audioProcessor (p), 
+      mapDisplayComponent (p),
+      lineReaderComponent(p), 
+      circleReaderComponent(p),
+      lfoFreqKnob (p.apvts, "LFOFreq", juce::Colours::hotpink),
+      lfo2FreqKnob (p.apvts, "LFO2Freq", juce::Colours::hotpink)
 {
     addAndMakeVisible(mapDisplayComponent);
     addAndMakeVisible(lineReaderComponent);
@@ -20,9 +25,6 @@ MapSynthAudioProcessorEditor::MapSynthAudioProcessorEditor (MapSynthAudioProcess
     
     addAndMakeVisible(globalControlsGroup);
     globalControlsGroup.setText("Global / LFO");
-
-    addAndMakeVisible (frequencyKnob.slider);
-    frequencyKnob.slider.setLookAndFeel (&fxmeLookAndFeel);
 
     addAndMakeVisible (lfoFreqKnob.slider);
     lfoFreqKnob.slider.setLookAndFeel (&fxmeLookAndFeel);
@@ -77,7 +79,6 @@ void MapSynthAudioProcessorEditor::resized()
 
     juce::FlexBox knobBox;
     knobBox.flexDirection = juce::FlexBox::Direction::row;
-    knobBox.items.add (juce::FlexItem (frequencyKnob.flex()).withFlex (1.0));
     knobBox.items.add (juce::FlexItem (lfoFreqKnob.flex()).withFlex (1.0));
     knobBox.items.add (juce::FlexItem (lfo2FreqKnob.flex()).withFlex (1.0));
 

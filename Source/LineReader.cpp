@@ -210,7 +210,7 @@ void LineReader::processBlock (const juce::Image& imageToRead, juce::AudioBuffer
         finalSampleValue *= volumeSmoother.getNextValue();
 
         for (int channel = 0; channel < numChannels; ++channel)
-            buffer.setSample (channel, sample, finalSampleValue);
+            buffer.addSample (channel, sample, finalSampleValue);
 
         phase += phaseIncrement;
         phase = std::fmod (phase, 1.0f);
