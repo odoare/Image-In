@@ -47,10 +47,32 @@ void CircleReader::setRadius (float newRadius)
     rs.setTargetValue (radius.load());
 }
 
+void CircleReader::updateParameters (juce::AudioProcessorValueTreeState& apvts)
+{
+    setCentre (apvts.getRawParameterValue ("CX")->load(),
+               apvts.getRawParameterValue ("CY")->load());
+    setRadius (apvts.getRawParameterValue ("R")->load());
+    setVolume (apvts.getRawParameterValue ("CircleVolume")->load());
+
+    lfoCxAmount = apvts.getRawParameterValue ("LFO_CX_Amount")->load();
+    lfoCyAmount = apvts.getRawParameterValue ("LFO_CY_Amount")->load();
+    lfoRadiusAmount = apvts.getRawParameterValue ("LFO_R_Amount")->load();
+
+    lfoCxSelect = apvts.getRawParameterValue ("LFO_CX_Select")->load();
+    lfoCySelect = apvts.getRawParameterValue ("LFO_CY_Select")->load();
+    lfoRadiusSelect = apvts.getRawParameterValue ("LFO_R_Select")->load();
+}
+
 float CircleReader::getCX() const
 {
     const float lfoVal = lastLfoValues[lfoCxSelect.load() ? 1 : 0].load();
     return cx.load() * (1.0f + 2.0f * (lfoCxAmount.load() - 0.5f) * (lfoVal - 0.5f));
+}
+
+float CircleReader::getCY() const
+{
+    const float lfoVal = lastLfoValues[lfoCySelect.load() ? 1 : 0].load();
+    return cy.load() * (1.0f + 2.0f * (lfoCyAmount.load() - 0.5f) * (lfoVal - 0.5f));
 }
 
 float CircleReader::getRadius() const
@@ -59,7 +81,7 @@ float CircleReader::getRadius() const
     return radius.load() * (1.0f + 2.0f * (lfoRadiusAmount.load() - 0.5f) * (lfoVal - 0.5f));
 }
 
-void CircleReader::processBlock (const juce::Image& imageToRead, juce::AudioBuffer<float>& buffer, int startSample, int numSamples)
+void CircleReader::processBlock (const juce::Image& imageToRead, juce::AudioBuffer<float>& buffer, int startSample, int numSamples, const juce::AudioBuffer<float>& lfoBuffer)
 {
     if (! imageToRead.isValid())
     {
@@ -85,19 +107,20 @@ void CircleReader::processBlock (const juce::Image& imageToRead, juce::AudioBuff
     const float imageHeight = (float) (bitmapData.height - 1);
     const int numChannels = buffer.getNumChannels();
 
+    const auto* lfo1Data = lfoBuffer.getReadPointer (0);
+    const auto* lfo2Data = lfoBuffer.getReadPointer (1);
+
     for (int sample = startSample; sample < startSample + numSamples; ++sample)
     {
-        float lfoValues[2] = { 0.0f, 0.0f };
-        if (lfos[0] != nullptr)
-            lfoValues[0] = lfos[0]->process();
-        if (lfos[1] != nullptr)
-            lfoValues[1] = lfos[1]->process();
+        float lfoValues[2] = { lfo1Data[sample], lfo2Data[sample] };
 
         const float lfoValCx = lfoValues[lfoCxSelect.load() ? 1 : 0];
         float cx_sv = cxs.getNextValue();
         cx_sv *= (1.0f + 2.0f * (lfoCxAmount.load() - 0.5f) * (lfoValCx - 0.5f));
 
-        const float cy_sv = cys.getNextValue();
+        const float lfoValCy = lfoValues[lfoCySelect.load() ? 1 : 0];
+        float cy_sv = cys.getNextValue();
+        cy_sv *= (1.0f + 2.0f * (lfoCyAmount.load() - 0.5f) * (lfoValCy - 0.5f));
 
         const float lfoValRadius = lfoValues[lfoRadiusSelect.load() ? 1 : 0];
         float r_sv = rs.getNextValue();

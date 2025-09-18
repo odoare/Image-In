@@ -70,7 +70,7 @@ bool MapSynthAudioProcessor::isMidiEffect() const
 
 double MapSynthAudioProcessor::getTailLengthSeconds() const
 {
-    return 0.0;
+    return 5.0;
 }
 
 int MapSynthAudioProcessor::getNumPrograms()
@@ -101,6 +101,8 @@ void MapSynthAudioProcessor::changeProgramName (int index, const juce::String& n
 void MapSynthAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
     synth.setCurrentPlaybackSampleRate (sampleRate);
+
+    lfoBuffer.setSize (2, samplesPerBlock);
 
     lfo.prepareToPlay (sampleRate);
     lfo2.prepareToPlay (sampleRate);
@@ -144,6 +146,15 @@ void MapSynthAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
 
     lfo.setFrequency (apvts.getRawParameterValue ("LFOFreq")->load());
     lfo2.setFrequency (apvts.getRawParameterValue ("LFO2Freq")->load());
+
+    // Process LFOs for the block
+    auto* lfo1Data = lfoBuffer.getWritePointer (0);
+    auto* lfo2Data = lfoBuffer.getWritePointer (1);
+    for (int i = 0; i < buffer.getNumSamples(); ++i)
+    {
+        lfo1Data[i] = lfo.process();
+        lfo2Data[i] = lfo2.process();
+    }
 
     buffer.clear();
     synth.renderNextBlock (buffer, midiMessages, 0, buffer.getNumSamples());
@@ -255,14 +266,28 @@ juce::AudioProcessorValueTreeState::ParameterLayout MapSynthAudioProcessor::crea
     layout.add(std::make_unique<juce::AudioParameterFloat>("LFOFreq", "LFO 1 Freq", juce::NormalisableRange<float>(0.01f, 200.0f, 0.01f, 0.3f), 1.0f));
     layout.add(std::make_unique<juce::AudioParameterFloat>("LFO2Freq", "LFO 2 Freq", juce::NormalisableRange<float>(0.01f, 200.0f, 0.01f, 0.3f), 1.0f));
 
+    layout.add(std::make_unique<juce::AudioParameterFloat>("Attack", "Attack", juce::NormalisableRange<float>(0.0f, 5.0f, 0.01f, 0.5f), 0.1f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>("Decay", "Decay", juce::NormalisableRange<float>(0.0f, 5.0f, 0.01f, 0.5f), 0.1f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>("Sustain", "Sustain", juce::NormalisableRange<float>(0.0f, 1.0f, 0.01f), 1.0f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>("Release", "Release", juce::NormalisableRange<float>(0.0f, 5.0f, 0.01f, 0.5f), 0.4f));
+
+    layout.add(std::make_unique<juce::AudioParameterFloat>("LFO_LineCX_Amount", "LFO->LineCX", juce::NormalisableRange<float>(0.f, 1.f, .01f, 1.f), 0.5f));
+    layout.add(std::make_unique<juce::AudioParameterBool>("LFO_LineCX_Select", "LFO Select", false));
+
+    layout.add(std::make_unique<juce::AudioParameterFloat>("LFO_LineCY_Amount", "LFO->LineCY", juce::NormalisableRange<float>(0.f, 1.f, .01f, 1.f), 0.5f));
+    layout.add(std::make_unique<juce::AudioParameterBool>("LFO_LineCY_Select", "LFO Select", false));
+
     layout.add(std::make_unique<juce::AudioParameterFloat>("LFO_LineAngle_Amount", "LFO->Angle", juce::NormalisableRange<float>(0.f, 1.f, .01f, 1.f), 0.5f));
     layout.add(std::make_unique<juce::AudioParameterBool>("LFO_LineAngle_Select", "LFO Select", false));
 
     layout.add(std::make_unique<juce::AudioParameterFloat>("LFO_LineLength_Amount", "LFO->Length", juce::NormalisableRange<float>(0.f, 1.f, .01f, 1.f), 0.5f));
     layout.add(std::make_unique<juce::AudioParameterBool>("LFO_LineLength_Select", "LFO Select", false));
 
-    layout.add(std::make_unique<juce::AudioParameterFloat>("LFO_CX_Amount", "LFO->CX", juce::NormalisableRange<float>(0.f, 1.f, .01f, 1.f), 0.5f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>("LFO_CX_Amount", "LFO->CircleCX", juce::NormalisableRange<float>(0.f, 1.f, .01f, 1.f), 0.5f));
     layout.add(std::make_unique<juce::AudioParameterBool>("LFO_CX_Select", "LFO Select", false));
+
+    layout.add(std::make_unique<juce::AudioParameterFloat>("LFO_CY_Amount", "LFO->CircleCY", juce::NormalisableRange<float>(0.f, 1.f, .01f, 1.f), 0.5f));
+    layout.add(std::make_unique<juce::AudioParameterBool>("LFO_CY_Select", "LFO Select", false));
 
     layout.add(std::make_unique<juce::AudioParameterFloat>("LFO_R_Amount", "LFO->Radius", juce::NormalisableRange<float>(0.f, 1.f, .01f, 1.f), 0.5f));
     layout.add(std::make_unique<juce::AudioParameterBool>("LFO_R_Select", "LFO Select", false));

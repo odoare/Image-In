@@ -18,8 +18,10 @@ CircleReaderComponent::CircleReaderComponent(MapSynthAudioProcessor& p)
       rKnob(p.apvts, "R", juce::Colours::orange),
       circleVolumeKnob(p.apvts, "CircleVolume", juce::Colours::orange),
       lfoCxAmountKnob(p.apvts, "LFO_CX_Amount", juce::Colours::hotpink),
+      lfoCyAmountKnob(p.apvts, "LFO_CY_Amount", juce::Colours::hotpink),
       lfoRadiusAmountKnob(p.apvts, "LFO_R_Amount", juce::Colours::hotpink),
       lfoCxSelectButton(p.apvts, "LFO_CX_Select", juce::Colours::hotpink),
+      lfoCySelectButton(p.apvts, "LFO_CY_Select", juce::Colours::hotpink),
       lfoRadiusSelectButton(p.apvts, "LFO_R_Select", juce::Colours::hotpink)
 {
     setupKnob(cxKnob);
@@ -28,9 +30,11 @@ CircleReaderComponent::CircleReaderComponent(MapSynthAudioProcessor& p)
     setupKnob(circleVolumeKnob);
 
     setupKnob(lfoCxAmountKnob);
+    setupKnob(lfoCyAmountKnob);
     setupKnob(lfoRadiusAmountKnob);
 
     setupButton(lfoCxSelectButton);
+    setupButton(lfoCySelectButton);
     setupButton(lfoRadiusSelectButton);
 }
 
@@ -69,6 +73,11 @@ void CircleReaderComponent::resized()
     auto lfoCxBox = createLfoControlBox(lfoCxAmountKnob, lfoCxSelectButton);
     fb.items.add (juce::FlexItem (lfoCxBox)
                     .withMinWidth(70.0f).withMinHeight(70.0f).withFlex(1.0));
+
+    auto lfoCyBox = createLfoControlBox(lfoCyAmountKnob, lfoCySelectButton);
+    fb.items.add (juce::FlexItem (lfoCyBox)
+                    .withMinWidth(70.0f).withMinHeight(70.0f).withFlex(1.0));
+
     auto lfoRadiusBox = createLfoControlBox(lfoRadiusAmountKnob, lfoRadiusSelectButton);
     fb.items.add (juce::FlexItem (lfoRadiusBox)
                     .withMinWidth(70.0f).withMinHeight(70.0f).withFlex(1.0));

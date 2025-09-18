@@ -18,20 +18,24 @@ public:
     CircleReader();
     ~CircleReader() override;
 
-    void processBlock (const juce::Image& image, juce::AudioBuffer<float>& buffer, int startSample, int numSamples) override;
+    void processBlock (const juce::Image& image, juce::AudioBuffer<float>& buffer, int startSample, int numSamples, const juce::AudioBuffer<float>& lfoBuffer) override;
 
     void setCentre (float newCx, float newCy);
     void setRadius (float newRadius);
 
     float getCX() const;
-    float getCY() const { return cy.load(); }
+    float getCY() const;
     float getRadius() const;
+
+    void updateParameters (juce::AudioProcessorValueTreeState& apvts) override;
 
 public:
     std::atomic<float> lfoCxAmount { 0.5f };
+    std::atomic<float> lfoCyAmount { 0.5f };
     std::atomic<float> lfoRadiusAmount { 0.5f };
 
     std::atomic<bool> lfoCxSelect { false };
+    std::atomic<bool> lfoCySelect { false };
     std::atomic<bool> lfoRadiusSelect { false };
 
 private:

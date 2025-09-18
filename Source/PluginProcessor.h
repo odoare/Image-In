@@ -63,6 +63,7 @@ public:
     juce::AudioProcessorValueTreeState apvts {*this, nullptr, "Parameters", createParameters()};
     LFO lfo;
     LFO lfo2;
+    juce::AudioBuffer<float> lfoBuffer;
 
 private:
     juce::Synthesiser synth;

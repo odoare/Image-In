@@ -25,7 +25,7 @@ MapDisplayComponent::MapDisplayComponent (MapSynthAudioProcessor& p)
 
     // We don't need to listen to the readers anymore, as we are repainting
     // on a timer for smooth animation.
-    startTimerHz (60);
+    startTimerHz (30);
 
     addAndMakeVisible (loadImageButton);
     loadImageButton.setButtonText ("Load Image");
@@ -146,12 +146,22 @@ void MapDisplayComponent::renderOpenGL()
         const float angle_base = apvts.getRawParameterValue ("LineAngle")->load();
 
         // Get LFO modulation parameters
+        const float lfoCxAmount = apvts.getRawParameterValue ("LFO_LineCX_Amount")->load();
+        const bool  lfoCxSelect = apvts.getRawParameterValue ("LFO_LineCX_Select")->load() > 0.5f;
+        const float lfoCyAmount = apvts.getRawParameterValue ("LFO_LineCY_Amount")->load();
+        const bool  lfoCySelect = apvts.getRawParameterValue ("LFO_LineCY_Select")->load() > 0.5f;
         const float lfoAngleAmount = apvts.getRawParameterValue ("LFO_LineAngle_Amount")->load();
         const bool  lfoAngleSelect = apvts.getRawParameterValue ("LFO_LineAngle_Select")->load() > 0.5f;
         const float lfoLengthAmount = apvts.getRawParameterValue ("LFO_LineLength_Amount")->load();
         const bool  lfoLengthSelect = apvts.getRawParameterValue ("LFO_LineLength_Select")->load() > 0.5f;
 
         // Apply LFO modulation
+        const float lfoValForCx = lfoCxSelect ? lfo2Val : lfo1Val;
+        const float cx = cx_base * (1.0f + 2.0f * (lfoCxAmount - 0.5f) * (lfoValForCx - 0.5f));
+
+        const float lfoValForCy = lfoCySelect ? lfo2Val : lfo1Val;
+        const float cy = cy_base * (1.0f + 2.0f * (lfoCyAmount - 0.5f) * (lfoValForCy - 0.5f));
+
         const float lfoValForAngle = lfoAngleSelect ? lfo2Val : lfo1Val;
         const float angle = angle_base * (1.0f + 2.0f * (lfoAngleAmount - 0.5f) * (lfoValForAngle - 0.5f));
 
@@ -162,10 +172,10 @@ void MapDisplayComponent::renderOpenGL()
         const float dx = halfLength * std::cos (angle);
         const float dy = halfLength * std::sin (angle);
 
-        const float x1 = cx_base - dx;
-        const float y1 = cy_base - dy;
-        const float x2 = cx_base + dx;
-        const float y2 = cy_base + dy;
+        const float x1 = cx - dx;
+        const float y1 = cy - dy;
+        const float x2 = cx + dx;
+        const float y2 = cy + dy;
 
         g.setColour (juce::Colours::white);
         g.drawLine (displayArea.getX() + x1 * w, displayArea.getY() + y1 * h,
@@ -183,6 +193,11 @@ void MapDisplayComponent::renderOpenGL()
         const float lfoValForCx = lfoCxSelect ? lfo2Val : lfo1Val;
         const float cx = cx_base * (1.0f + 2.0f * (lfoCxAmount - 0.5f) * (lfoValForCx - 0.5f));
 
+        const float lfoCyAmount = apvts.getRawParameterValue("LFO_CY_Amount")->load();
+        const bool lfoCySelect = apvts.getRawParameterValue("LFO_CY_Select")->load() > 0.5f;
+        const float lfoValForCy = lfoCySelect ? lfo2Val : lfo1Val;
+        const float cy = cy_base * (1.0f + 2.0f * (lfoCyAmount - 0.5f) * (lfoValForCy - 0.5f));
+
         const float lfoRadiusAmount = apvts.getRawParameterValue("LFO_R_Amount")->load();
         const bool lfoRadiusSelect = apvts.getRawParameterValue("LFO_R_Select")->load() > 0.5f;
         const float lfoValForRadius = lfoRadiusSelect ? lfo2Val : lfo1Val;
@@ -191,7 +206,7 @@ void MapDisplayComponent::renderOpenGL()
         g.setColour (juce::Colours::orange);
         const float radius = radiusParam * juce::jmin (w, h);
         g.drawEllipse (displayArea.getX() + cx * w - radius,
-                       displayArea.getY() + cy_base * h - radius,
+                       displayArea.getY() + cy * h - radius,
                        radius * 2.0f, radius * 2.0f, 2.0f);
     }
 }

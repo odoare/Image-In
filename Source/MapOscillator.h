@@ -28,7 +28,7 @@ public:
     ~MapOscillator();
 
     void prepareToPlay (double sampleRate);
-    void processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages, int startSample, int numSamples, ImageBuffer& imageBuffer);
+    void processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages, int startSample, int numSamples, ImageBuffer& imageBuffer, const juce::AudioBuffer<float>& lfoBuffer);
     LineReader* addLineReader();
     CircleReader* addCircleReader();
     void removeReader (int index);
@@ -36,12 +36,9 @@ public:
     ReaderBase* getReader (int index);
     const juce::OwnedArray<ReaderBase>& getReaders() const { return readers; }
 
-    void setLFOs (LFO* lfo1, LFO* lfo2);
-
 private:
     juce::OwnedArray<ReaderBase> readers;
     juce::AudioBuffer<float> readerBuffer;
-    LFO* lfos[2] = { nullptr, nullptr };
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MapOscillator)
 };

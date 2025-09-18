@@ -25,7 +25,7 @@ void MapOscillator::prepareToPlay (double sampleRate)
         reader->prepareToPlay (sampleRate);
 }
 
-void MapOscillator::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& /*midiMessages*/, int startSample, int numSamples, ImageBuffer& imageBuffer)
+void MapOscillator::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& /*midiMessages*/, int startSample, int numSamples, ImageBuffer& imageBuffer, const juce::AudioBuffer<float>& lfoBuffer)
 {
     if (readers.isEmpty())
         return;
@@ -40,7 +40,7 @@ void MapOscillator::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBu
     // Since the reader now uses addSample, this will correctly add its output.
     if (readers.size() == 1)
     {
-        readers[0]->processBlock (image, buffer, startSample, numSamples);
+        readers[0]->processBlock (image, buffer, startSample, numSamples, lfoBuffer);
     }
     else
     {
@@ -50,7 +50,7 @@ void MapOscillator::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBu
 
         // Each reader adds its output to the intermediate buffer.
         for (auto* reader : readers)
-            reader->processBlock (image, readerBuffer, 0, numSamples);
+            reader->processBlock (image, readerBuffer, 0, numSamples, lfoBuffer);
 
         // Finally, add the summed output to the main output buffer.
         for (int channel = 0; channel < numChannels; ++channel)
@@ -62,8 +62,6 @@ LineReader* MapOscillator::addLineReader()
 {
     // In a real application, you might want to notify listeners that a reader was added.
     auto* newReader = new LineReader();
-    if (lfos[0] != nullptr && lfos[1] != nullptr)
-        newReader->setLFOs (lfos[0], lfos[1]);
     readers.add (newReader);
     return newReader;
 }
@@ -72,8 +70,6 @@ CircleReader* MapOscillator::addCircleReader()
 {
     // In a real application, you might want to notify listeners that a reader was added.
     auto* newReader = new CircleReader();
-    if (lfos[0] != nullptr && lfos[1] != nullptr)
-        newReader->setLFOs (lfos[0], lfos[1]);
     readers.add (newReader);
     return newReader;
 }
@@ -85,11 +81,3 @@ void MapOscillator::removeReader (int index)
 
 int MapOscillator::getNumReaders() const { return readers.size(); }
 ReaderBase* MapOscillator::getReader (int index) { return readers[index]; }
-
-void MapOscillator::setLFOs (LFO* lfo1, LFO* lfo2)
-{
-    lfos[0] = lfo1;
-    lfos[1] = lfo2;
-    for (auto* reader : readers)
-        reader->setLFOs (lfo1, lfo2);
-}

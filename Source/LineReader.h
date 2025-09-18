@@ -22,7 +22,7 @@ public:
     LineReader();
     ~LineReader() override;
 
-    void processBlock (const juce::Image& image, juce::AudioBuffer<float>& buffer, int startSample, int numSamples) override;
+    void processBlock (const juce::Image& image, juce::AudioBuffer<float>& buffer, int startSample, int numSamples, const juce::AudioBuffer<float>& lfoBuffer) override;
 
     void setCentre (float newCx, float newCy);
     void setLength (float newLength);
@@ -33,8 +33,12 @@ public:
     float getX2() const;
     float getY2() const;
 
+    void updateParameters (juce::AudioProcessorValueTreeState& apvts) override;
+
 private:
     void prepareToPlay (double sampleRate) override;
+
+    void getModulated(float& outCx, float& outCy, float& outLength, float& outAngle) const;
 
     std::atomic<float> cx { 0.5f }, cy { 0.5f };
     std::atomic<float> length { 0.6f }, angle { 0.0f };
@@ -42,9 +46,13 @@ private:
     juce::LinearSmoothedValue<float> cxs, cys, lengths, angles;
 
 public:
+    std::atomic<float> lfoCxAmount { 0.5f };
+    std::atomic<float> lfoCyAmount { 0.5f };
     std::atomic<float> lfoAngleAmount { 0.5f };
     std::atomic<float> lfoLengthAmount { 0.5f };
 
+    std::atomic<bool> lfoCxSelect { false };
+    std::atomic<bool> lfoCySelect { false };
     std::atomic<bool> lfoAngleSelect { false };
     std::atomic<bool> lfoLengthSelect { false };
 

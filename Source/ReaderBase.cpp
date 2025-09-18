@@ -11,12 +11,6 @@
 #include "ReaderBase.h"
 #include "LFO.h"
 
-void ReaderBase::setLFOs (LFO* lfo1, LFO* lfo2)
-{
-    lfos[0] = lfo1;
-    lfos[1] = lfo2;
-}
-
 void ReaderBase::setFrequency (float freq)
 {
     frequency = freq;

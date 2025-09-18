@@ -12,6 +12,7 @@
 
 #include "SynthSound.h"
 #include "MapOscillator.h"
+#include "ADSR.h"
 
 class MapSynthAudioProcessor;
 class SynthVoice : public juce::SynthesiserVoice
@@ -25,6 +26,8 @@ public:
     
     void stopNote (float velocity, bool allowTailOff) override;
     
+    bool isVoiceActive() const override;
+
     void pitchWheelMoved (int newPitchWheelValue) override {}
     
     void controllerMoved (int controllerNumber, int newControllerValue) override {}
@@ -36,5 +39,8 @@ public:
 private:
     MapSynthAudioProcessor& processor;
     MapOscillator mapOscillator;
-    bool isNoteOn = false;
+    ADSR adsr;
+    juce::AudioBuffer<float> tempRenderBuffer;
+    float noteVel{0.f};
+
 };

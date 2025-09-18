@@ -61,47 +61,73 @@ void LineReader::setAngle (float newAngle)
     angles.setTargetValue (angle.load());
 }
 
+void LineReader::updateParameters (juce::AudioProcessorValueTreeState& apvts)
+{
+    setCentre (apvts.getRawParameterValue ("LineCX")->load(),
+               apvts.getRawParameterValue ("LineCY")->load());
+    setLength (apvts.getRawParameterValue ("LineLength")->load());
+    setAngle (apvts.getRawParameterValue ("LineAngle")->load());
+    setVolume (apvts.getRawParameterValue ("LineVolume")->load());
+
+    lfoCxAmount = apvts.getRawParameterValue ("LFO_LineCX_Amount")->load();
+    lfoCyAmount = apvts.getRawParameterValue ("LFO_LineCY_Amount")->load();
+    lfoAngleAmount = apvts.getRawParameterValue ("LFO_LineAngle_Amount")->load();
+    lfoLengthAmount = apvts.getRawParameterValue ("LFO_LineLength_Amount")->load();
+
+    lfoCxSelect = apvts.getRawParameterValue ("LFO_LineCX_Select")->load();
+    lfoCySelect = apvts.getRawParameterValue ("LFO_LineCY_Select")->load();
+    lfoAngleSelect = apvts.getRawParameterValue ("LFO_LineAngle_Select")->load();
+    lfoLengthSelect = apvts.getRawParameterValue ("LFO_LineLength_Select")->load();
+}
+
+void LineReader::getModulated(float& outCx, float& outCy, float& outLength, float& outAngle) const
+{
+    const float lfoValCx = lastLfoValues[lfoCxSelect.load() ? 1 : 0].load();
+    outCx = cx.load() * (1.0f + 2.0f * (lfoCxAmount.load() - 0.5f) * (lfoValCx - 0.5f));
+
+    const float lfoValCy = lastLfoValues[lfoCySelect.load() ? 1 : 0].load();
+    outCy = cy.load() * (1.0f + 2.0f * (lfoCyAmount.load() - 0.5f) * (lfoValCy - 0.5f));
+
+    const float lfoValAngle = lastLfoValues[lfoAngleSelect.load() ? 1 : 0].load();
+    outAngle = angle.load() * (1.0f + 2.0f * (lfoAngleAmount.load() - 0.5f) * (lfoValAngle - 0.5f));
+
+    const float lfoValLength = lastLfoValues[lfoLengthSelect.load() ? 1 : 0].load();
+    outLength = length.load() * (1.0f + 2.0f * (lfoLengthAmount.load() - 0.5f) * (lfoValLength - 0.5f));
+}
+
 float LineReader::getX1() const
 {
-    const float lfoValAngle = lastLfoValues[lfoAngleSelect.load() ? 1 : 0].load();
-    const float currentAngle = angle.load() * (1.0f + 2.0f * (lfoAngleAmount.load() - 0.5f) * (lfoValAngle - 0.5f));
-    const float lfoValLength = lastLfoValues[lfoLengthSelect.load() ? 1 : 0].load();
-    const float currentLength = length.load() * (1.0f + 2.0f * (lfoLengthAmount.load() - 0.5f) * (lfoValLength - 0.5f));
+    float currentCx, currentCy, currentLength, currentAngle;
+    getModulated(currentCx, currentCy, currentLength, currentAngle);
     const float halfLength = currentLength * 0.5f;
-    return cx.load() - halfLength * juce::dsp::FastMathApproximations::cos (currentAngle);
+    return currentCx - halfLength * juce::dsp::FastMathApproximations::cos (currentAngle);
 }
 
 float LineReader::getY1() const
 {
-    const float lfoValAngle = lastLfoValues[lfoAngleSelect.load() ? 1 : 0].load();
-    const float currentAngle = angle.load() * (1.0f + 2.0f * (lfoAngleAmount.load() - 0.5f) * (lfoValAngle - 0.5f));
-    const float lfoValLength = lastLfoValues[lfoLengthSelect.load() ? 1 : 0].load();
-    const float currentLength = length.load() * (1.0f + 2.0f * (lfoLengthAmount.load() - 0.5f) * (lfoValLength - 0.5f));
+    float currentCx, currentCy, currentLength, currentAngle;
+    getModulated(currentCx, currentCy, currentLength, currentAngle);
     const float halfLength = currentLength * 0.5f;
-    return cy.load() - halfLength * juce::dsp::FastMathApproximations::sin (currentAngle);
+    return currentCy - halfLength * juce::dsp::FastMathApproximations::sin (currentAngle);
 }
 
 float LineReader::getX2() const
 {
-    const float lfoValAngle = lastLfoValues[lfoAngleSelect.load() ? 1 : 0].load();
-    const float currentAngle = angle.load() * (1.0f + 2.0f * (lfoAngleAmount.load() - 0.5f) * (lfoValAngle - 0.5f));
-    const float lfoValLength = lastLfoValues[lfoLengthSelect.load() ? 1 : 0].load();
-    const float currentLength = length.load() * (1.0f + 2.0f * (lfoLengthAmount.load() - 0.5f) * (lfoValLength - 0.5f));
+    float currentCx, currentCy, currentLength, currentAngle;
+    getModulated(currentCx, currentCy, currentLength, currentAngle);
     const float halfLength = currentLength * 0.5f;
-    return cx.load() + halfLength * juce::dsp::FastMathApproximations::cos (currentAngle);
+    return currentCx + halfLength * juce::dsp::FastMathApproximations::cos (currentAngle);
 }
 
 float LineReader::getY2() const
 {
-    const float lfoValAngle = lastLfoValues[lfoAngleSelect.load() ? 1 : 0].load();
-    const float currentAngle = angle.load() * (1.0f + 2.0f * (lfoAngleAmount.load() - 0.5f) * (lfoValAngle - 0.5f));
-    const float lfoValLength = lastLfoValues[lfoLengthSelect.load() ? 1 : 0].load();
-    const float currentLength = length.load() * (1.0f + 2.0f * (lfoLengthAmount.load() - 0.5f) * (lfoValLength - 0.5f));
+    float currentCx, currentCy, currentLength, currentAngle;
+    getModulated(currentCx, currentCy, currentLength, currentAngle);
     const float halfLength = currentLength * 0.5f;
-    return cy.load() + halfLength * juce::dsp::FastMathApproximations::sin (currentAngle);
+    return currentCy + halfLength * juce::dsp::FastMathApproximations::sin (currentAngle);
 }
 
-void LineReader::processBlock (const juce::Image& imageToRead, juce::AudioBuffer<float>& buffer, int startSample, int numSamples)
+void LineReader::processBlock (const juce::Image& imageToRead, juce::AudioBuffer<float>& buffer, int startSample, int numSamples, const juce::AudioBuffer<float>& lfoBuffer)
 {
     if (! imageToRead.isValid())
     {
@@ -125,16 +151,20 @@ void LineReader::processBlock (const juce::Image& imageToRead, juce::AudioBuffer
     const float imageHeight = (float) (bitmapData.height - 1);
     const int numChannels = buffer.getNumChannels();
 
+    const auto* lfo1Data = lfoBuffer.getReadPointer (0);
+    const auto* lfo2Data = lfoBuffer.getReadPointer (1);
+
     for (int sample = startSample; sample < startSample + numSamples; ++sample)
     {
-        float lfoValues[2] = { 0.0f, 0.0f };
-        if (lfos[0] != nullptr)
-            lfoValues[0] = lfos[0]->process();
-        if (lfos[1] != nullptr)
-            lfoValues[1] = lfos[1]->process();
+        float lfoValues[2] = { lfo1Data[sample], lfo2Data[sample] };
 
-        const float cx_sv = cxs.getNextValue();
-        const float cy_sv = cys.getNextValue();
+        const float lfoValCx = lfoValues[lfoCxSelect.load() ? 1 : 0];
+        float cx_sv = cxs.getNextValue();
+        cx_sv *= (1.0f + 2.0f * (lfoCxAmount.load() - 0.5f) * (lfoValCx - 0.5f));
+
+        const float lfoValCy = lfoValues[lfoCySelect.load() ? 1 : 0];
+        float cy_sv = cys.getNextValue();
+        cy_sv *= (1.0f + 2.0f * (lfoCyAmount.load() - 0.5f) * (lfoValCy - 0.5f));
 
         const float lfoValLength = lfoValues[lfoLengthSelect.load() ? 1 : 0];
         float length_sv = lengths.getNextValue();

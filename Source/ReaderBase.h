@@ -21,14 +21,14 @@ public:
     virtual ~ReaderBase() = default;
 
     virtual void prepareToPlay (double sampleRate) = 0;
-    virtual void processBlock (const juce::Image& image, juce::AudioBuffer<float>& buffer, int startSample, int numSamples) = 0;
+    virtual void processBlock (const juce::Image& image, juce::AudioBuffer<float>& buffer, int startSample, int numSamples, const juce::AudioBuffer<float>& lfoBuffer) = 0;
 
     void setFrequency (float freq);
     float getFrequency() const;
     void setVolume (float newVolume);
     float getVolume() const;
 
-    void setLFOs (LFO* lfo1, LFO* lfo2);
+    virtual void updateParameters (juce::AudioProcessorValueTreeState& apvts) = 0;
 
 protected:
     float frequency = 440.0f;
@@ -38,7 +38,6 @@ protected:
     float phaseHigh = 0.0f;
     float volume = 1.0f;
     juce::LinearSmoothedValue<float> volumeSmoother;
-    LFO* lfos[2] = { nullptr, nullptr };
     std::atomic<float> lastLfoValues[2] = { { 0.0f }, { 0.0f } };
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ReaderBase)

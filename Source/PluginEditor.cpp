@@ -17,7 +17,11 @@ MapSynthAudioProcessorEditor::MapSynthAudioProcessorEditor (MapSynthAudioProcess
       lineReaderComponent(p), 
       circleReaderComponent(p),
       lfoFreqKnob (p.apvts, "LFOFreq", juce::Colours::hotpink),
-      lfo2FreqKnob (p.apvts, "LFO2Freq", juce::Colours::hotpink)
+      lfo2FreqKnob (p.apvts, "LFO2Freq", juce::Colours::hotpink),
+      attackKnob (p.apvts, "Attack", juce::Colours::limegreen),
+      decayKnob (p.apvts, "Decay", juce::Colours::limegreen),
+      sustainKnob (p.apvts, "Sustain", juce::Colours::limegreen),
+      releaseKnob (p.apvts, "Release", juce::Colours::limegreen)
 {
     addAndMakeVisible(mapDisplayComponent);
     addAndMakeVisible(lineReaderComponent);
@@ -31,6 +35,15 @@ MapSynthAudioProcessorEditor::MapSynthAudioProcessorEditor (MapSynthAudioProcess
 
     addAndMakeVisible (lfo2FreqKnob.slider);
     lfo2FreqKnob.slider.setLookAndFeel (&fxmeLookAndFeel);
+
+    addAndMakeVisible (attackKnob.slider);
+    attackKnob.slider.setLookAndFeel (&fxmeLookAndFeel);
+    addAndMakeVisible (decayKnob.slider);
+    decayKnob.slider.setLookAndFeel (&fxmeLookAndFeel);
+    addAndMakeVisible (sustainKnob.slider);
+    sustainKnob.slider.setLookAndFeel (&fxmeLookAndFeel);
+    addAndMakeVisible (releaseKnob.slider);
+    releaseKnob.slider.setLookAndFeel (&fxmeLookAndFeel);
 
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
@@ -47,7 +60,7 @@ void MapSynthAudioProcessorEditor::paint (juce::Graphics& g)
 {
     // (Our component is opaque, so we must completely fill the background with a solid colour)
 
-    g.fillAll (getLookAndFeel().findColour (juce::ResizableWindow::backgroundColourId).darker (0.2f));
+    //g.fillAll (getLookAndFeel().findColour (juce::ResizableWindow::backgroundColourId).darker (0.2f));
 }
 
 void MapSynthAudioProcessorEditor::resized()
@@ -82,7 +95,15 @@ void MapSynthAudioProcessorEditor::resized()
     knobBox.items.add (juce::FlexItem (lfoFreqKnob.flex()).withFlex (1.0));
     knobBox.items.add (juce::FlexItem (lfo2FreqKnob.flex()).withFlex (1.0));
 
+    juce::FlexBox adsrBox;
+    adsrBox.flexDirection = juce::FlexBox::Direction::row;
+    adsrBox.items.add (juce::FlexItem (attackKnob.flex()).withFlex (1.0));
+    adsrBox.items.add (juce::FlexItem (decayKnob.flex()).withFlex (1.0));
+    adsrBox.items.add (juce::FlexItem (sustainKnob.flex()).withFlex (1.0));
+    adsrBox.items.add (juce::FlexItem (releaseKnob.flex()).withFlex (1.0));
+
     globalFb.items.add (juce::FlexItem(knobBox).withFlex(1.0));
+    globalFb.items.add (juce::FlexItem(adsrBox).withFlex(1.0));
 
     globalFb.performLayout(globalContentBounds);
 }

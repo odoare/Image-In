@@ -23,6 +23,8 @@ public:
 
     void setParameters (const juce::ADSR::Parameters& params);
 
+    void applyEnvelopeToBuffer (juce::AudioBuffer<float>& buffer, int startSample, int numSamples);
+
     void noteOn();
     void noteOff();
     bool isActive() const;

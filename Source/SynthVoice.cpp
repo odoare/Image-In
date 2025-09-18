@@ -24,62 +24,64 @@ bool SynthVoice::canPlaySound (juce::SynthesiserSound* sound)
 
 void SynthVoice::startNote (int midiNoteNumber, float velocity, juce::SynthesiserSound* sound, int currentPitchWheelPosition)
 {
-    isNoteOn = true;
     const double frequency = juce::MidiMessage::getMidiNoteInHertz(midiNoteNumber);
     for (auto* reader : mapOscillator.getReaders())
     {
         reader->setFrequency(frequency);
     }
+    noteVel = velocity;
+
+    adsr.noteOn();
 }
 
 void SynthVoice::stopNote (float velocity, bool allowTailOff)
 {
-    isNoteOn = false;
-    clearCurrentNote();
+    adsr.noteOff();
+
+    if (! allowTailOff || ! adsr.isActive())
+        clearCurrentNote();
+}
+
+bool SynthVoice::isVoiceActive() const
+{
+    return adsr.isActive();
 }
 
 void SynthVoice::setCurrentPlaybackSampleRate (double newRate)
 {
     mapOscillator.prepareToPlay (getSampleRate());
-    mapOscillator.setLFOs (&processor.lfo, &processor.lfo2);
+    adsr.prepareToPlay (getSampleRate());
 }
 
 void SynthVoice::renderNextBlock (juce::AudioBuffer<float>& outputBuffer, int startSample, int numSamples)
 {
-    if (! isNoteOn)
+    if (! isVoiceActive())
         return;
 
+    juce::ADSR::Parameters adsrParams;
+    adsrParams.attack  = processor.apvts.getRawParameterValue ("Attack")->load();
+    adsrParams.decay   = processor.apvts.getRawParameterValue ("Decay")->load();
+    adsrParams.sustain = processor.apvts.getRawParameterValue ("Sustain")->load();
+    adsrParams.release = processor.apvts.getRawParameterValue ("Release")->load();
+    adsr.setParameters (adsrParams);
+
     for (auto* readerBase : mapOscillator.getReaders())
-    {
-        if (auto* lineReader = dynamic_cast<LineReader*> (readerBase))
-        {
-            lineReader->setCentre (processor.apvts.getRawParameterValue ("LineCX")->load(),
-                                   processor.apvts.getRawParameterValue ("LineCY")->load());
-            lineReader->setLength (processor.apvts.getRawParameterValue ("LineLength")->load());
-            lineReader->setAngle (processor.apvts.getRawParameterValue ("LineAngle")->load());
-            lineReader->setVolume (processor.apvts.getRawParameterValue ("LineVolume")->load());
+        readerBase->updateParameters (processor.apvts);
 
-            lineReader->lfoAngleAmount = processor.apvts.getRawParameterValue ("LFO_LineAngle_Amount")->load();
-            lineReader->lfoLengthAmount = processor.apvts.getRawParameterValue ("LFO_LineLength_Amount")->load();
-
-            lineReader->lfoAngleSelect = processor.apvts.getRawParameterValue ("LFO_LineAngle_Select")->load();
-            lineReader->lfoLengthSelect = processor.apvts.getRawParameterValue ("LFO_LineLength_Select")->load();
-        }
-        else if (auto* circleReader = dynamic_cast<CircleReader*> (readerBase))
-        {
-            circleReader->setCentre (processor.apvts.getRawParameterValue ("CX")->load(),
-                                     processor.apvts.getRawParameterValue ("CY")->load());
-            circleReader->setRadius (processor.apvts.getRawParameterValue ("R")->load());
-            circleReader->setVolume (processor.apvts.getRawParameterValue ("CircleVolume")->load());
-
-            circleReader->lfoCxAmount = processor.apvts.getRawParameterValue ("LFO_CX_Amount")->load();
-            circleReader->lfoRadiusAmount = processor.apvts.getRawParameterValue ("LFO_R_Amount")->load();
-
-            circleReader->lfoCxSelect = processor.apvts.getRawParameterValue ("LFO_CX_Select")->load();
-            circleReader->lfoRadiusSelect = processor.apvts.getRawParameterValue ("LFO_R_Select")->load();
-        }
-    }
+    tempRenderBuffer.setSize (outputBuffer.getNumChannels(), numSamples, false, false, true);
+    tempRenderBuffer.clear();
 
     juce::MidiBuffer emptyMidi;
-    mapOscillator.processBlock (outputBuffer, emptyMidi, startSample, numSamples, processor.imageBuffer);
+    mapOscillator.processBlock (tempRenderBuffer, emptyMidi, 0, numSamples, processor.imageBuffer, processor.lfoBuffer);
+
+    adsr.applyEnvelopeToBuffer (tempRenderBuffer, 0, numSamples);
+    tempRenderBuffer.applyGain (0, numSamples, noteVel);
+
+    for (int ch = 0; ch < outputBuffer.getNumChannels(); ++ch)
+        outputBuffer.addFrom (ch, startSample, tempRenderBuffer, ch, 0, numSamples);
+
+    if (! adsr.isActive())
+    {
+        clearCurrentNote();
+    }
 }

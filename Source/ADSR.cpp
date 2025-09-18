@@ -31,6 +31,11 @@ void ADSR::setParameters (const juce::ADSR::Parameters& params)
     adsr.setParameters (params);
 }
 
+void ADSR::applyEnvelopeToBuffer (juce::AudioBuffer<float>& buffer, int startSample, int numSamples)
+{
+    adsr.applyEnvelopeToBuffer (buffer, startSample, numSamples);
+}
+
 void ADSR::noteOn() { adsr.noteOn(); }
 void ADSR::noteOff() { adsr.noteOff(); }
 
