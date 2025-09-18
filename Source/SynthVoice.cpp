@@ -13,8 +13,6 @@
 
 SynthVoice::SynthVoice(MapSynthAudioProcessor& p) : processor(p)
 {
-    mapOscillator.addLineReader();
-    mapOscillator.addCircleReader();
 }
 
 bool SynthVoice::canPlaySound (juce::SynthesiserSound* sound)
@@ -51,6 +49,11 @@ void SynthVoice::setCurrentPlaybackSampleRate (double newRate)
 {
     mapOscillator.prepareToPlay (getSampleRate());
     adsr.prepareToPlay (getSampleRate());
+}
+
+void SynthVoice::rebuildReaders (const juce::Array<ReaderBase::Type>& types)
+{
+    mapOscillator.rebuildReaders (types);
 }
 
 void SynthVoice::renderNextBlock (juce::AudioBuffer<float>& outputBuffer, int startSample, int numSamples)

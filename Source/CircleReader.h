@@ -12,7 +12,19 @@
 
 #include "ReaderBase.h"
 
-struct CircleReaderParameters;
+struct CircleReaderParameters
+{
+    float cx, cy;
+    float radius;
+    float volume;
+
+    float lfoCxAmount;
+    bool  lfoCxSelect;
+    float lfoCyAmount;
+    bool  lfoCySelect;
+    float lfoRadiusAmount;
+    bool  lfoRadiusSelect;
+};
 
 class CircleReader  : public ReaderBase
 {
@@ -30,6 +42,7 @@ public:
     float getRadius() const;
 
     void updateParameters (const CircleReaderParameters& params);
+    Type getType() const override { return Type::Circle; }
 
 public:
     std::atomic<float> lfoCxAmount { 0.5f };

@@ -13,7 +13,7 @@
 #include "LFO.h"
 #include "SynthSound.h"
 #include "ParameterStructs.h"
-
+#include "SynthVoice.h"
 // Let's define the number of voices for our synth
 #define NUM_VOICES 4
 
@@ -66,11 +66,16 @@ public:
     LFO lfo2;
     juce::AudioBuffer<float> lfoBuffer;
     GlobalParameters globalParams;
+    juce::Array<ReaderBase::Type> readerTypes;
+
+    void addReader (ReaderBase::Type type);
+    void removeReader (int index);
 
 private:
     juce::Synthesiser synth;
     static juce::AudioProcessorValueTreeState::ParameterLayout createParameters();  
     void updateParameters();
+    void updateVoices();
 
 
     //==============================================================================

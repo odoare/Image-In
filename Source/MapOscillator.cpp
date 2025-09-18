@@ -22,6 +22,7 @@ MapOscillator::~MapOscillator()
 
 void MapOscillator::prepareToPlay (double sampleRate)
 {
+    currentSampleRate = sampleRate;
     for (auto* reader : readers)
         reader->prepareToPlay (sampleRate);
 }
@@ -56,6 +57,23 @@ void MapOscillator::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBu
         // Finally, add the summed output to the main output buffer.
         for (int channel = 0; channel < numChannels; ++channel)
             buffer.addFrom (channel, startSample, readerBuffer, channel, 0, numSamples);
+    }
+}
+
+void MapOscillator::rebuildReaders (const juce::Array<ReaderBase::Type>& types)
+{
+    readers.clear();
+
+    for (const auto& type : types)
+    {
+        ReaderBase* newReader = nullptr;
+        if (type == ReaderBase::Type::Line)
+            newReader = addLineReader();
+        else if (type == ReaderBase::Type::Circle)
+            newReader = addCircleReader();
+
+        if (newReader != nullptr)
+            newReader->prepareToPlay (currentSampleRate);
     }
 }
 

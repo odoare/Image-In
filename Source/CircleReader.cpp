@@ -10,7 +10,6 @@
 
 #include "CircleReader.h"
 #include "LFO.h"
-#include "ParameterStructs.h"
 
 CircleReader::CircleReader() {}
 CircleReader::~CircleReader() {}

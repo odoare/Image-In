@@ -17,6 +17,8 @@ class LFO;
 class ReaderBase : public juce::ChangeBroadcaster
 {
 public:
+    enum class Type { Line, Circle };
+
     ReaderBase() = default;
     virtual ~ReaderBase() = default;
 
@@ -27,6 +29,8 @@ public:
     float getFrequency() const;
     void setVolume (float newVolume);
     float getVolume() const;
+
+    virtual Type getType() const = 0;
 
 protected:
     float frequency = 440.0f;

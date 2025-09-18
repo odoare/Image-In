@@ -30,6 +30,7 @@ public:
 
     void prepareToPlay (double sampleRate);
     void processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages, int startSample, int numSamples, ImageBuffer& imageBuffer, const juce::AudioBuffer<float>& lfoBuffer);
+    void rebuildReaders (const juce::Array<ReaderBase::Type>& types);
     void updateParameters (const GlobalParameters& params);
     LineReader* addLineReader();
     CircleReader* addCircleReader();
@@ -41,6 +42,7 @@ public:
 private:
     juce::OwnedArray<ReaderBase> readers;
     juce::AudioBuffer<float> readerBuffer;
+    double currentSampleRate = 44100.0;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MapOscillator)
 };

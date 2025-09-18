@@ -12,7 +12,22 @@
 
 #include "ReaderBase.h"
 
-struct LineReaderParameters;
+struct LineReaderParameters
+{
+    float cx, cy;
+    float length;
+    float angle;
+    float volume;
+
+    float lfoCxAmount;
+    bool  lfoCxSelect;
+    float lfoCyAmount;
+    bool  lfoCySelect;
+    float lfoAngleAmount;
+    bool  lfoAngleSelect;
+    float lfoLengthAmount;
+    bool  lfoLengthSelect;
+};
 
 /**
     This class reads audio samples from an image by traversing a line.
@@ -36,6 +51,7 @@ public:
     float getY2() const;
 
     void updateParameters (const LineReaderParameters& params);
+    Type getType() const override { return Type::Line; }
 
 private:
     void prepareToPlay (double sampleRate) override;

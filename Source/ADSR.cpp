@@ -9,7 +9,6 @@
 */
 
 #include "ADSR.h"
-#include "ParameterStructs.h"
 
 ADSR::ADSR() {}
 ADSR::~ADSR() {}

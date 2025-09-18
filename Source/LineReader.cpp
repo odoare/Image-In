@@ -10,7 +10,6 @@
 
 #include "LineReader.h"
 #include "LFO.h"
-#include "ParameterStructs.h"
 
 LineReader::LineReader()
 {

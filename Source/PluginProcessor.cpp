@@ -9,7 +9,6 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 #include "SynthSound.h"
-#include "SynthVoice.h"
 
 //==============================================================================
 MapSynthAudioProcessor::MapSynthAudioProcessor()
@@ -24,11 +23,18 @@ MapSynthAudioProcessor::MapSynthAudioProcessor()
 {
     imageBuffer.setImage (juce::ImageCache::getFromMemory (BinaryData::world_png, BinaryData::world_pngSize));
 
+    // Set up the initial readers
+    readerTypes.add (ReaderBase::Type::Line);
+    readerTypes.add (ReaderBase::Type::Circle);
+
     synth.addSound (new SynthSound());
     for (int i = 0; i < NUM_VOICES; ++i)
     {
         synth.addVoice (new SynthVoice (*this));
     }
+
+    // This must be called after voices are created.
+    updateVoices();
 }
 
 MapSynthAudioProcessor::~MapSynthAudioProcessor()
@@ -139,6 +145,32 @@ bool MapSynthAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts)
   #endif
 }
 #endif
+
+void MapSynthAudioProcessor::addReader (ReaderBase::Type type)
+{
+    readerTypes.add (type);
+    updateVoices();
+}
+
+void MapSynthAudioProcessor::removeReader (int index)
+{
+    if (juce::isPositiveAndBelow (index, readerTypes.size()))
+    {
+        readerTypes.remove (index);
+        updateVoices();
+    }
+}
+
+void MapSynthAudioProcessor::updateVoices()
+{
+    for (int i = 0; i < synth.getNumVoices(); ++i)
+    {
+        if (auto* voice = dynamic_cast<SynthVoice*> (synth.getVoice (i)))
+        {
+            voice->rebuildReaders (readerTypes);
+        }
+    }
+}
 
 void MapSynthAudioProcessor::updateParameters()
 {

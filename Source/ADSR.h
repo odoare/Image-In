@@ -12,7 +12,13 @@
 
 #include "Modulator.h"
 
-struct ADSRParameters;
+struct ADSRParameters
+{
+    float attack;
+    float decay;
+    float sustain;
+    float release;
+};
 
 class ADSR : public Modulator
 {

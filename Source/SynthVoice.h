@@ -36,6 +36,8 @@ public:
 
     void renderNextBlock (juce::AudioBuffer<float>& outputBuffer, int startSample, int numSamples) override;
 
+    void rebuildReaders (const juce::Array<ReaderBase::Type>& types);
+
 private:
     MapSynthAudioProcessor& processor;
     MapOscillator mapOscillator;
