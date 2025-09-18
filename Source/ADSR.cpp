@@ -9,6 +9,7 @@
 */
 
 #include "ADSR.h"
+#include "ParameterStructs.h"
 
 ADSR::ADSR() {}
 ADSR::~ADSR() {}
@@ -26,9 +27,14 @@ float ADSR::process()
     return value;
 }
 
-void ADSR::setParameters (const juce::ADSR::Parameters& params)
+void ADSR::setParameters (const ADSRParameters& params)
 {
-    adsr.setParameters (params);
+    juce::ADSR::Parameters adsrParams;
+    adsrParams.attack  = params.attack;
+    adsrParams.decay   = params.decay;
+    adsrParams.sustain = params.sustain;
+    adsrParams.release = params.release;
+    adsr.setParameters (adsrParams);
 }
 
 void ADSR::applyEnvelopeToBuffer (juce::AudioBuffer<float>& buffer, int startSample, int numSamples)

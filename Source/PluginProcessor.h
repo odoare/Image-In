@@ -12,6 +12,7 @@
 #include "MapOscillator.h"
 #include "LFO.h"
 #include "SynthSound.h"
+#include "ParameterStructs.h"
 
 // Let's define the number of voices for our synth
 #define NUM_VOICES 4
@@ -64,10 +65,12 @@ public:
     LFO lfo;
     LFO lfo2;
     juce::AudioBuffer<float> lfoBuffer;
+    GlobalParameters globalParams;
 
 private:
     juce::Synthesiser synth;
     static juce::AudioProcessorValueTreeState::ParameterLayout createParameters();  
+    void updateParameters();
 
 
     //==============================================================================

@@ -12,6 +12,8 @@
 
 #include "ReaderBase.h"
 
+struct CircleReaderParameters;
+
 class CircleReader  : public ReaderBase
 {
 public:
@@ -27,7 +29,7 @@ public:
     float getCY() const;
     float getRadius() const;
 
-    void updateParameters (juce::AudioProcessorValueTreeState& apvts) override;
+    void updateParameters (const CircleReaderParameters& params);
 
 public:
     std::atomic<float> lfoCxAmount { 0.5f };

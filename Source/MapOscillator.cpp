@@ -10,6 +10,7 @@
 
 #include "MapOscillator.h"
 #include "LFO.h"
+#include "ParameterStructs.h"
 
 MapOscillator::MapOscillator()
 {
@@ -55,6 +56,21 @@ void MapOscillator::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBu
         // Finally, add the summed output to the main output buffer.
         for (int channel = 0; channel < numChannels; ++channel)
             buffer.addFrom (channel, startSample, readerBuffer, channel, 0, numSamples);
+    }
+}
+
+void MapOscillator::updateParameters (const GlobalParameters& params)
+{
+    for (auto* reader : readers)
+    {
+        if (auto* lineReader = dynamic_cast<LineReader*> (reader))
+        {
+            lineReader->updateParameters (params.line);
+        }
+        else if (auto* circleReader = dynamic_cast<CircleReader*> (reader))
+        {
+            circleReader->updateParameters (params.circle);
+        }
     }
 }
 

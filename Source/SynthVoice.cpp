@@ -57,16 +57,10 @@ void SynthVoice::renderNextBlock (juce::AudioBuffer<float>& outputBuffer, int st
 {
     if (! isVoiceActive())
         return;
-
-    juce::ADSR::Parameters adsrParams;
-    adsrParams.attack  = processor.apvts.getRawParameterValue ("Attack")->load();
-    adsrParams.decay   = processor.apvts.getRawParameterValue ("Decay")->load();
-    adsrParams.sustain = processor.apvts.getRawParameterValue ("Sustain")->load();
-    adsrParams.release = processor.apvts.getRawParameterValue ("Release")->load();
-    adsr.setParameters (adsrParams);
-
-    for (auto* readerBase : mapOscillator.getReaders())
-        readerBase->updateParameters (processor.apvts);
+    
+    // Update ADSR and reader parameters from the processor's pre-filled struct
+    adsr.setParameters (processor.globalParams.adsr);
+    mapOscillator.updateParameters (processor.globalParams);
 
     tempRenderBuffer.setSize (outputBuffer.getNumChannels(), numSamples, false, false, true);
     tempRenderBuffer.clear();

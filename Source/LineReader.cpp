@@ -10,6 +10,7 @@
 
 #include "LineReader.h"
 #include "LFO.h"
+#include "ParameterStructs.h"
 
 LineReader::LineReader()
 {
@@ -61,23 +62,22 @@ void LineReader::setAngle (float newAngle)
     angles.setTargetValue (angle.load());
 }
 
-void LineReader::updateParameters (juce::AudioProcessorValueTreeState& apvts)
+void LineReader::updateParameters (const LineReaderParameters& params)
 {
-    setCentre (apvts.getRawParameterValue ("LineCX")->load(),
-               apvts.getRawParameterValue ("LineCY")->load());
-    setLength (apvts.getRawParameterValue ("LineLength")->load());
-    setAngle (apvts.getRawParameterValue ("LineAngle")->load());
-    setVolume (apvts.getRawParameterValue ("LineVolume")->load());
+    setCentre (params.cx, params.cy);
+    setLength (params.length);
+    setAngle (params.angle);
+    setVolume (params.volume);
 
-    lfoCxAmount = apvts.getRawParameterValue ("LFO_LineCX_Amount")->load();
-    lfoCyAmount = apvts.getRawParameterValue ("LFO_LineCY_Amount")->load();
-    lfoAngleAmount = apvts.getRawParameterValue ("LFO_LineAngle_Amount")->load();
-    lfoLengthAmount = apvts.getRawParameterValue ("LFO_LineLength_Amount")->load();
+    lfoCxAmount = params.lfoCxAmount;
+    lfoCyAmount = params.lfoCyAmount;
+    lfoAngleAmount = params.lfoAngleAmount;
+    lfoLengthAmount = params.lfoLengthAmount;
 
-    lfoCxSelect = apvts.getRawParameterValue ("LFO_LineCX_Select")->load();
-    lfoCySelect = apvts.getRawParameterValue ("LFO_LineCY_Select")->load();
-    lfoAngleSelect = apvts.getRawParameterValue ("LFO_LineAngle_Select")->load();
-    lfoLengthSelect = apvts.getRawParameterValue ("LFO_LineLength_Select")->load();
+    lfoCxSelect = params.lfoCxSelect;
+    lfoCySelect = params.lfoCySelect;
+    lfoAngleSelect = params.lfoAngleSelect;
+    lfoLengthSelect = params.lfoLengthSelect;
 }
 
 void LineReader::getModulated(float& outCx, float& outCy, float& outLength, float& outAngle) const

@@ -140,9 +140,47 @@ bool MapSynthAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts)
 }
 #endif
 
+void MapSynthAudioProcessor::updateParameters()
+{
+    // Line Reader
+    globalParams.line.cx = apvts.getRawParameterValue("LineCX")->load();
+    globalParams.line.cy = apvts.getRawParameterValue("LineCY")->load();
+    globalParams.line.length = apvts.getRawParameterValue("LineLength")->load();
+    globalParams.line.angle = apvts.getRawParameterValue("LineAngle")->load();
+    globalParams.line.volume = apvts.getRawParameterValue("LineVolume")->load();
+    globalParams.line.lfoCxAmount = apvts.getRawParameterValue("LFO_LineCX_Amount")->load();
+    globalParams.line.lfoCxSelect = apvts.getRawParameterValue("LFO_LineCX_Select")->load() > 0.5f;
+    globalParams.line.lfoCyAmount = apvts.getRawParameterValue("LFO_LineCY_Amount")->load();
+    globalParams.line.lfoCySelect = apvts.getRawParameterValue("LFO_LineCY_Select")->load() > 0.5f;
+    globalParams.line.lfoAngleAmount = apvts.getRawParameterValue("LFO_LineAngle_Amount")->load();
+    globalParams.line.lfoAngleSelect = apvts.getRawParameterValue("LFO_LineAngle_Select")->load() > 0.5f;
+    globalParams.line.lfoLengthAmount = apvts.getRawParameterValue("LFO_LineLength_Amount")->load();
+    globalParams.line.lfoLengthSelect = apvts.getRawParameterValue("LFO_LineLength_Select")->load() > 0.5f;
+
+    // Circle Reader
+    globalParams.circle.cx = apvts.getRawParameterValue("CX")->load();
+    globalParams.circle.cy = apvts.getRawParameterValue("CY")->load();
+    globalParams.circle.radius = apvts.getRawParameterValue("R")->load();
+    globalParams.circle.volume = apvts.getRawParameterValue("CircleVolume")->load();
+    globalParams.circle.lfoCxAmount = apvts.getRawParameterValue("LFO_CX_Amount")->load();
+    globalParams.circle.lfoCxSelect = apvts.getRawParameterValue("LFO_CX_Select")->load() > 0.5f;
+    globalParams.circle.lfoCyAmount = apvts.getRawParameterValue("LFO_CY_Amount")->load();
+    globalParams.circle.lfoCySelect = apvts.getRawParameterValue("LFO_CY_Select")->load() > 0.5f;
+    globalParams.circle.lfoRadiusAmount = apvts.getRawParameterValue("LFO_R_Amount")->load();
+    globalParams.circle.lfoRadiusSelect = apvts.getRawParameterValue("LFO_R_Select")->load() > 0.5f;
+
+    // ADSR
+    globalParams.adsr.attack = apvts.getRawParameterValue("Attack")->load();
+    globalParams.adsr.decay = apvts.getRawParameterValue("Decay")->load();
+    globalParams.adsr.sustain = apvts.getRawParameterValue("Sustain")->load();
+    globalParams.adsr.release = apvts.getRawParameterValue("Release")->load();
+}
+
 void MapSynthAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
     juce::ScopedNoDenormals noDenormals;
+
+    updateParameters();
 
     lfo.setFrequency (apvts.getRawParameterValue ("LFOFreq")->load());
     lfo2.setFrequency (apvts.getRawParameterValue ("LFO2Freq")->load());

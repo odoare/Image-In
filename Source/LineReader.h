@@ -12,6 +12,8 @@
 
 #include "ReaderBase.h"
 
+struct LineReaderParameters;
+
 /**
     This class reads audio samples from an image by traversing a line.
     It acts as an oscillator and notifies listeners of changes to its state.
@@ -33,7 +35,7 @@ public:
     float getX2() const;
     float getY2() const;
 
-    void updateParameters (juce::AudioProcessorValueTreeState& apvts) override;
+    void updateParameters (const LineReaderParameters& params);
 
 private:
     void prepareToPlay (double sampleRate) override;

@@ -10,6 +10,7 @@
 
 #include "CircleReader.h"
 #include "LFO.h"
+#include "ParameterStructs.h"
 
 CircleReader::CircleReader() {}
 CircleReader::~CircleReader() {}
@@ -47,20 +48,19 @@ void CircleReader::setRadius (float newRadius)
     rs.setTargetValue (radius.load());
 }
 
-void CircleReader::updateParameters (juce::AudioProcessorValueTreeState& apvts)
+void CircleReader::updateParameters (const CircleReaderParameters& params)
 {
-    setCentre (apvts.getRawParameterValue ("CX")->load(),
-               apvts.getRawParameterValue ("CY")->load());
-    setRadius (apvts.getRawParameterValue ("R")->load());
-    setVolume (apvts.getRawParameterValue ("CircleVolume")->load());
+    setCentre (params.cx, params.cy);
+    setRadius (params.radius);
+    setVolume (params.volume);
 
-    lfoCxAmount = apvts.getRawParameterValue ("LFO_CX_Amount")->load();
-    lfoCyAmount = apvts.getRawParameterValue ("LFO_CY_Amount")->load();
-    lfoRadiusAmount = apvts.getRawParameterValue ("LFO_R_Amount")->load();
+    lfoCxAmount = params.lfoCxAmount;
+    lfoCyAmount = params.lfoCyAmount;
+    lfoRadiusAmount = params.lfoRadiusAmount;
 
-    lfoCxSelect = apvts.getRawParameterValue ("LFO_CX_Select")->load();
-    lfoCySelect = apvts.getRawParameterValue ("LFO_CY_Select")->load();
-    lfoRadiusSelect = apvts.getRawParameterValue ("LFO_R_Select")->load();
+    lfoCxSelect = params.lfoCxSelect;
+    lfoCySelect = params.lfoCySelect;
+    lfoRadiusSelect = params.lfoRadiusSelect;
 }
 
 float CircleReader::getCX() const

@@ -28,8 +28,6 @@ public:
     void setVolume (float newVolume);
     float getVolume() const;
 
-    virtual void updateParameters (juce::AudioProcessorValueTreeState& apvts) = 0;
-
 protected:
     float frequency = 440.0f;
     double sampleRate = 44100.0;

@@ -12,6 +12,8 @@
 
 #include "Modulator.h"
 
+struct ADSRParameters;
+
 class ADSR : public Modulator
 {
 public:
@@ -21,7 +23,7 @@ public:
     void prepareToPlay (double sampleRate) override;
     float process() override;
 
-    void setParameters (const juce::ADSR::Parameters& params);
+    void setParameters (const ADSRParameters& params);
 
     void applyEnvelopeToBuffer (juce::AudioBuffer<float>& buffer, int startSample, int numSamples);
 
