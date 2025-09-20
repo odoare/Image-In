@@ -24,6 +24,7 @@ void CircleReader::prepareToPlay (double sr)
     rs.reset (sampleRate, rampTimeSeconds); rs.setCurrentAndTargetValue (radius.load());
     volumeSmoother.reset (sampleRate, rampTimeSeconds);
     volumeSmoother.setCurrentAndTargetValue (volume);
+    panSmoother.setCurrentAndTargetValue(pan.load());
     // Trigonometric values are synced at the start of each processBlock.
 }
 
@@ -53,6 +54,7 @@ void CircleReader::updateParameters (const CircleReaderParameters& params)
     setCentre (params.cx, params.cy);
     setRadius (params.radius);
     setVolume (params.volume);
+    setPan(params.pan);
     updateFilterParameters(params.filter);
 
     modCxAmount = params.modCxAmount;
@@ -64,6 +66,8 @@ void CircleReader::updateParameters (const CircleReaderParameters& params)
     modCySelect = params.modCySelect;
     modRadiusSelect = params.modRadiusSelect;
     modVolumeSelect = params.modVolumeSelect;
+    modPanAmount = params.modPanAmount;
+    modPanSelect = params.modPanSelect;
 }
 
 void CircleReader::processBlock (const juce::Image& imageToRead, juce::AudioBuffer<float>& buffer, int startSample, int numSamples,
@@ -125,12 +129,14 @@ void CircleReader::processBlock (const juce::Image& imageToRead, juce::AudioBuff
         float cy_base = cys.getNextValue();
         float r_base = rs.getNextValue();
         float volume_base = volumeSmoother.getNextValue();
+        float pan_base = panSmoother.getNextValue();
 
         // Apply modulation
         float cx_sv = applyMod (cx_base, modCxAmount.load(), modulatorBuffer.getSample (modCxSelect.load(), sample), true);
         float cy_sv = applyMod (cy_base, modCyAmount.load(), modulatorBuffer.getSample (modCySelect.load(), sample), true);
         float r_sv = applyMod (r_base, modRadiusAmount.load(), modulatorBuffer.getSample (modRadiusSelect.load(), sample), true);
         float volume_sv = applyMod (volume_base, modVolumeAmount.load(), modulatorBuffer.getSample (modVolumeSelect.load(), sample), false);
+        float pan_sv = applyMod(pan_base, modPanAmount.load(), modulatorBuffer.getSample(modPanSelect.load(), sample), true);
 
         // Clamp modulated values to a safe range
         cx_sv = juce::jlimit (0.0f, 1.0f, cx_sv);
@@ -205,10 +211,17 @@ void CircleReader::processBlock (const juce::Image& imageToRead, juce::AudioBuff
         const float modQualitySignal = modulatorBuffer.getSample(modFilterQualitySelect.load(), sample);
         finalSampleValue = applyFilter(finalSampleValue, modFreqSignal, modQualitySignal);
 
+        // Apply Volume and Pan
         finalSampleValue *= volume_sv;
 
-        for (int channel = 0; channel < numChannels; ++channel)
-            buffer.addSample (channel, sample, finalSampleValue);
+        const float panAngle = (juce::jlimit(-1.0f, 1.0f, pan_sv) * 0.5f + 0.5f) * juce::MathConstants<float>::halfPi;
+        const float leftGain = std::cos(panAngle);
+        const float rightGain = std::sin(panAngle);
+
+        if (numChannels > 0)
+            buffer.addSample(0, sample, finalSampleValue * leftGain);
+        if (numChannels > 1)
+            buffer.addSample(1, sample, finalSampleValue * rightGain);
 
         // Keep phase variables updated for state saving and re-syncing
         phase += phaseIncrement;

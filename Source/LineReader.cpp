@@ -31,6 +31,7 @@ void LineReader::prepareToPlay (double sr)
     angles.reset (sampleRate, rampTimeSeconds); angles.setCurrentAndTargetValue (angle.load());
     volumeSmoother.reset (sampleRate, rampTimeSeconds);
     volumeSmoother.setCurrentAndTargetValue (volume);
+    panSmoother.setCurrentAndTargetValue(pan.load());
 }
 
 void LineReader::setCentre (float newCx, float newCy)
@@ -68,6 +69,7 @@ void LineReader::updateParameters (const LineReaderParameters& params)
     setLength (params.length);
     setAngle (params.angle);
     setVolume (params.volume);
+    setPan(params.pan);
     updateFilterParameters(params.filter);
 
     modCxAmount = params.modCxAmount;
@@ -81,6 +83,8 @@ void LineReader::updateParameters (const LineReaderParameters& params)
     modAngleSelect = params.modAngleSelect;
     modLengthSelect = params.modLengthSelect;
     modVolumeSelect = params.modVolumeSelect;
+    modPanAmount = params.modPanAmount;
+    modPanSelect = params.modPanSelect;
 }
 
 void LineReader::processBlock (const juce::Image& imageToRead, juce::AudioBuffer<float>& buffer, int startSample, int numSamples,
@@ -141,6 +145,7 @@ void LineReader::processBlock (const juce::Image& imageToRead, juce::AudioBuffer
         float length_base = lengths.getNextValue();
         float angle_base = angles.getNextValue();
         float volume_base = volumeSmoother.getNextValue();
+        float pan_base = panSmoother.getNextValue();
 
         // Apply modulation
         float cx_sv = applyMod (cx_base, modCxAmount.load(), modulatorBuffer.getSample (modCxSelect.load(), sample), true);
@@ -148,6 +153,7 @@ void LineReader::processBlock (const juce::Image& imageToRead, juce::AudioBuffer
         float length_sv = applyMod (length_base, modLengthAmount.load(), modulatorBuffer.getSample (modLengthSelect.load(), sample), true);
         float angle_sv = applyMod (angle_base, modAngleAmount.load(), modulatorBuffer.getSample (modAngleSelect.load(), sample), true);
         float volume_sv = applyMod (volume_base, modVolumeAmount.load(), modulatorBuffer.getSample (modVolumeSelect.load(), sample), false);
+        float pan_sv = applyMod(pan_base, modPanAmount.load(), modulatorBuffer.getSample(modPanSelect.load(), sample), true);
 
         // Clamp modulated values to a safe range
         cx_sv = juce::jlimit (0.0f, 1.0f, cx_sv);
@@ -228,10 +234,17 @@ void LineReader::processBlock (const juce::Image& imageToRead, juce::AudioBuffer
         const float modQualitySignal = modulatorBuffer.getSample(modFilterQualitySelect.load(), sample);
         finalSampleValue = applyFilter(finalSampleValue, modFreqSignal, modQualitySignal);
 
+        // Apply Volume and Pan
         finalSampleValue *= volume_sv;
 
-        for (int channel = 0; channel < numChannels; ++channel)
-            buffer.addSample (channel, sample, finalSampleValue);
+        const float panAngle = (juce::jlimit(-1.0f, 1.0f, pan_sv) * 0.5f + 0.5f) * juce::MathConstants<float>::halfPi;
+        const float leftGain = std::cos(panAngle);
+        const float rightGain = std::sin(panAngle);
+
+        if (numChannels > 0)
+            buffer.addSample(0, sample, finalSampleValue * leftGain);
+        if (numChannels > 1)
+            buffer.addSample(1, sample, finalSampleValue * rightGain);
 
         phase += phaseIncrement;
         phase = std::fmod (phase, 1.0f);

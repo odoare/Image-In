@@ -197,6 +197,9 @@ void MapSynthAudioProcessor::updateParameters()
     globalParams.line.filter.modFreqSelect = (int)apvts.getRawParameterValue("Mod_LineFilterFreq_Select")->load();
     globalParams.line.filter.modQualityAmount = apvts.getRawParameterValue("Mod_LineFilterQuality_Amount")->load();
     globalParams.line.filter.modQualitySelect = (int)apvts.getRawParameterValue("Mod_LineFilterQuality_Select")->load();
+    globalParams.line.pan = apvts.getRawParameterValue("LinePan")->load();
+    globalParams.line.modPanAmount = apvts.getRawParameterValue("Mod_LinePan_Amount")->load();
+    globalParams.line.modPanSelect = (int)apvts.getRawParameterValue("Mod_LinePan_Select")->load();
 
     // Circle Reader
     globalParams.circle.cx = apvts.getRawParameterValue ("CX")->load();
@@ -218,6 +221,9 @@ void MapSynthAudioProcessor::updateParameters()
     globalParams.circle.filter.modFreqSelect = (int)apvts.getRawParameterValue("Mod_CircleFilterFreq_Select")->load();
     globalParams.circle.filter.modQualityAmount = apvts.getRawParameterValue("Mod_CircleFilterQuality_Amount")->load();
     globalParams.circle.filter.modQualitySelect = (int)apvts.getRawParameterValue("Mod_CircleFilterQuality_Select")->load();
+    globalParams.circle.pan = apvts.getRawParameterValue("CirclePan")->load();
+    globalParams.circle.modPanAmount = apvts.getRawParameterValue("Mod_CirclePan_Amount")->load();
+    globalParams.circle.modPanSelect = (int)apvts.getRawParameterValue("Mod_CirclePan_Select")->load();
 
     // ADSR
     globalParams.adsr.attack = apvts.getRawParameterValue ("Attack")->load();
@@ -414,6 +420,16 @@ juce::AudioProcessorValueTreeState::ParameterLayout MapSynthAudioProcessor::crea
     layout.add(std::make_unique<juce::AudioParameterChoice>("Mod_CircleFilterFreq_Select", "Mod Select", modulatorChoices, 0));
     layout.add(std::make_unique<juce::AudioParameterFloat>("Mod_CircleFilterQuality_Amount", "Mod->CircFltQ", juce::NormalisableRange<float>(-1.f, 1.f, .01f), 0.0f));
     layout.add(std::make_unique<juce::AudioParameterChoice>("Mod_CircleFilterQuality_Select", "Mod Select", modulatorChoices, 0));
+
+    // Line Reader Pan
+    layout.add(std::make_unique<juce::AudioParameterFloat>("LinePan", "Line Pan", juce::NormalisableRange<float>(-1.0f, 1.0f, 0.01f), 0.0f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>("Mod_LinePan_Amount", "Mod->LinePan", juce::NormalisableRange<float>(-1.f, 1.f, .01f), 0.0f));
+    layout.add(std::make_unique<juce::AudioParameterChoice>("Mod_LinePan_Select", "Mod Select", modulatorChoices, 0));
+
+    // Circle Reader Pan
+    layout.add(std::make_unique<juce::AudioParameterFloat>("CirclePan", "Circle Pan", juce::NormalisableRange<float>(-1.0f, 1.0f, 0.01f), 0.0f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>("Mod_CirclePan_Amount", "Mod->CircPan", juce::NormalisableRange<float>(-1.f, 1.f, .01f), 0.0f));
+    layout.add(std::make_unique<juce::AudioParameterChoice>("Mod_CirclePan_Select", "Mod Select", modulatorChoices, 0));
 
     return layout;
 }

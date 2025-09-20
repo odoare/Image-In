@@ -26,7 +26,9 @@ LineReaderComponent::LineReaderComponent(MapSynthAudioProcessor& p)
       filterFreqKnob(p.apvts, "LineFilterFreq", juce::Colours::yellow),
       filterQualityKnob(p.apvts, "LineFilterQuality", juce::Colours::yellow),
       modFilterFreqAmountKnob(p.apvts, "Mod_LineFilterFreq_Amount", juce::Colours::hotpink),
-      modFilterQualityAmountKnob(p.apvts, "Mod_LineFilterQuality_Amount", juce::Colours::hotpink)
+      modFilterQualityAmountKnob(p.apvts, "Mod_LineFilterQuality_Amount", juce::Colours::hotpink),
+      panKnob(p.apvts, "LinePan", COLOUR),
+      modPanAmountKnob(p.apvts, "Mod_LinePan_Amount", juce::Colours::hotpink)
 {
     setupKnob(lineCxKnob);
     setupKnob(lineCyKnob);
@@ -44,6 +46,8 @@ LineReaderComponent::LineReaderComponent(MapSynthAudioProcessor& p)
     setupKnob(filterQualityKnob);
     setupKnob(modFilterFreqAmountKnob);
     setupKnob(modFilterQualityAmountKnob);
+    setupKnob(panKnob);
+    setupKnob(modPanAmountKnob);
 
     setupModulatorBox (modLineCxSelectBox, modLineCxSelectAttachment, "Mod_LineCX_Select");
     setupModulatorBox (modLineCySelectBox, modLineCySelectAttachment, "Mod_LineCY_Select");
@@ -56,6 +60,7 @@ LineReaderComponent::LineReaderComponent(MapSynthAudioProcessor& p)
     filterTypeAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(audioProcessor.apvts, "LineFilterType", filterTypeBox);
     setupModulatorBox(modFilterFreqSelectBox, modFilterFreqSelectAttachment, "Mod_LineFilterFreq_Select");
     setupModulatorBox(modFilterQualitySelectBox, modFilterQualitySelectAttachment, "Mod_LineFilterQuality_Select");
+    setupModulatorBox(modPanSelectBox, modPanSelectAttachment, "Mod_LinePan_Select");
 }
 
 void LineReaderComponent::paint(juce::Graphics& g)
@@ -88,6 +93,7 @@ void LineReaderComponent::resized()
     filterBox.items.add(juce::FlexItem(filterTypeBox).withFlex(1.0f).withMargin(juce::FlexItem::Margin(2.f, 0, 0, 0)));
     fb.items.add(juce::FlexItem(filterBox).withMinWidth(70.0f).withMinHeight(70.0f).withFlex(1.0));
     fb.items.add(juce::FlexItem(filterQualityKnob.flex()).withMinWidth(70.0f).withMinHeight(70.0f).withFlex(1.0));
+    fb.items.add(juce::FlexItem(panKnob.flex()).withMinWidth(70.0f).withMinHeight(70.0f).withFlex(1.0));
 
     auto createModControlBox = [] (fxme::FxmeKnob& knob, juce::ComboBox& box)
     {
@@ -123,6 +129,10 @@ void LineReaderComponent::resized()
 
     auto modFltQBox = createModControlBox(modFilterQualityAmountKnob, modFilterQualitySelectBox);
     fb.items.add (juce::FlexItem (modFltQBox)
+                    .withMinWidth(70.0f).withMinHeight(70.0f).withFlex(1.0));
+
+    auto modPanBox = createModControlBox(modPanAmountKnob, modPanSelectBox);
+    fb.items.add (juce::FlexItem (modPanBox)
                     .withMinWidth(70.0f).withMinHeight(70.0f).withFlex(1.0));
 
     fb.performLayout (bounds.toFloat());

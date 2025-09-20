@@ -67,6 +67,9 @@ struct LineReaderParameters
     int   modLengthSelect;
     float modVolumeAmount;
     int   modVolumeSelect;
+    float pan;
+    float modPanAmount;
+    int   modPanSelect;
 
     FilterParameters filter;
 };
@@ -85,6 +88,9 @@ struct CircleReaderParameters
     int   modRadiusSelect;
     float modVolumeAmount;
     int   modVolumeSelect;
+    float pan;
+    float modPanAmount;
+    int   modPanSelect;
 
     FilterParameters filter;
 };

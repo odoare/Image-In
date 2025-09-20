@@ -29,8 +29,6 @@ MapSynthAudioProcessorEditor::MapSynthAudioProcessorEditor (MapSynthAudioProcess
       release2Knob (p.apvts, "Release2", juce::Colours::cyan)
 {
     addAndMakeVisible(mapDisplayComponent);
-    addAndMakeVisible(lineReaderComponent);
-    addAndMakeVisible(circleReaderComponent);
     
     addAndMakeVisible(globalControlsGroup);
     globalControlsGroup.setText("Global / LFO");
@@ -59,10 +57,14 @@ MapSynthAudioProcessorEditor::MapSynthAudioProcessorEditor (MapSynthAudioProcess
     addAndMakeVisible (release2Knob.slider);
     release2Knob.slider.setLookAndFeel (&fxmeLookAndFeel);
 
+    addAndMakeVisible(readerTabs);
+    readerTabs.addTab("Line Reader", juce::Colours::transparentBlack, &lineReaderComponent, false);
+    readerTabs.addTab("Circle Reader", juce::Colours::transparentBlack, &circleReaderComponent, false);
+
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
     setResizable(true, true);    
-    setSize (800, 600);
+    setSize (550, 650);
 }
 
 MapSynthAudioProcessorEditor::~MapSynthAudioProcessorEditor()
@@ -83,19 +85,22 @@ void MapSynthAudioProcessorEditor::resized()
     // subcomponents in your editor..
     auto bounds = getLocalBounds();
 
-    juce::FlexBox mainFb;
+    juce::FlexBox mainFb; // Main vertical layout
     mainFb.flexDirection = juce::FlexBox::Direction::column;
 
-    auto controlsHeight = juce::jmin (240, bounds.getHeight() / 2);
+    // Top panel for map and global controls
+    juce::FlexBox topPanelFb;
+    topPanelFb.flexDirection = juce::FlexBox::Direction::row;
 
-    juce::FlexBox controlsFb;
-    controlsFb.flexDirection = juce::FlexBox::Direction::row;
-    controlsFb.items.add (juce::FlexItem (lineReaderComponent).withFlex (2.5f).withMargin(5.0f));
-    controlsFb.items.add (juce::FlexItem (circleReaderComponent).withFlex (2.0f).withMargin(5.0f));
-    controlsFb.items.add (juce::FlexItem (globalControlsGroup).withFlex (1.5f).withMargin(5.0f));
+    auto globalControlsWidth = juce::jmin(240, bounds.getWidth() / 3);
+    topPanelFb.items.add(juce::FlexItem(globalControlsGroup).withWidth(globalControlsWidth).withMargin(5.0f));
+    topPanelFb.items.add(juce::FlexItem(mapDisplayComponent).withFlex(1.0f).withMargin(5.0f));
 
-    mainFb.items.add (juce::FlexItem (mapDisplayComponent).withFlex (1.0f).withMargin (5.0f));
-    mainFb.items.add (juce::FlexItem (controlsFb).withHeight (controlsHeight));
+    auto readerTabsHeight = juce::jmin(300, bounds.getHeight() / 2);
+
+    // Add top and bottom panels to main layout
+    mainFb.items.add(juce::FlexItem(topPanelFb).withFlex(1.0f));
+    mainFb.items.add(juce::FlexItem(readerTabs).withHeight(readerTabsHeight).withMargin(5.0f));
 
     mainFb.performLayout (bounds);
 

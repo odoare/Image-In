@@ -9,6 +9,7 @@
 #pragma once
 
 #include <JuceHeader.h>
+#include <juce_gui_extra/juce_gui_extra.h>
 // #include "PluginProcessor.h" // We will forward-declare to break the include cycle
 class MapSynthAudioProcessor;
 
@@ -54,6 +55,8 @@ private:
     fxme::FxmeKnob release2Knob;
 
     juce::GroupComponent globalControlsGroup;
+
+    juce::TabbedComponent readerTabs { juce::TabbedButtonBar::TabsAtBottom };
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MapSynthAudioProcessorEditor)
 };

@@ -24,7 +24,9 @@ CircleReaderComponent::CircleReaderComponent(MapSynthAudioProcessor& p)
       filterFreqKnob(p.apvts, "CircleFilterFreq", juce::Colours::yellow),
       filterQualityKnob(p.apvts, "CircleFilterQuality", juce::Colours::yellow),
       modFilterFreqAmountKnob(p.apvts, "Mod_CircleFilterFreq_Amount", juce::Colours::hotpink),
-      modFilterQualityAmountKnob(p.apvts, "Mod_CircleFilterQuality_Amount", juce::Colours::hotpink)
+      modFilterQualityAmountKnob(p.apvts, "Mod_CircleFilterQuality_Amount", juce::Colours::hotpink),
+      panKnob(p.apvts, "CirclePan", juce::Colours::orange),
+      modPanAmountKnob(p.apvts, "Mod_CirclePan_Amount", juce::Colours::hotpink)
 {
     setupKnob(cxKnob);
     setupKnob(cyKnob);
@@ -40,6 +42,8 @@ CircleReaderComponent::CircleReaderComponent(MapSynthAudioProcessor& p)
     setupKnob(filterQualityKnob);
     setupKnob(modFilterFreqAmountKnob);
     setupKnob(modFilterQualityAmountKnob);
+    setupKnob(panKnob);
+    setupKnob(modPanAmountKnob);
 
     setupModulatorBox (modCxSelectBox, modCxSelectAttachment, "Mod_CircleCX_Select");
     setupModulatorBox (modCySelectBox, modCySelectAttachment, "Mod_CircleCY_Select");
@@ -51,6 +55,7 @@ CircleReaderComponent::CircleReaderComponent(MapSynthAudioProcessor& p)
     filterTypeAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(audioProcessor.apvts, "CircleFilterType", filterTypeBox);
     setupModulatorBox(modFilterFreqSelectBox, modFilterFreqSelectAttachment, "Mod_CircleFilterFreq_Select");
     setupModulatorBox(modFilterQualitySelectBox, modFilterQualitySelectAttachment, "Mod_CircleFilterQuality_Select");
+    setupModulatorBox(modPanSelectBox, modPanSelectAttachment, "Mod_CirclePan_Select");
 }
 
 void CircleReaderComponent::paint(juce::Graphics& g)
@@ -82,6 +87,7 @@ void CircleReaderComponent::resized()
     filterBox.items.add(juce::FlexItem(filterTypeBox).withFlex(1.0f).withMargin(juce::FlexItem::Margin(2.f, 0, 0, 0)));
     fb.items.add(juce::FlexItem(filterBox).withMinWidth(70.0f).withMinHeight(70.0f).withFlex(1.0));
     fb.items.add(juce::FlexItem(filterQualityKnob.flex()).withMinWidth(70.0f).withMinHeight(70.0f).withFlex(1.0));
+    fb.items.add(juce::FlexItem(panKnob.flex()).withMinWidth(70.0f).withMinHeight(70.0f).withFlex(1.0));
 
     auto createModControlBox = [] (fxme::FxmeKnob& knob, juce::ComboBox& box)
     {
@@ -114,6 +120,10 @@ void CircleReaderComponent::resized()
 
     auto modFltQBox = createModControlBox(modFilterQualityAmountKnob, modFilterQualitySelectBox);
     fb.items.add (juce::FlexItem (modFltQBox)
+                    .withMinWidth(70.0f).withMinHeight(70.0f).withFlex(1.0));
+
+    auto modPanBox = createModControlBox(modPanAmountKnob, modPanSelectBox);
+    fb.items.add (juce::FlexItem (modPanBox)
                     .withMinWidth(70.0f).withMinHeight(70.0f).withFlex(1.0));
 
     fb.performLayout (bounds.toFloat());

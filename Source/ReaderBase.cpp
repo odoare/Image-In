@@ -17,6 +17,7 @@ void ReaderBase::prepareToPlay(double sr)
     juce::dsp::ProcessSpec spec { sampleRate, (juce::uint32)512, 1 }; // Max block size and 1 channel
     filter.prepare(spec);
     filter.reset();
+    panSmoother.reset(sr, 0.05);
 }
 
 void ReaderBase::setFrequency (float freq)
@@ -38,6 +39,12 @@ void ReaderBase::setVolume (float newVolume)
 float ReaderBase::getVolume() const
 {
     return volume;
+}
+
+void ReaderBase::setPan (float newPan)
+{
+    pan = juce::jlimit (-1.0f, 1.0f, newPan);
+    panSmoother.setTargetValue (pan);
 }
 
 void ReaderBase::updateFilterParameters(const FilterParameters& params)

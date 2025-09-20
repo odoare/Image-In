@@ -46,6 +46,7 @@ public:
     float getFrequency() const;
     void setVolume (float newVolume);
     float getVolume() const;
+    void setPan (float newPan);
     void updateFilterParameters(const FilterParameters& params);
 
     virtual Type getType() const = 0;
@@ -60,6 +61,8 @@ protected:
     float phaseHigh = 0.0f;
     float volume = 1.0f;
     juce::LinearSmoothedValue<float> volumeSmoother;
+    std::atomic<float> pan { 0.0f };
+    juce::LinearSmoothedValue<float> panSmoother;
 
     float applyFilter(float inputSample, float modFreqSignal, float modQualitySignal);
 
@@ -73,6 +76,8 @@ protected:
     std::atomic<int>   modFilterFreqSelect { 0 };
     std::atomic<float> modFilterQualityAmount { 0.0f };
     std::atomic<int>   modFilterQualitySelect { 0 };
+    std::atomic<float> modPanAmount { 0.0f };
+    std::atomic<int>   modPanSelect { 0 };
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ReaderBase)
 };
