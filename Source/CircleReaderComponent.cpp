@@ -13,10 +13,11 @@
 
 CircleReaderComponent::CircleReaderComponent(MapSynthAudioProcessor& p)
     : ReaderComponent(p),
-      cxKnob(p.apvts, "CX", juce::Colours::orange),
-      cyKnob(p.apvts, "CY", juce::Colours::orange),
-      rKnob(p.apvts, "R", juce::Colours::orange),
-      circleVolumeKnob(p.apvts, "CircleVolume", juce::Colours::orange),
+      cxKnob(p.apvts, "CX", CIRCLECOLOUR),
+      cyKnob(p.apvts, "CY", CIRCLECOLOUR),
+      rKnob(p.apvts, "R", CIRCLECOLOUR),
+      circleVolumeKnob(p.apvts, "CircleVolume", CIRCLECOLOUR),
+      panKnob(p.apvts, "CirclePan", CIRCLECOLOUR),
       modCxAmountKnob(p.apvts, "Mod_CircleCX_Amount", juce::Colours::hotpink),
       modCyAmountKnob(p.apvts, "Mod_CircleCY_Amount", juce::Colours::hotpink),
       modRadiusAmountKnob(p.apvts, "Mod_CircleRadius_Amount", juce::Colours::hotpink),
@@ -25,7 +26,6 @@ CircleReaderComponent::CircleReaderComponent(MapSynthAudioProcessor& p)
       filterQualityKnob(p.apvts, "CircleFilterQuality", juce::Colours::yellow),
       modFilterFreqAmountKnob(p.apvts, "Mod_CircleFilterFreq_Amount", juce::Colours::hotpink),
       modFilterQualityAmountKnob(p.apvts, "Mod_CircleFilterQuality_Amount", juce::Colours::hotpink),
-      panKnob(p.apvts, "CirclePan", juce::Colours::orange),
       modPanAmountKnob(p.apvts, "Mod_CirclePan_Amount", juce::Colours::hotpink)
 {
     setupKnob(cxKnob);

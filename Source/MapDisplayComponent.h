@@ -12,6 +12,10 @@
 
 #include <juce_opengl/juce_opengl.h>
 
+#define CIRCLECOLOUR juce::Colours::blue
+#define LINECOLOUR juce::Colours::red
+
+
 class MapSynthAudioProcessor;
 
 /**
@@ -37,6 +41,26 @@ public:
 private:
     void timerCallback() override;
     void changeListenerCallback (juce::ChangeBroadcaster* source) override;
+
+    // New stuff for handle interaction
+    enum class HandleType
+    {
+        None,
+        LineCenter,
+        LineEndpoint,
+        CircleCenter,
+        CircleRadius
+    };
+
+    void mouseDown (const juce::MouseEvent& event) override;
+    void mouseDrag (const juce::MouseEvent& event) override;
+    void mouseUp (const juce::MouseEvent& event) override;
+
+    juce::Rectangle<float> getHandleRect (juce::Point<float> center) const;
+    HandleType getHandleAt (juce::Point<int> position);
+
+    HandleType activeHandle { HandleType::None };
+    const float handleSize = 10.0f;
 
     juce::Rectangle<int> displayArea;
 

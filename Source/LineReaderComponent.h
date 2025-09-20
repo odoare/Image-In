@@ -12,7 +12,7 @@
 
 #include "ReaderComponent.h"
 
-#define COLOUR juce::Colour::fromRGB(100, 100, 250)
+#define COLOUR juce::Colours::red
 
 class LineReaderComponent : public ReaderComponent
 {

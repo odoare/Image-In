@@ -12,6 +12,8 @@
 
 #include "ReaderComponent.h"
 
+#define CIRCLECOLOUR juce::Colours::blue
+
 class CircleReaderComponent : public ReaderComponent
 {
 public:
