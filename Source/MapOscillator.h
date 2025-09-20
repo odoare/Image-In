@@ -29,7 +29,7 @@ public:
     ~MapOscillator();
 
     void prepareToPlay (double sampleRate);
-    void processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages, int startSample, int numSamples, ImageBuffer& imageBuffer, const juce::AudioBuffer<float>& lfoBuffer);
+    void processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages, int startSample, int numSamples, ImageBuffer& imageBuffer, const juce::AudioBuffer<float>& modulatorBuffer);
     void rebuildReaders (const juce::Array<ReaderBase::Type>& types);
     void updateParameters (const GlobalParameters& params);
     LineReader* addLineReader();

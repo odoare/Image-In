@@ -128,6 +128,7 @@ void MapDisplayComponent::renderOpenGL()
     // Create a juce::Graphics to draw our 2D overlays on top of the texture
     std::unique_ptr<juce::LowLevelGraphicsContext> glContext (createOpenGLGraphicsContext (openGLContext, getWidth(), getHeight()));
     juce::Graphics g (*glContext);
+    g.addTransform (juce::AffineTransform::translation ((float) displayArea.getX(), (float) displayArea.getY()));
     
     auto& apvts = processor.apvts;
 
@@ -138,35 +139,43 @@ void MapDisplayComponent::renderOpenGL()
     const float w = (float) displayArea.getWidth();
     const float h = (float) displayArea.getHeight();
 
-    // Draw LineReader
+    auto getModVal = [&] (int select)
     {
+        if (select < 2) // LFO 1 or LFO 2
+            return (select == 0) ? lfo1Val : lfo2Val;
+        return 0.5f; // For ADSRs, just show unmodulated for now
+    };
+
+    // Draw main (LFO-modulated only) paths in grey
+    {
+        g.setColour (juce::Colours::grey);
         const float cx_base = apvts.getRawParameterValue ("LineCX")->load();
         const float cy_base = apvts.getRawParameterValue ("LineCY")->load();
         const float length_base = apvts.getRawParameterValue ("LineLength")->load();
         const float angle_base = apvts.getRawParameterValue ("LineAngle")->load();
 
-        // Get LFO modulation parameters
-        const float lfoCxAmount = apvts.getRawParameterValue ("LFO_LineCX_Amount")->load();
-        const bool  lfoCxSelect = apvts.getRawParameterValue ("LFO_LineCX_Select")->load() > 0.5f;
-        const float lfoCyAmount = apvts.getRawParameterValue ("LFO_LineCY_Amount")->load();
-        const bool  lfoCySelect = apvts.getRawParameterValue ("LFO_LineCY_Select")->load() > 0.5f;
-        const float lfoAngleAmount = apvts.getRawParameterValue ("LFO_LineAngle_Amount")->load();
-        const bool  lfoAngleSelect = apvts.getRawParameterValue ("LFO_LineAngle_Select")->load() > 0.5f;
-        const float lfoLengthAmount = apvts.getRawParameterValue ("LFO_LineLength_Amount")->load();
-        const bool  lfoLengthSelect = apvts.getRawParameterValue ("LFO_LineLength_Select")->load() > 0.5f;
+        // Get modulation parameters
+        const float modCxAmount = apvts.getRawParameterValue ("Mod_LineCX_Amount")->load();
+        const int   modCxSelect = (int) apvts.getRawParameterValue ("Mod_LineCX_Select")->load();
+        const float modCyAmount = apvts.getRawParameterValue ("Mod_LineCY_Amount")->load();
+        const int   modCySelect = (int) apvts.getRawParameterValue ("Mod_LineCY_Select")->load();
+        const float modAngleAmount = apvts.getRawParameterValue ("Mod_LineAngle_Amount")->load();
+        const int   modAngleSelect = (int) apvts.getRawParameterValue ("Mod_LineAngle_Select")->load();
+        const float modLengthAmount = apvts.getRawParameterValue ("Mod_LineLength_Amount")->load();
+        const int   modLengthSelect = (int) apvts.getRawParameterValue ("Mod_LineLength_Select")->load();
 
         // Apply LFO modulation
-        const float lfoValForCx = lfoCxSelect ? lfo2Val : lfo1Val;
-        const float cx = cx_base * (1.0f + 2.0f * (lfoCxAmount - 0.5f) * (lfoValForCx - 0.5f));
+        const float modValForCx = getModVal (modCxSelect);
+        const float cx = cx_base * (1.0f + modCxAmount * (modValForCx * 2.0f - 1.0f));
 
-        const float lfoValForCy = lfoCySelect ? lfo2Val : lfo1Val;
-        const float cy = cy_base * (1.0f + 2.0f * (lfoCyAmount - 0.5f) * (lfoValForCy - 0.5f));
+        const float modValForCy = getModVal (modCySelect);
+        const float cy = cy_base * (1.0f + modCyAmount * (modValForCy * 2.0f - 1.0f));
 
-        const float lfoValForAngle = lfoAngleSelect ? lfo2Val : lfo1Val;
-        const float angle = angle_base * (1.0f + 2.0f * (lfoAngleAmount - 0.5f) * (lfoValForAngle - 0.5f));
+        const float modValForAngle = getModVal (modAngleSelect);
+        const float angle = angle_base * (1.0f + modAngleAmount * (modValForAngle * 2.0f - 1.0f));
 
-        const float lfoValForLength = lfoLengthSelect ? lfo2Val : lfo1Val;
-        const float length = length_base * (1.0f + 2.0f * (lfoLengthAmount - 0.5f) * (lfoValForLength - 0.5f));
+        const float modValForLength = getModVal (modLengthSelect);
+        const float length = length_base * (1.0f + modLengthAmount * (modValForLength * 2.0f - 1.0f));
 
         const float halfLength = length * 0.5f;
         const float dx = halfLength * std::cos (angle);
@@ -177,37 +186,64 @@ void MapDisplayComponent::renderOpenGL()
         const float x2 = cx + dx;
         const float y2 = cy + dy;
 
-        g.setColour (juce::Colours::white);
-        g.drawLine (displayArea.getX() + x1 * w, displayArea.getY() + y1 * h,
-                    displayArea.getX() + x2 * w, displayArea.getY() + y2 * h, 2.0f);
+        g.drawLine (x1 * w, y1 * h, x2 * w, y2 * h, 2.0f);
     }
-
-    // Draw CircleReader
     {
+        g.setColour (juce::Colours::grey);
         const float cx_base = apvts.getRawParameterValue ("CX")->load();
         const float cy_base = apvts.getRawParameterValue ("CY")->load();
         const float radius_base = apvts.getRawParameterValue ("R")->load();
 
-        const float lfoCxAmount = apvts.getRawParameterValue("LFO_CX_Amount")->load();
-        const bool lfoCxSelect = apvts.getRawParameterValue("LFO_CX_Select")->load() > 0.5f;
-        const float lfoValForCx = lfoCxSelect ? lfo2Val : lfo1Val;
-        const float cx = cx_base * (1.0f + 2.0f * (lfoCxAmount - 0.5f) * (lfoValForCx - 0.5f));
+        const float modCxAmount = apvts.getRawParameterValue("Mod_CircleCX_Amount")->load();
+        const int modCxSelect = (int) apvts.getRawParameterValue("Mod_CircleCX_Select")->load();
+        const float modValForCx = getModVal (modCxSelect);
+        const float cx = cx_base * (1.0f + modCxAmount * (modValForCx * 2.0f - 1.0f));
 
-        const float lfoCyAmount = apvts.getRawParameterValue("LFO_CY_Amount")->load();
-        const bool lfoCySelect = apvts.getRawParameterValue("LFO_CY_Select")->load() > 0.5f;
-        const float lfoValForCy = lfoCySelect ? lfo2Val : lfo1Val;
-        const float cy = cy_base * (1.0f + 2.0f * (lfoCyAmount - 0.5f) * (lfoValForCy - 0.5f));
+        const float modCyAmount = apvts.getRawParameterValue("Mod_CircleCY_Amount")->load();
+        const int modCySelect = (int) apvts.getRawParameterValue("Mod_CircleCY_Select")->load();
+        const float modValForCy = getModVal (modCySelect);
+        const float cy = cy_base * (1.0f + modCyAmount * (modValForCy * 2.0f - 1.0f));
 
-        const float lfoRadiusAmount = apvts.getRawParameterValue("LFO_R_Amount")->load();
-        const bool lfoRadiusSelect = apvts.getRawParameterValue("LFO_R_Select")->load() > 0.5f;
-        const float lfoValForRadius = lfoRadiusSelect ? lfo2Val : lfo1Val;
-        const float radiusParam = radius_base * (1.0f + 2.0f * (lfoRadiusAmount - 0.5f) * (lfoValForRadius - 0.5f));
+        const float modRadiusAmount = apvts.getRawParameterValue("Mod_CircleRadius_Amount")->load();
+        const int modRadiusSelect = (int) apvts.getRawParameterValue("Mod_CircleRadius_Select")->load();
+        const float modValForRadius = getModVal (modRadiusSelect);
+        const float radiusParam = radius_base * (1.0f + modRadiusAmount * (modValForRadius * 2.0f - 1.0f));
         
-        g.setColour (juce::Colours::orange);
         const float radius = radiusParam * juce::jmin (w, h);
-        g.drawEllipse (displayArea.getX() + cx * w - radius,
-                       displayArea.getY() + cy * h - radius,
+        g.drawEllipse (cx * w - radius,
+                       cy * h - radius,
                        radius * 2.0f, radius * 2.0f, 2.0f);
+    }
+
+    // Draw per-voice paths
+    std::array<VoiceDisplayState, NUM_VOICES> statesCopy;
+    {
+        juce::ScopedLock lock (processor.displayStateLock);
+        statesCopy = processor.voiceDisplayStates;
+    }
+
+    for (const auto& voiceState : statesCopy)
+    {
+        if (! voiceState.isActive)
+            continue;
+
+        for (const auto& readerInfo : voiceState.readerInfos)
+        {
+            if (readerInfo.type == ReaderBase::Type::Line)
+            {
+                g.setColour (juce::Colours::white.withAlpha (readerInfo.volume));
+                g.drawLine (readerInfo.x1 * w, readerInfo.y1 * h,
+                            readerInfo.x2 * w, readerInfo.y2 * h, 2.0f);
+            }
+            else if (readerInfo.type == ReaderBase::Type::Circle)
+            {
+                g.setColour (juce::Colours::orange.withAlpha (readerInfo.volume));
+                const float radius = readerInfo.radius * juce::jmin (w, h);
+                g.drawEllipse (readerInfo.cx * w - radius,
+                               readerInfo.cy * h - radius,
+                               radius * 2.0f, radius * 2.0f, 2.0f);
+            }
+        }
     }
 }
 

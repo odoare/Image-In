@@ -11,23 +11,7 @@
 #pragma once
 
 #include "ReaderBase.h"
-
-struct LineReaderParameters
-{
-    float cx, cy;
-    float length;
-    float angle;
-    float volume;
-
-    float lfoCxAmount;
-    bool  lfoCxSelect;
-    float lfoCyAmount;
-    bool  lfoCySelect;
-    float lfoAngleAmount;
-    bool  lfoAngleSelect;
-    float lfoLengthAmount;
-    bool  lfoLengthSelect;
-};
+#include "ParameterStructs.h"
 
 /**
     This class reads audio samples from an image by traversing a line.
@@ -39,16 +23,11 @@ public:
     LineReader();
     ~LineReader() override;
 
-    void processBlock (const juce::Image& image, juce::AudioBuffer<float>& buffer, int startSample, int numSamples, const juce::AudioBuffer<float>& lfoBuffer) override;
+    void processBlock (const juce::Image& image, juce::AudioBuffer<float>& buffer, int startSample, int numSamples, const juce::AudioBuffer<float>& modulatorBuffer) override;
 
     void setCentre (float newCx, float newCy);
     void setLength (float newLength);
     void setAngle (float newAngle);
-
-    float getX1() const;
-    float getY1() const;
-    float getX2() const;
-    float getY2() const;
 
     void updateParameters (const LineReaderParameters& params);
     Type getType() const override { return Type::Line; }
@@ -56,23 +35,23 @@ public:
 private:
     void prepareToPlay (double sampleRate) override;
 
-    void getModulated(float& outCx, float& outCy, float& outLength, float& outAngle) const;
-
     std::atomic<float> cx { 0.5f }, cy { 0.5f };
     std::atomic<float> length { 0.6f }, angle { 0.0f };
 
     juce::LinearSmoothedValue<float> cxs, cys, lengths, angles;
 
 public:
-    std::atomic<float> lfoCxAmount { 0.5f };
-    std::atomic<float> lfoCyAmount { 0.5f };
-    std::atomic<float> lfoAngleAmount { 0.5f };
-    std::atomic<float> lfoLengthAmount { 0.5f };
+    std::atomic<float> modCxAmount { 0.0f };
+    std::atomic<float> modCyAmount { 0.0f };
+    std::atomic<float> modAngleAmount { 0.0f };
+    std::atomic<float> modLengthAmount { 0.0f };
+    std::atomic<float> modVolumeAmount { 0.0f };
 
-    std::atomic<bool> lfoCxSelect { false };
-    std::atomic<bool> lfoCySelect { false };
-    std::atomic<bool> lfoAngleSelect { false };
-    std::atomic<bool> lfoLengthSelect { false };
+    std::atomic<int> modCxSelect { 0 };
+    std::atomic<int> modCySelect { 0 };
+    std::atomic<int> modAngleSelect { 0 };
+    std::atomic<int> modLengthSelect { 0 };
+    std::atomic<int> modVolumeSelect { 0 };
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (LineReader)
 };

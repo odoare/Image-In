@@ -22,6 +22,7 @@ LineReader::~LineReader()
 
 void LineReader::prepareToPlay (double sr) 
 {
+    ReaderBase::prepareToPlay(sr);
     sampleRate = sr;
     const double rampTimeSeconds = 0.05;
     cxs.reset (sampleRate, rampTimeSeconds); cxs.setCurrentAndTargetValue (cx.load());
@@ -67,66 +68,23 @@ void LineReader::updateParameters (const LineReaderParameters& params)
     setLength (params.length);
     setAngle (params.angle);
     setVolume (params.volume);
+    updateFilterParameters(params.filter);
 
-    lfoCxAmount = params.lfoCxAmount;
-    lfoCyAmount = params.lfoCyAmount;
-    lfoAngleAmount = params.lfoAngleAmount;
-    lfoLengthAmount = params.lfoLengthAmount;
+    modCxAmount = params.modCxAmount;
+    modCyAmount = params.modCyAmount;
+    modAngleAmount = params.modAngleAmount;
+    modLengthAmount = params.modLengthAmount;
+    modVolumeAmount = params.modVolumeAmount;
 
-    lfoCxSelect = params.lfoCxSelect;
-    lfoCySelect = params.lfoCySelect;
-    lfoAngleSelect = params.lfoAngleSelect;
-    lfoLengthSelect = params.lfoLengthSelect;
+    modCxSelect = params.modCxSelect;
+    modCySelect = params.modCySelect;
+    modAngleSelect = params.modAngleSelect;
+    modLengthSelect = params.modLengthSelect;
+    modVolumeSelect = params.modVolumeSelect;
 }
 
-void LineReader::getModulated(float& outCx, float& outCy, float& outLength, float& outAngle) const
-{
-    const float lfoValCx = lastLfoValues[lfoCxSelect.load() ? 1 : 0].load();
-    outCx = cx.load() * (1.0f + 2.0f * (lfoCxAmount.load() - 0.5f) * (lfoValCx - 0.5f));
-
-    const float lfoValCy = lastLfoValues[lfoCySelect.load() ? 1 : 0].load();
-    outCy = cy.load() * (1.0f + 2.0f * (lfoCyAmount.load() - 0.5f) * (lfoValCy - 0.5f));
-
-    const float lfoValAngle = lastLfoValues[lfoAngleSelect.load() ? 1 : 0].load();
-    outAngle = angle.load() * (1.0f + 2.0f * (lfoAngleAmount.load() - 0.5f) * (lfoValAngle - 0.5f));
-
-    const float lfoValLength = lastLfoValues[lfoLengthSelect.load() ? 1 : 0].load();
-    outLength = length.load() * (1.0f + 2.0f * (lfoLengthAmount.load() - 0.5f) * (lfoValLength - 0.5f));
-}
-
-float LineReader::getX1() const
-{
-    float currentCx, currentCy, currentLength, currentAngle;
-    getModulated(currentCx, currentCy, currentLength, currentAngle);
-    const float halfLength = currentLength * 0.5f;
-    return currentCx - halfLength * juce::dsp::FastMathApproximations::cos (currentAngle);
-}
-
-float LineReader::getY1() const
-{
-    float currentCx, currentCy, currentLength, currentAngle;
-    getModulated(currentCx, currentCy, currentLength, currentAngle);
-    const float halfLength = currentLength * 0.5f;
-    return currentCy - halfLength * juce::dsp::FastMathApproximations::sin (currentAngle);
-}
-
-float LineReader::getX2() const
-{
-    float currentCx, currentCy, currentLength, currentAngle;
-    getModulated(currentCx, currentCy, currentLength, currentAngle);
-    const float halfLength = currentLength * 0.5f;
-    return currentCx + halfLength * juce::dsp::FastMathApproximations::cos (currentAngle);
-}
-
-float LineReader::getY2() const
-{
-    float currentCx, currentCy, currentLength, currentAngle;
-    getModulated(currentCx, currentCy, currentLength, currentAngle);
-    const float halfLength = currentLength * 0.5f;
-    return currentCy + halfLength * juce::dsp::FastMathApproximations::sin (currentAngle);
-}
-
-void LineReader::processBlock (const juce::Image& imageToRead, juce::AudioBuffer<float>& buffer, int startSample, int numSamples, const juce::AudioBuffer<float>& lfoBuffer)
+void LineReader::processBlock (const juce::Image& imageToRead, juce::AudioBuffer<float>& buffer, int startSample, int numSamples,
+                               const juce::AudioBuffer<float>& modulatorBuffer)
 {
     if (! imageToRead.isValid())
     {
@@ -150,34 +108,51 @@ void LineReader::processBlock (const juce::Image& imageToRead, juce::AudioBuffer
     const float imageHeight = (float) (bitmapData.height - 1);
     const int numChannels = buffer.getNumChannels();
 
-    const auto* lfo1Data = lfoBuffer.getReadPointer (0);
-    const auto* lfo2Data = lfoBuffer.getReadPointer (1);
+    auto applyMod = [] (float base, float modAmount, float modSignal, bool isBipolar)
+    {
+        if (isBipolar)
+        {
+            // Bipolar modulation: value swings around the base.
+            // modAmount is a bipolar depth control from -1 (inverted) to 1 (normal).
+            // modSignal is [0, 1], so we map it to [-1, 1].
+            float bipolarSignal = modSignal * 2.0f - 1.0f;
+            return base * (1.0f + modAmount * bipolarSignal);
+        }
+        else
+        {
+            // Unipolar modulation: value is scaled by the modulator.
+            // modAmount is a bipolar mix control: 0=no mod, 1=full pos, -1=full inv.
+            float multiplier;
+            if (modAmount >= 0.0f)
+                // Interpolate between 1.0 (no mod) and modSignal (full positive mod)
+                multiplier = 1.0f + modAmount * (modSignal - 1.0f);
+            else // modAmount < 0.0f
+                // Interpolate between 1.0 (no mod) and (1.0 - modSignal) (full inverted mod)
+                multiplier = 1.0f + modAmount * modSignal;
+            return base * multiplier;
+        }
+    };
 
     for (int sample = startSample; sample < startSample + numSamples; ++sample)
     {
-        float lfoValues[2] = { lfo1Data[sample], lfo2Data[sample] };
+        // Get smoothed base values
+        float cx_base = cxs.getNextValue();
+        float cy_base = cys.getNextValue();
+        float length_base = lengths.getNextValue();
+        float angle_base = angles.getNextValue();
+        float volume_base = volumeSmoother.getNextValue();
 
-        const float lfoValCx = lfoValues[lfoCxSelect.load() ? 1 : 0];
-        float cx_sv = cxs.getNextValue();
-        cx_sv *= (1.0f + 2.0f * (lfoCxAmount.load() - 0.5f) * (lfoValCx - 0.5f));
+        // Apply modulation
+        float cx_sv = applyMod (cx_base, modCxAmount.load(), modulatorBuffer.getSample (modCxSelect.load(), sample), true);
+        float cy_sv = applyMod (cy_base, modCyAmount.load(), modulatorBuffer.getSample (modCySelect.load(), sample), true);
+        float length_sv = applyMod (length_base, modLengthAmount.load(), modulatorBuffer.getSample (modLengthSelect.load(), sample), true);
+        float angle_sv = applyMod (angle_base, modAngleAmount.load(), modulatorBuffer.getSample (modAngleSelect.load(), sample), true);
+        float volume_sv = applyMod (volume_base, modVolumeAmount.load(), modulatorBuffer.getSample (modVolumeSelect.load(), sample), false);
 
-        const float lfoValCy = lfoValues[lfoCySelect.load() ? 1 : 0];
-        float cy_sv = cys.getNextValue();
-        cy_sv *= (1.0f + 2.0f * (lfoCyAmount.load() - 0.5f) * (lfoValCy - 0.5f));
-
-        const float lfoValLength = lfoValues[lfoLengthSelect.load() ? 1 : 0];
-        float length_sv = lengths.getNextValue();
-        length_sv *= (1.0f + 2.0f * (lfoLengthAmount.load() - 0.5f) * (lfoValLength - 0.5f));
-
-        const float lfoValAngle = lfoValues[lfoAngleSelect.load() ? 1 : 0];
-        float angle_sv = angles.getNextValue();
-        angle_sv *= (1.0f + 2.0f * (lfoAngleAmount.load() - 0.5f) * (lfoValAngle - 0.5f));
-
-        if (sample == startSample + numSamples - 1)
-        {
-            lastLfoValues[0] = lfoValues[0];
-            lastLfoValues[1] = lfoValues[1];
-        }
+        // Clamp modulated values to a safe range
+        cx_sv = juce::jlimit (0.0f, 1.0f, cx_sv);
+        cy_sv = juce::jlimit (0.0f, 1.0f, cy_sv);
+        length_sv = juce::jlimit (0.0f, 1.0f, length_sv);
 
         const float halfLength = length_sv * 0.5f;
         const float dx_calc = halfLength * juce::dsp::FastMathApproximations::cos (angle_sv);
@@ -189,6 +164,18 @@ void LineReader::processBlock (const juce::Image& imageToRead, juce::AudioBuffer
         const float y2sv = cy_sv + dy_calc;
 
         // --- Amplitudes from length ---
+        if (sample == startSample + numSamples - 1)
+        {
+            lastDrawingInfo.isActive = true;
+            lastDrawingInfo.type = Type::Line;
+            lastDrawingInfo.volume = volume_sv;
+            lastDrawingInfo.x1 = x1sv;
+            lastDrawingInfo.y1 = y1sv;
+            lastDrawingInfo.x2 = x2sv;
+            lastDrawingInfo.y2 = y2sv;
+        }
+
+
         const float normalizedLength = juce::jlimit (0.0f, 1.0f, length_sv / std::sqrt (2.0f));
 
         const float ampHigh = juce::jmax (0.0f, 1.0f - normalizedLength * 2.0f);
@@ -236,7 +223,12 @@ void LineReader::processBlock (const juce::Image& imageToRead, juce::AudioBuffer
         if (ampBase > 0.0f) finalSampleValue += ampBase * getSampleAtPhase (phase);
         if (ampHigh > 0.0f) finalSampleValue += ampHigh * getSampleAtPhase (phaseHigh);
 
-        finalSampleValue *= volumeSmoother.getNextValue();
+        // Apply filter
+        const float modFreqSignal = modulatorBuffer.getSample(modFilterFreqSelect.load(), sample);
+        const float modQualitySignal = modulatorBuffer.getSample(modFilterQualitySelect.load(), sample);
+        finalSampleValue = applyFilter(finalSampleValue, modFreqSignal, modQualitySignal);
+
+        finalSampleValue *= volume_sv;
 
         for (int channel = 0; channel < numChannels; ++channel)
             buffer.addSample (channel, sample, finalSampleValue);

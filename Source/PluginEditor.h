@@ -48,6 +48,11 @@ private:
     fxme::FxmeKnob sustainKnob;
     fxme::FxmeKnob releaseKnob;
 
+    fxme::FxmeKnob attack2Knob;
+    fxme::FxmeKnob decay2Knob;
+    fxme::FxmeKnob sustain2Knob;
+    fxme::FxmeKnob release2Knob;
+
     juce::GroupComponent globalControlsGroup;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MapSynthAudioProcessorEditor)

@@ -24,7 +24,16 @@ public:
 
 private:
     fxme::FxmeKnob lineCxKnob, lineCyKnob, lineLengthKnob, lineAngleKnob, lineVolumeKnob,
-                     lfoLineCxAmountKnob, lfoLineCyAmountKnob, lfoLineAngleAmountKnob, lfoLineLengthAmountKnob;
+                     modLineCxAmountKnob, modLineCyAmountKnob, modLineAngleAmountKnob, modLineLengthAmountKnob, modLineVolumeAmountKnob,
+                     filterFreqKnob, filterQualityKnob,
+                     modFilterFreqAmountKnob, modFilterQualityAmountKnob;
 
-    fxme::FxmeButton lfoLineCxSelectButton, lfoLineCySelectButton, lfoLineAngleSelectButton, lfoLineLengthSelectButton;
+    juce::ComboBox modLineCxSelectBox, modLineCySelectBox, modLineAngleSelectBox, modLineLengthSelectBox, modLineVolumeSelectBox,
+                   filterTypeBox,
+                   modFilterFreqSelectBox, modFilterQualitySelectBox;
+
+    std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment>
+        modLineCxSelectAttachment, modLineCySelectAttachment, modLineAngleSelectAttachment, modLineLengthSelectAttachment, modLineVolumeSelectAttachment,
+        filterTypeAttachment,
+        modFilterFreqSelectAttachment, modFilterQualitySelectAttachment;
 };

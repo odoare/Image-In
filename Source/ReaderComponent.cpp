@@ -10,6 +10,7 @@
 
 #include "ReaderComponent.h"
 #include "PluginProcessor.h"
+#include "ParameterStructs.h"
 
 ReaderComponent::ReaderComponent(MapSynthAudioProcessor& p) : audioProcessor(p)
 {
@@ -21,8 +22,11 @@ void ReaderComponent::setupKnob (fxme::FxmeKnob& knob)
     knob.slider.setLookAndFeel (&fxmeLookAndFeel);
 }
 
-void ReaderComponent::setupButton (fxme::FxmeButton& button)
+void ReaderComponent::setupModulatorBox (juce::ComboBox& box,
+                                         std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment>& attachment,
+                                         const juce::String& paramId)
 {
-    addAndMakeVisible (button.button);
-    button.button.setLookAndFeel (&fxmeLookAndFeel);
+    addAndMakeVisible (box);
+    box.addItemList (modulatorChoices, 1);
+    attachment = std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment> (audioProcessor.apvts, paramId, box);
 }

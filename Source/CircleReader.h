@@ -11,20 +11,7 @@
 #pragma once
 
 #include "ReaderBase.h"
-
-struct CircleReaderParameters
-{
-    float cx, cy;
-    float radius;
-    float volume;
-
-    float lfoCxAmount;
-    bool  lfoCxSelect;
-    float lfoCyAmount;
-    bool  lfoCySelect;
-    float lfoRadiusAmount;
-    bool  lfoRadiusSelect;
-};
+#include "ParameterStructs.h"
 
 class CircleReader  : public ReaderBase
 {
@@ -32,26 +19,24 @@ public:
     CircleReader();
     ~CircleReader() override;
 
-    void processBlock (const juce::Image& image, juce::AudioBuffer<float>& buffer, int startSample, int numSamples, const juce::AudioBuffer<float>& lfoBuffer) override;
+    void processBlock (const juce::Image& image, juce::AudioBuffer<float>& buffer, int startSample, int numSamples, const juce::AudioBuffer<float>& modulatorBuffer) override;
 
     void setCentre (float newCx, float newCy);
     void setRadius (float newRadius);
-
-    float getCX() const;
-    float getCY() const;
-    float getRadius() const;
 
     void updateParameters (const CircleReaderParameters& params);
     Type getType() const override { return Type::Circle; }
 
 public:
-    std::atomic<float> lfoCxAmount { 0.5f };
-    std::atomic<float> lfoCyAmount { 0.5f };
-    std::atomic<float> lfoRadiusAmount { 0.5f };
+    std::atomic<float> modCxAmount { 0.0f };
+    std::atomic<float> modCyAmount { 0.0f };
+    std::atomic<float> modRadiusAmount { 0.0f };
+    std::atomic<float> modVolumeAmount { 0.0f };
 
-    std::atomic<bool> lfoCxSelect { false };
-    std::atomic<bool> lfoCySelect { false };
-    std::atomic<bool> lfoRadiusSelect { false };
+    std::atomic<int> modCxSelect { 0 };
+    std::atomic<int> modCySelect { 0 };
+    std::atomic<int> modRadiusSelect { 0 };
+    std::atomic<int> modVolumeSelect { 0 };
 
 private:
     void prepareToPlay (double sampleRate) override;

@@ -18,7 +18,7 @@ class MapSynthAudioProcessor;
 class SynthVoice : public juce::SynthesiserVoice
 {
 public:
-    SynthVoice (MapSynthAudioProcessor& p);
+    SynthVoice (MapSynthAudioProcessor& p, int voiceIndex);
     
     bool canPlaySound (juce::SynthesiserSound* sound) override;
     
@@ -41,8 +41,11 @@ public:
 private:
     MapSynthAudioProcessor& processor;
     MapOscillator mapOscillator;
-    ADSR adsr;
+    ADSR adsr; // Main ADSR for volume
+    ADSR adsr2; // Modulation ADSR
     juce::AudioBuffer<float> tempRenderBuffer;
+    int voiceIndex;
     float noteVel{0.f};
 
+    juce::AudioBuffer<float> modulatorBuffer;
 };

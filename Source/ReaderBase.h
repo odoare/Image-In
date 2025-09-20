@@ -11,6 +11,7 @@
 #pragma once
 
 #include <JuceHeader.h>
+#include "ParameterStructs.h"
 
 class LFO;
 
@@ -19,18 +20,37 @@ class ReaderBase : public juce::ChangeBroadcaster
 public:
     enum class Type { Line, Circle };
 
+    struct DrawingInfo
+    {
+        Type type = Type::Line;
+        bool isActive = false;
+        float volume = 0.0f;
+
+        // For Line
+        float x1 = 0.0f, y1 = 0.0f;
+        float x2 = 0.0f, y2 = 0.0f;
+
+        // For Circle
+        float cx = 0.0f, cy = 0.0f;
+        float radius = 0.0f;
+    };
+
+
     ReaderBase() = default;
     virtual ~ReaderBase() = default;
 
-    virtual void prepareToPlay (double sampleRate) = 0;
-    virtual void processBlock (const juce::Image& image, juce::AudioBuffer<float>& buffer, int startSample, int numSamples, const juce::AudioBuffer<float>& lfoBuffer) = 0;
+    virtual void prepareToPlay (double sampleRate);
+    virtual void processBlock (const juce::Image& image, juce::AudioBuffer<float>& buffer, int startSample, int numSamples, const juce::AudioBuffer<float>& modulatorBuffer) = 0;
 
     void setFrequency (float freq);
     float getFrequency() const;
     void setVolume (float newVolume);
     float getVolume() const;
+    void updateFilterParameters(const FilterParameters& params);
 
     virtual Type getType() const = 0;
+
+    DrawingInfo lastDrawingInfo;
 
 protected:
     float frequency = 440.0f;
@@ -40,7 +60,19 @@ protected:
     float phaseHigh = 0.0f;
     float volume = 1.0f;
     juce::LinearSmoothedValue<float> volumeSmoother;
-    std::atomic<float> lastLfoValues[2] = { { 0.0f }, { 0.0f } };
+
+    float applyFilter(float inputSample, float modFreqSignal, float modQualitySignal);
+
+    juce::dsp::StateVariableTPTFilter<float> filter;
+
+    std::atomic<int> filterType { (int)FilterType::Lowpass };
+    std::atomic<float> filterFreq { 20000.0f };
+    std::atomic<float> filterQuality { 1.0f };
+
+    std::atomic<float> modFilterFreqAmount { 0.0f };
+    std::atomic<int>   modFilterFreqSelect { 0 };
+    std::atomic<float> modFilterQualityAmount { 0.0f };
+    std::atomic<int>   modFilterQualitySelect { 0 };
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (ReaderBase)
 };

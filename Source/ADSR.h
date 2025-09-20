@@ -11,14 +11,7 @@
 #pragma once
 
 #include "Modulator.h"
-
-struct ADSRParameters
-{
-    float attack;
-    float decay;
-    float sustain;
-    float release;
-};
+#include "ParameterStructs.h"
 
 class ADSR : public Modulator
 {

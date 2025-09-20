@@ -22,6 +22,11 @@ MapSynthAudioProcessorEditor::MapSynthAudioProcessorEditor (MapSynthAudioProcess
       decayKnob (p.apvts, "Decay", juce::Colours::limegreen),
       sustainKnob (p.apvts, "Sustain", juce::Colours::limegreen),
       releaseKnob (p.apvts, "Release", juce::Colours::limegreen)
+      ,
+      attack2Knob (p.apvts, "Attack2", juce::Colours::cyan),
+      decay2Knob (p.apvts, "Decay2", juce::Colours::cyan),
+      sustain2Knob (p.apvts, "Sustain2", juce::Colours::cyan),
+      release2Knob (p.apvts, "Release2", juce::Colours::cyan)
 {
     addAndMakeVisible(mapDisplayComponent);
     addAndMakeVisible(lineReaderComponent);
@@ -44,6 +49,15 @@ MapSynthAudioProcessorEditor::MapSynthAudioProcessorEditor (MapSynthAudioProcess
     sustainKnob.slider.setLookAndFeel (&fxmeLookAndFeel);
     addAndMakeVisible (releaseKnob.slider);
     releaseKnob.slider.setLookAndFeel (&fxmeLookAndFeel);
+
+    addAndMakeVisible (attack2Knob.slider);
+    attack2Knob.slider.setLookAndFeel (&fxmeLookAndFeel);
+    addAndMakeVisible (decay2Knob.slider);
+    decay2Knob.slider.setLookAndFeel (&fxmeLookAndFeel);
+    addAndMakeVisible (sustain2Knob.slider);
+    sustain2Knob.slider.setLookAndFeel (&fxmeLookAndFeel);
+    addAndMakeVisible (release2Knob.slider);
+    release2Knob.slider.setLookAndFeel (&fxmeLookAndFeel);
 
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
@@ -102,8 +116,16 @@ void MapSynthAudioProcessorEditor::resized()
     adsrBox.items.add (juce::FlexItem (sustainKnob.flex()).withFlex (1.0));
     adsrBox.items.add (juce::FlexItem (releaseKnob.flex()).withFlex (1.0));
 
+    juce::FlexBox adsr2Box;
+    adsr2Box.flexDirection = juce::FlexBox::Direction::row;
+    adsr2Box.items.add (juce::FlexItem (attack2Knob.flex()).withFlex (1.0));
+    adsr2Box.items.add (juce::FlexItem (decay2Knob.flex()).withFlex (1.0));
+    adsr2Box.items.add (juce::FlexItem (sustain2Knob.flex()).withFlex (1.0));
+    adsr2Box.items.add (juce::FlexItem (release2Knob.flex()).withFlex (1.0));
+
     globalFb.items.add (juce::FlexItem(knobBox).withFlex(1.0));
     globalFb.items.add (juce::FlexItem(adsrBox).withFlex(1.0));
+    globalFb.items.add (juce::FlexItem(adsr2Box).withFlex(1.0));
 
     globalFb.performLayout(globalContentBounds);
 }

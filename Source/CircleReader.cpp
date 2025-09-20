@@ -16,6 +16,7 @@ CircleReader::~CircleReader() {}
 
 void CircleReader::prepareToPlay (double sr)
 {
+    ReaderBase::prepareToPlay(sr);
     sampleRate = sr;
     const double rampTimeSeconds = 0.05;
     cxs.reset (sampleRate, rampTimeSeconds); cxs.setCurrentAndTargetValue (cx.load());
@@ -52,35 +53,21 @@ void CircleReader::updateParameters (const CircleReaderParameters& params)
     setCentre (params.cx, params.cy);
     setRadius (params.radius);
     setVolume (params.volume);
+    updateFilterParameters(params.filter);
 
-    lfoCxAmount = params.lfoCxAmount;
-    lfoCyAmount = params.lfoCyAmount;
-    lfoRadiusAmount = params.lfoRadiusAmount;
+    modCxAmount = params.modCxAmount;
+    modCyAmount = params.modCyAmount;
+    modRadiusAmount = params.modRadiusAmount;
+    modVolumeAmount = params.modVolumeAmount;
 
-    lfoCxSelect = params.lfoCxSelect;
-    lfoCySelect = params.lfoCySelect;
-    lfoRadiusSelect = params.lfoRadiusSelect;
+    modCxSelect = params.modCxSelect;
+    modCySelect = params.modCySelect;
+    modRadiusSelect = params.modRadiusSelect;
+    modVolumeSelect = params.modVolumeSelect;
 }
 
-float CircleReader::getCX() const
-{
-    const float lfoVal = lastLfoValues[lfoCxSelect.load() ? 1 : 0].load();
-    return cx.load() * (1.0f + 2.0f * (lfoCxAmount.load() - 0.5f) * (lfoVal - 0.5f));
-}
-
-float CircleReader::getCY() const
-{
-    const float lfoVal = lastLfoValues[lfoCySelect.load() ? 1 : 0].load();
-    return cy.load() * (1.0f + 2.0f * (lfoCyAmount.load() - 0.5f) * (lfoVal - 0.5f));
-}
-
-float CircleReader::getRadius() const
-{
-    const float lfoVal = lastLfoValues[lfoRadiusSelect.load() ? 1 : 0].load();
-    return radius.load() * (1.0f + 2.0f * (lfoRadiusAmount.load() - 0.5f) * (lfoVal - 0.5f));
-}
-
-void CircleReader::processBlock (const juce::Image& imageToRead, juce::AudioBuffer<float>& buffer, int startSample, int numSamples, const juce::AudioBuffer<float>& lfoBuffer)
+void CircleReader::processBlock (const juce::Image& imageToRead, juce::AudioBuffer<float>& buffer, int startSample, int numSamples,
+                                 const juce::AudioBuffer<float>& modulatorBuffer)
 {
     if (! imageToRead.isValid())
     {
@@ -106,32 +93,62 @@ void CircleReader::processBlock (const juce::Image& imageToRead, juce::AudioBuff
     const float imageHeight = (float) (bitmapData.height - 1);
     const int numChannels = buffer.getNumChannels();
 
-    const auto* lfo1Data = lfoBuffer.getReadPointer (0);
-    const auto* lfo2Data = lfoBuffer.getReadPointer (1);
+    auto applyMod = [] (float base, float modAmount, float modSignal, bool isBipolar)
+    {
+        if (isBipolar)
+        {
+            // Bipolar modulation: value swings around the base.
+            // modAmount is a bipolar depth control from -1 (inverted) to 1 (normal).
+            // modSignal is [0, 1], so we map it to [-1, 1].
+            float bipolarSignal = modSignal * 2.0f - 1.0f;
+            return base * (1.0f + modAmount * bipolarSignal);
+        }
+        else
+        {
+            // Unipolar modulation: value is scaled by the modulator.
+            // modAmount is a bipolar mix control: 0=no mod, 1=full pos, -1=full inv.
+            float multiplier;
+            if (modAmount >= 0.0f)
+                // Interpolate between 1.0 (no mod) and modSignal (full positive mod)
+                multiplier = 1.0f + modAmount * (modSignal - 1.0f);
+            else // modAmount < 0.0f
+                // Interpolate between 1.0 (no mod) and (1.0 - modSignal) (full inverted mod)
+                multiplier = 1.0f + modAmount * modSignal;
+            return base * multiplier;
+        }
+    };
 
     for (int sample = startSample; sample < startSample + numSamples; ++sample)
     {
-        float lfoValues[2] = { lfo1Data[sample], lfo2Data[sample] };
+        // Get smoothed base values
+        float cx_base = cxs.getNextValue();
+        float cy_base = cys.getNextValue();
+        float r_base = rs.getNextValue();
+        float volume_base = volumeSmoother.getNextValue();
 
-        const float lfoValCx = lfoValues[lfoCxSelect.load() ? 1 : 0];
-        float cx_sv = cxs.getNextValue();
-        cx_sv *= (1.0f + 2.0f * (lfoCxAmount.load() - 0.5f) * (lfoValCx - 0.5f));
+        // Apply modulation
+        float cx_sv = applyMod (cx_base, modCxAmount.load(), modulatorBuffer.getSample (modCxSelect.load(), sample), true);
+        float cy_sv = applyMod (cy_base, modCyAmount.load(), modulatorBuffer.getSample (modCySelect.load(), sample), true);
+        float r_sv = applyMod (r_base, modRadiusAmount.load(), modulatorBuffer.getSample (modRadiusSelect.load(), sample), true);
+        float volume_sv = applyMod (volume_base, modVolumeAmount.load(), modulatorBuffer.getSample (modVolumeSelect.load(), sample), false);
 
-        const float lfoValCy = lfoValues[lfoCySelect.load() ? 1 : 0];
-        float cy_sv = cys.getNextValue();
-        cy_sv *= (1.0f + 2.0f * (lfoCyAmount.load() - 0.5f) * (lfoValCy - 0.5f));
-
-        const float lfoValRadius = lfoValues[lfoRadiusSelect.load() ? 1 : 0];
-        float r_sv = rs.getNextValue();
-        r_sv *= (1.0f + 2.0f * (lfoRadiusAmount.load() - 0.5f) * (lfoValRadius - 0.5f));
-
-        if (sample == startSample + numSamples - 1)
-        {
-            lastLfoValues[0] = lfoValues[0];
-            lastLfoValues[1] = lfoValues[1];
-        }
+        // Clamp modulated values to a safe range
+        cx_sv = juce::jlimit (0.0f, 1.0f, cx_sv);
+        cy_sv = juce::jlimit (0.0f, 1.0f, cy_sv);
+        r_sv = juce::jlimit (0.0f, 0.5f, r_sv);
 
         // --- Amplitudes from radius ---
+        if (sample == startSample + numSamples - 1)
+        {
+            lastDrawingInfo.isActive = true;
+            lastDrawingInfo.type = Type::Circle;
+            lastDrawingInfo.volume = volume_sv;
+            lastDrawingInfo.cx = cx_sv;
+            lastDrawingInfo.cy = cy_sv;
+            lastDrawingInfo.radius = r_sv;
+        }
+
+
         const float normalizedLength = r_sv * 2.0f; // Map radius [0, 0.5] to [0, 1] for amplitude calculation
 
         const float ampHigh = juce::jmax (0.0f, 1.0f - normalizedLength * 2.0f);
@@ -183,7 +200,12 @@ void CircleReader::processBlock (const juce::Image& imageToRead, juce::AudioBuff
         if (ampBase > 0.0f) finalSampleValue += ampBase * getSampleAtPhase (phase);
         if (ampHigh > 0.0f) finalSampleValue += ampHigh * getSampleAtPhase (phaseHigh);
 
-        finalSampleValue *= volumeSmoother.getNextValue();
+        // Apply filter
+        const float modFreqSignal = modulatorBuffer.getSample(modFilterFreqSelect.load(), sample);
+        const float modQualitySignal = modulatorBuffer.getSample(modFilterQualitySelect.load(), sample);
+        finalSampleValue = applyFilter(finalSampleValue, modFreqSignal, modQualitySignal);
+
+        finalSampleValue *= volume_sv;
 
         for (int channel = 0; channel < numChannels; ++channel)
             buffer.addSample (channel, sample, finalSampleValue);

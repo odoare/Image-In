@@ -17,25 +17,40 @@ CircleReaderComponent::CircleReaderComponent(MapSynthAudioProcessor& p)
       cyKnob(p.apvts, "CY", juce::Colours::orange),
       rKnob(p.apvts, "R", juce::Colours::orange),
       circleVolumeKnob(p.apvts, "CircleVolume", juce::Colours::orange),
-      lfoCxAmountKnob(p.apvts, "LFO_CX_Amount", juce::Colours::hotpink),
-      lfoCyAmountKnob(p.apvts, "LFO_CY_Amount", juce::Colours::hotpink),
-      lfoRadiusAmountKnob(p.apvts, "LFO_R_Amount", juce::Colours::hotpink),
-      lfoCxSelectButton(p.apvts, "LFO_CX_Select", juce::Colours::hotpink),
-      lfoCySelectButton(p.apvts, "LFO_CY_Select", juce::Colours::hotpink),
-      lfoRadiusSelectButton(p.apvts, "LFO_R_Select", juce::Colours::hotpink)
+      modCxAmountKnob(p.apvts, "Mod_CircleCX_Amount", juce::Colours::hotpink),
+      modCyAmountKnob(p.apvts, "Mod_CircleCY_Amount", juce::Colours::hotpink),
+      modRadiusAmountKnob(p.apvts, "Mod_CircleRadius_Amount", juce::Colours::hotpink),
+      modVolumeAmountKnob(p.apvts, "Mod_CircleVolume_Amount", juce::Colours::hotpink),
+      filterFreqKnob(p.apvts, "CircleFilterFreq", juce::Colours::yellow),
+      filterQualityKnob(p.apvts, "CircleFilterQuality", juce::Colours::yellow),
+      modFilterFreqAmountKnob(p.apvts, "Mod_CircleFilterFreq_Amount", juce::Colours::hotpink),
+      modFilterQualityAmountKnob(p.apvts, "Mod_CircleFilterQuality_Amount", juce::Colours::hotpink)
 {
     setupKnob(cxKnob);
     setupKnob(cyKnob);
     setupKnob(rKnob);
     setupKnob(circleVolumeKnob);
+    setupKnob(modVolumeAmountKnob);
 
-    setupKnob(lfoCxAmountKnob);
-    setupKnob(lfoCyAmountKnob);
-    setupKnob(lfoRadiusAmountKnob);
+    setupKnob(modCxAmountKnob);
+    setupKnob(modCyAmountKnob);
+    setupKnob(modRadiusAmountKnob);
 
-    setupButton(lfoCxSelectButton);
-    setupButton(lfoCySelectButton);
-    setupButton(lfoRadiusSelectButton);
+    setupKnob(filterFreqKnob);
+    setupKnob(filterQualityKnob);
+    setupKnob(modFilterFreqAmountKnob);
+    setupKnob(modFilterQualityAmountKnob);
+
+    setupModulatorBox (modCxSelectBox, modCxSelectAttachment, "Mod_CircleCX_Select");
+    setupModulatorBox (modCySelectBox, modCySelectAttachment, "Mod_CircleCY_Select");
+    setupModulatorBox (modRadiusSelectBox, modRadiusSelectAttachment, "Mod_CircleRadius_Select");
+    setupModulatorBox (modVolumeSelectBox, modVolumeSelectAttachment, "Mod_CircleVolume_Select");
+
+    addAndMakeVisible(filterTypeBox);
+    filterTypeBox.addItemList(filterTypeChoices, 1);
+    filterTypeAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(audioProcessor.apvts, "CircleFilterType", filterTypeBox);
+    setupModulatorBox(modFilterFreqSelectBox, modFilterFreqSelectAttachment, "Mod_CircleFilterFreq_Select");
+    setupModulatorBox(modFilterQualitySelectBox, modFilterQualitySelectAttachment, "Mod_CircleFilterQuality_Select");
 }
 
 void CircleReaderComponent::paint(juce::Graphics& g)
@@ -61,25 +76,44 @@ void CircleReaderComponent::resized()
     fb.items.add (juce::FlexItem (rKnob.flex()).withMinWidth(70.0f).withMinHeight(70.0f).withFlex(1.0));
     fb.items.add (juce::FlexItem (circleVolumeKnob.flex()).withMinWidth(70.0f).withMinHeight(70.0f).withFlex(1.0));
 
-    auto createLfoControlBox = [] (fxme::FxmeKnob& knob, fxme::FxmeButton& button)
+    juce::FlexBox filterBox;
+    filterBox.flexDirection = juce::FlexBox::Direction::column;
+    filterBox.items.add(juce::FlexItem(filterFreqKnob.flex()).withFlex(3.0f));
+    filterBox.items.add(juce::FlexItem(filterTypeBox).withFlex(1.0f).withMargin(juce::FlexItem::Margin(2.f, 0, 0, 0)));
+    fb.items.add(juce::FlexItem(filterBox).withMinWidth(70.0f).withMinHeight(70.0f).withFlex(1.0));
+    fb.items.add(juce::FlexItem(filterQualityKnob.flex()).withMinWidth(70.0f).withMinHeight(70.0f).withFlex(1.0));
+
+    auto createModControlBox = [] (fxme::FxmeKnob& knob, juce::ComboBox& box)
     {
-        juce::FlexBox box;
-        box.flexDirection = juce::FlexBox::Direction::column;
-        box.items.add (juce::FlexItem (knob.flex()).withFlex (3.0f));
-        box.items.add (juce::FlexItem (button.flex()).withFlex (1.0f));
-        return box;
+        juce::FlexBox flexBox;
+        flexBox.flexDirection = juce::FlexBox::Direction::column;
+        flexBox.items.add (juce::FlexItem (knob.flex()).withFlex (3.0f));
+        flexBox.items.add (juce::FlexItem (box).withFlex (1.0f).withMargin(juce::FlexItem::Margin(2.f, 0, 0, 0)));
+        return flexBox;
     };
 
-    auto lfoCxBox = createLfoControlBox(lfoCxAmountKnob, lfoCxSelectButton);
-    fb.items.add (juce::FlexItem (lfoCxBox)
+    auto modCxBox = createModControlBox(modCxAmountKnob, modCxSelectBox);
+    fb.items.add (juce::FlexItem (modCxBox)
                     .withMinWidth(70.0f).withMinHeight(70.0f).withFlex(1.0));
 
-    auto lfoCyBox = createLfoControlBox(lfoCyAmountKnob, lfoCySelectButton);
-    fb.items.add (juce::FlexItem (lfoCyBox)
+    auto modCyBox = createModControlBox(modCyAmountKnob, modCySelectBox);
+    fb.items.add (juce::FlexItem (modCyBox)
                     .withMinWidth(70.0f).withMinHeight(70.0f).withFlex(1.0));
 
-    auto lfoRadiusBox = createLfoControlBox(lfoRadiusAmountKnob, lfoRadiusSelectButton);
-    fb.items.add (juce::FlexItem (lfoRadiusBox)
+    auto modRadiusBox = createModControlBox(modRadiusAmountKnob, modRadiusSelectBox);
+    fb.items.add (juce::FlexItem (modRadiusBox)
+                    .withMinWidth(70.0f).withMinHeight(70.0f).withFlex(1.0));
+
+    auto modVolumeBox = createModControlBox(modVolumeAmountKnob, modVolumeSelectBox);
+    fb.items.add (juce::FlexItem (modVolumeBox)
+                    .withMinWidth(70.0f).withMinHeight(70.0f).withFlex(1.0));
+
+    auto modFltFreqBox = createModControlBox(modFilterFreqAmountKnob, modFilterFreqSelectBox);
+    fb.items.add (juce::FlexItem (modFltFreqBox)
+                    .withMinWidth(70.0f).withMinHeight(70.0f).withFlex(1.0));
+
+    auto modFltQBox = createModControlBox(modFilterQualityAmountKnob, modFilterQualitySelectBox);
+    fb.items.add (juce::FlexItem (modFltQBox)
                     .withMinWidth(70.0f).withMinHeight(70.0f).withFlex(1.0));
 
     fb.performLayout (bounds.toFloat());

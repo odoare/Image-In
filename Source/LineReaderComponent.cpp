@@ -18,30 +18,44 @@ LineReaderComponent::LineReaderComponent(MapSynthAudioProcessor& p)
       lineLengthKnob(p.apvts, "LineLength", COLOUR),
       lineAngleKnob(p.apvts, "LineAngle", COLOUR),
       lineVolumeKnob(p.apvts, "LineVolume", COLOUR),
-      lfoLineCxAmountKnob(p.apvts, "LFO_LineCX_Amount", juce::Colours::hotpink),
-      lfoLineCyAmountKnob(p.apvts, "LFO_LineCY_Amount", juce::Colours::hotpink),
-      lfoLineAngleAmountKnob(p.apvts, "LFO_LineAngle_Amount", juce::Colours::hotpink),
-      lfoLineLengthAmountKnob(p.apvts, "LFO_LineLength_Amount", juce::Colours::hotpink),
-      lfoLineCxSelectButton(p.apvts, "LFO_LineCX_Select", juce::Colours::hotpink),
-      lfoLineCySelectButton(p.apvts, "LFO_LineCY_Select", juce::Colours::hotpink),
-      lfoLineAngleSelectButton(p.apvts, "LFO_LineAngle_Select", juce::Colours::hotpink),
-      lfoLineLengthSelectButton(p.apvts, "LFO_LineLength_Select", juce::Colours::hotpink)
+      modLineCxAmountKnob(p.apvts, "Mod_LineCX_Amount", juce::Colours::hotpink),
+      modLineCyAmountKnob(p.apvts, "Mod_LineCY_Amount", juce::Colours::hotpink),
+      modLineAngleAmountKnob(p.apvts, "Mod_LineAngle_Amount", juce::Colours::hotpink),
+      modLineLengthAmountKnob(p.apvts, "Mod_LineLength_Amount", juce::Colours::hotpink),
+      modLineVolumeAmountKnob(p.apvts, "Mod_LineVolume_Amount", juce::Colours::hotpink),
+      filterFreqKnob(p.apvts, "LineFilterFreq", juce::Colours::yellow),
+      filterQualityKnob(p.apvts, "LineFilterQuality", juce::Colours::yellow),
+      modFilterFreqAmountKnob(p.apvts, "Mod_LineFilterFreq_Amount", juce::Colours::hotpink),
+      modFilterQualityAmountKnob(p.apvts, "Mod_LineFilterQuality_Amount", juce::Colours::hotpink)
 {
     setupKnob(lineCxKnob);
     setupKnob(lineCyKnob);
     setupKnob(lineLengthKnob);
     setupKnob(lineAngleKnob);
     setupKnob(lineVolumeKnob);
+    setupKnob(modLineVolumeAmountKnob);
 
-    setupKnob(lfoLineCxAmountKnob);
-    setupKnob(lfoLineCyAmountKnob);
-    setupKnob(lfoLineAngleAmountKnob);
-    setupKnob(lfoLineLengthAmountKnob);
+    setupKnob(modLineCxAmountKnob);
+    setupKnob(modLineCyAmountKnob);
+    setupKnob(modLineAngleAmountKnob);
+    setupKnob(modLineLengthAmountKnob);
 
-    setupButton(lfoLineCxSelectButton);
-    setupButton(lfoLineCySelectButton);
-    setupButton(lfoLineAngleSelectButton);
-    setupButton(lfoLineLengthSelectButton);
+    setupKnob(filterFreqKnob);
+    setupKnob(filterQualityKnob);
+    setupKnob(modFilterFreqAmountKnob);
+    setupKnob(modFilterQualityAmountKnob);
+
+    setupModulatorBox (modLineCxSelectBox, modLineCxSelectAttachment, "Mod_LineCX_Select");
+    setupModulatorBox (modLineCySelectBox, modLineCySelectAttachment, "Mod_LineCY_Select");
+    setupModulatorBox (modLineAngleSelectBox, modLineAngleSelectAttachment, "Mod_LineAngle_Select");
+    setupModulatorBox (modLineLengthSelectBox, modLineLengthSelectAttachment, "Mod_LineLength_Select");
+    setupModulatorBox (modLineVolumeSelectBox, modLineVolumeSelectAttachment, "Mod_LineVolume_Select");
+
+    addAndMakeVisible(filterTypeBox);
+    filterTypeBox.addItemList(filterTypeChoices, 1);
+    filterTypeAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(audioProcessor.apvts, "LineFilterType", filterTypeBox);
+    setupModulatorBox(modFilterFreqSelectBox, modFilterFreqSelectAttachment, "Mod_LineFilterFreq_Select");
+    setupModulatorBox(modFilterQualitySelectBox, modFilterQualitySelectAttachment, "Mod_LineFilterQuality_Select");
 }
 
 void LineReaderComponent::paint(juce::Graphics& g)
@@ -68,28 +82,47 @@ void LineReaderComponent::resized()
     fb.items.add (juce::FlexItem (lineAngleKnob.flex()).withMinWidth(70.0f).withMinHeight(70.0f).withFlex(1.0));
     fb.items.add (juce::FlexItem (lineVolumeKnob.flex()).withMinWidth(70.0f).withMinHeight(70.0f).withFlex(1.0));
 
-    auto createLfoControlBox = [] (fxme::FxmeKnob& knob, fxme::FxmeButton& button)
+    juce::FlexBox filterBox;
+    filterBox.flexDirection = juce::FlexBox::Direction::column;
+    filterBox.items.add(juce::FlexItem(filterFreqKnob.flex()).withFlex(3.0f));
+    filterBox.items.add(juce::FlexItem(filterTypeBox).withFlex(1.0f).withMargin(juce::FlexItem::Margin(2.f, 0, 0, 0)));
+    fb.items.add(juce::FlexItem(filterBox).withMinWidth(70.0f).withMinHeight(70.0f).withFlex(1.0));
+    fb.items.add(juce::FlexItem(filterQualityKnob.flex()).withMinWidth(70.0f).withMinHeight(70.0f).withFlex(1.0));
+
+    auto createModControlBox = [] (fxme::FxmeKnob& knob, juce::ComboBox& box)
     {
-        juce::FlexBox box;
-        box.flexDirection = juce::FlexBox::Direction::column;
-        box.items.add (juce::FlexItem (knob.flex()).withFlex (3.0f));
-        box.items.add (juce::FlexItem (button.flex()).withFlex (1.0f));
-        return box;
+        juce::FlexBox flexBox;
+        flexBox.flexDirection = juce::FlexBox::Direction::column;
+        flexBox.items.add (juce::FlexItem (knob.flex()).withFlex (3.0f));
+        flexBox.items.add (juce::FlexItem (box).withFlex (1.0f).withMargin(juce::FlexItem::Margin(2.f, 0, 0, 0)));
+        return flexBox;
     };
 
-    auto lfoCxBox = createLfoControlBox(lfoLineCxAmountKnob, lfoLineCxSelectButton);
-    fb.items.add (juce::FlexItem (lfoCxBox)
+    auto modCxBox = createModControlBox(modLineCxAmountKnob, modLineCxSelectBox);
+    fb.items.add (juce::FlexItem (modCxBox)
                     .withMinWidth(70.0f).withMinHeight(70.0f).withFlex(1.0));
 
-    auto lfoCyBox = createLfoControlBox(lfoLineCyAmountKnob, lfoLineCySelectButton);
-    fb.items.add (juce::FlexItem (lfoCyBox)
+    auto modCyBox = createModControlBox(modLineCyAmountKnob, modLineCySelectBox);
+    fb.items.add (juce::FlexItem (modCyBox)
                     .withMinWidth(70.0f).withMinHeight(70.0f).withFlex(1.0));
 
-    auto lfoAngleBox = createLfoControlBox(lfoLineAngleAmountKnob, lfoLineAngleSelectButton);
-    fb.items.add (juce::FlexItem (lfoAngleBox)
+    auto modAngleBox = createModControlBox(modLineAngleAmountKnob, modLineAngleSelectBox);
+    fb.items.add (juce::FlexItem (modAngleBox)
                     .withMinWidth(70.0f).withMinHeight(70.0f).withFlex(1.0));
-    auto lfoLengthBox = createLfoControlBox(lfoLineLengthAmountKnob, lfoLineLengthSelectButton);
-    fb.items.add (juce::FlexItem (lfoLengthBox)
+    auto modLengthBox = createModControlBox(modLineLengthAmountKnob, modLineLengthSelectBox);
+    fb.items.add (juce::FlexItem (modLengthBox)
+                    .withMinWidth(70.0f).withMinHeight(70.0f).withFlex(1.0));
+
+    auto modVolumeBox = createModControlBox(modLineVolumeAmountKnob, modLineVolumeSelectBox);
+    fb.items.add (juce::FlexItem (modVolumeBox)
+                    .withMinWidth(70.0f).withMinHeight(70.0f).withFlex(1.0));
+
+    auto modFltFreqBox = createModControlBox(modFilterFreqAmountKnob, modFilterFreqSelectBox);
+    fb.items.add (juce::FlexItem (modFltFreqBox)
+                    .withMinWidth(70.0f).withMinHeight(70.0f).withFlex(1.0));
+
+    auto modFltQBox = createModControlBox(modFilterQualityAmountKnob, modFilterQualitySelectBox);
+    fb.items.add (juce::FlexItem (modFltQBox)
                     .withMinWidth(70.0f).withMinHeight(70.0f).withFlex(1.0));
 
     fb.performLayout (bounds.toFloat());

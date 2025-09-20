@@ -22,7 +22,16 @@ public:
 
 private:
     fxme::FxmeKnob cxKnob, cyKnob, rKnob, circleVolumeKnob,
-                     lfoCxAmountKnob, lfoCyAmountKnob, lfoRadiusAmountKnob;
+                     modCxAmountKnob, modCyAmountKnob, modRadiusAmountKnob, modVolumeAmountKnob,
+                     filterFreqKnob, filterQualityKnob,
+                     modFilterFreqAmountKnob, modFilterQualityAmountKnob;
 
-    fxme::FxmeButton lfoCxSelectButton, lfoCySelectButton, lfoRadiusSelectButton;
+    juce::ComboBox modCxSelectBox, modCySelectBox, modRadiusSelectBox, modVolumeSelectBox,
+                   filterTypeBox,
+                   modFilterFreqSelectBox, modFilterQualitySelectBox;
+
+    std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment>
+        modCxSelectAttachment, modCySelectAttachment, modRadiusSelectAttachment, modVolumeSelectAttachment,
+        filterTypeAttachment,
+        modFilterFreqSelectAttachment, modFilterQualitySelectAttachment;
 };

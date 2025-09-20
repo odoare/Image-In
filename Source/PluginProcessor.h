@@ -17,6 +17,13 @@
 // Let's define the number of voices for our synth
 #define NUM_VOICES 4
 
+struct VoiceDisplayState
+{
+    bool isActive = false;
+    juce::Array<ReaderBase::DrawingInfo> readerInfos;
+};
+
+
 //==============================================================================
 /**
 */
@@ -65,8 +72,11 @@ public:
     LFO lfo;
     LFO lfo2;
     juce::AudioBuffer<float> lfoBuffer;
-    GlobalParameters globalParams;
+    GlobalParameters globalParams; // This now contains all parameter structs
     juce::Array<ReaderBase::Type> readerTypes;
+
+    std::array<VoiceDisplayState, NUM_VOICES> voiceDisplayStates;
+    juce::CriticalSection displayStateLock;
 
     void addReader (ReaderBase::Type type);
     void removeReader (int index);
