@@ -17,6 +17,8 @@ class MapSynthAudioProcessor;
 #include "LineReaderComponent.h"
 #include "CircleReaderComponent.h"
 
+class GlobalControlsComponent;
+
 //==============================================================================
 /**
 */
@@ -41,22 +43,9 @@ private:
 
     LineReaderComponent lineReaderComponent;
     CircleReaderComponent circleReaderComponent;
-    fxme::FxmeKnob lfoFreqKnob;
-    fxme::FxmeKnob lfo2FreqKnob;
+    std::unique_ptr<GlobalControlsComponent> globalControlsComponent;
 
-    fxme::FxmeKnob attackKnob;
-    fxme::FxmeKnob decayKnob;
-    fxme::FxmeKnob sustainKnob;
-    fxme::FxmeKnob releaseKnob;
-
-    fxme::FxmeKnob attack2Knob;
-    fxme::FxmeKnob decay2Knob;
-    fxme::FxmeKnob sustain2Knob;
-    fxme::FxmeKnob release2Knob;
-
-    juce::GroupComponent globalControlsGroup;
-
-    juce::TabbedComponent readerTabs { juce::TabbedButtonBar::TabsAtBottom };
+    juce::TabbedComponent readerTabs { juce::TabbedButtonBar::TabsAtLeft };
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MapSynthAudioProcessorEditor)
 };

@@ -71,6 +71,8 @@ public:
     juce::AudioProcessorValueTreeState apvts {*this, nullptr, "Parameters", createParameters()};
     LFO lfo;
     LFO lfo2;
+    LFO lfo3;
+    LFO lfo4;
     juce::AudioBuffer<float> lfoBuffer;
     GlobalParameters globalParams; // This now contains all parameter structs
     juce::Array<ReaderBase::Type> readerTypes;

@@ -8,6 +8,8 @@
       <FILE id="BXxvYB" name="world.png" compile="0" resource="1" file="Source/Assets/world.png"/>
     </GROUP>
     <GROUP id="{633F86FB-EABC-E5B3-C698-8086F97CD0F3}" name="Source">
+      <FILE id="mibf5V" name="ParameterStructs.h" compile="0" resource="0"
+            file="Source/ParameterStructs.h"/>
       <FILE id="Lbsucc" name="ADSR.cpp" compile="1" resource="0" file="Source/ADSR.cpp"/>
       <FILE id="eFhzZx" name="ADSR.h" compile="0" resource="0" file="Source/ADSR.h"/>
       <FILE id="oQLqbS" name="SynthSound.h" compile="0" resource="0" file="Source/SynthSound.h"/>

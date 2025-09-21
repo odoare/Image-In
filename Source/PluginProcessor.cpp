@@ -108,10 +108,12 @@ void MapSynthAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlo
 {
     synth.setCurrentPlaybackSampleRate (sampleRate);
 
-    lfoBuffer.setSize (2, samplesPerBlock);
+    lfoBuffer.setSize (4, samplesPerBlock);
 
     lfo.prepareToPlay (sampleRate);
     lfo2.prepareToPlay (sampleRate);
+    lfo3.prepareToPlay (sampleRate);
+    lfo4.prepareToPlay (sampleRate);
 }
 
 void MapSynthAudioProcessor::releaseResources()
@@ -245,15 +247,26 @@ void MapSynthAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
     updateParameters();
 
     lfo.setFrequency (apvts.getRawParameterValue ("LFOFreq")->load());
+    lfo.setPhaseOffset(apvts.getRawParameterValue("LFO1Phase")->load());
     lfo2.setFrequency (apvts.getRawParameterValue ("LFO2Freq")->load());
+    lfo2.setPhaseOffset(apvts.getRawParameterValue("LFO2Phase")->load());
+    lfo3.setFrequency(apvts.getRawParameterValue("LFO3Freq")->load());
+    lfo3.setPhaseOffset(apvts.getRawParameterValue("LFO3Phase")->load());
+    lfo4.setFrequency(apvts.getRawParameterValue("LFO4Freq")->load());
+    lfo4.setPhaseOffset(apvts.getRawParameterValue("LFO4Phase")->load());
 
     // Process LFOs for the block
     auto* lfo1Data = lfoBuffer.getWritePointer (0);
     auto* lfo2Data = lfoBuffer.getWritePointer (1);
+    auto* lfo3Data = lfoBuffer.getWritePointer (2);
+    auto* lfo4Data = lfoBuffer.getWritePointer (3);
+
     for (int i = 0; i < buffer.getNumSamples(); ++i)
     {
         lfo1Data[i] = lfo.process();
         lfo2Data[i] = lfo2.process();
+        lfo3Data[i] = lfo3.process();
+        lfo4Data[i] = lfo4.process();
     }
 
     buffer.clear();
@@ -365,6 +378,12 @@ juce::AudioProcessorValueTreeState::ParameterLayout MapSynthAudioProcessor::crea
     layout.add(std::make_unique<juce::AudioParameterFloat>("CircleVolume", "CircleVolume", juce::NormalisableRange<float>(0.f, 1.f, .01f, 1.f), 1.0f));
     layout.add(std::make_unique<juce::AudioParameterFloat>("LFOFreq", "LFO 1 Freq", juce::NormalisableRange<float>(0.01f, 200.0f, 0.01f, 0.3f), 1.0f));
     layout.add(std::make_unique<juce::AudioParameterFloat>("LFO2Freq", "LFO 2 Freq", juce::NormalisableRange<float>(0.01f, 200.0f, 0.01f, 0.3f), 1.0f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>("LFO3Freq", "LFO 3 Freq", juce::NormalisableRange<float>(0.01f, 200.0f, 0.01f, 0.3f), 1.0f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>("LFO4Freq", "LFO 4 Freq", juce::NormalisableRange<float>(0.01f, 200.0f, 0.01f, 0.3f), 1.0f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>("LFO1Phase", "LFO 1 Phase", juce::NormalisableRange<float>(0.0f, 1.0f, 0.01f), 0.0f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>("LFO2Phase", "LFO 2 Phase", juce::NormalisableRange<float>(0.0f, 1.0f, 0.01f), 0.0f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>("LFO3Phase", "LFO 3 Phase", juce::NormalisableRange<float>(0.0f, 1.0f, 0.01f), 0.0f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>("LFO4Phase", "LFO 4 Phase", juce::NormalisableRange<float>(0.0f, 1.0f, 0.01f), 0.0f));
 
     layout.add(std::make_unique<juce::AudioParameterFloat>("Attack", "Attack", juce::NormalisableRange<float>(0.0f, 5.0f, 0.01f, 0.5f), 0.1f));
     layout.add(std::make_unique<juce::AudioParameterFloat>("Decay", "Decay", juce::NormalisableRange<float>(0.0f, 5.0f, 0.01f, 0.5f), 0.1f));
@@ -389,7 +408,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout MapSynthAudioProcessor::crea
     layout.add(std::make_unique<juce::AudioParameterChoice>("Mod_LineLength_Select", "Mod Select", modulatorChoices, 0));
 
     layout.add(std::make_unique<juce::AudioParameterFloat>("Mod_LineVolume_Amount", "Mod->LineVol", juce::NormalisableRange<float>(-1.f, 1.f, .01f), 1.0f));
-    layout.add(std::make_unique<juce::AudioParameterChoice>("Mod_LineVolume_Select", "Mod Select", modulatorChoices, 2)); // Default to ADSR1
+    layout.add(std::make_unique<juce::AudioParameterChoice>("Mod_LineVolume_Select", "Mod Select", modulatorChoices, 4)); // Default to ADSR1
 
     layout.add(std::make_unique<juce::AudioParameterFloat>("Mod_CircleCX_Amount", "Mod->CircleCX", juce::NormalisableRange<float>(-1.f, 1.f, .01f), 0.0f));
     layout.add(std::make_unique<juce::AudioParameterChoice>("Mod_CircleCX_Select", "Mod Select", modulatorChoices, 0));
@@ -401,7 +420,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout MapSynthAudioProcessor::crea
     layout.add(std::make_unique<juce::AudioParameterChoice>("Mod_CircleRadius_Select", "Mod Select", modulatorChoices, 0));
 
     layout.add(std::make_unique<juce::AudioParameterFloat>("Mod_CircleVolume_Amount", "Mod->CircleVol", juce::NormalisableRange<float>(-1.f, 1.f, .01f), 1.0f));
-    layout.add(std::make_unique<juce::AudioParameterChoice>("Mod_CircleVolume_Select", "Mod Select", modulatorChoices, 2)); // Default to ADSR1
+    layout.add(std::make_unique<juce::AudioParameterChoice>("Mod_CircleVolume_Select", "Mod Select", modulatorChoices, 4)); // Default to ADSR1
 
     // Line Reader Filter
     layout.add(std::make_unique<juce::AudioParameterChoice>("LineFilterType", "Line Filter Type", filterTypeChoices, 0));

@@ -135,15 +135,24 @@ void MapDisplayComponent::renderOpenGL()
     // Get latest LFO values from the audio thread
     const float lfo1Val = processor.lfo.getLatestValue();
     const float lfo2Val = processor.lfo2.getLatestValue();
+    const float lfo3Val = processor.lfo3.getLatestValue();
+    const float lfo4Val = processor.lfo4.getLatestValue();
 
     const float w = (float) displayArea.getWidth();
     const float h = (float) displayArea.getHeight();
 
     auto getModVal = [&] (int select)
     {
-        if (select < 2) // LFO 1 or LFO 2
-            return (select == 0) ? lfo1Val : lfo2Val;
-        return 0.5f; // For ADSRs, just show unmodulated for now
+        switch (select)
+        {
+            case 0: return lfo1Val;
+            case 1: return lfo2Val;
+            case 2: return lfo3Val;
+            case 3: return lfo4Val;
+            case 4: // ADSR 1 - not visualized yet
+            case 5: // ADSR 2 - not visualized yet
+            default: return 0.5f; // For ADSRs, just show unmodulated for now
+        }
     };
 
 

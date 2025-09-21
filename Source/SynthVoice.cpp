@@ -76,13 +76,15 @@ void SynthVoice::renderNextBlock (juce::AudioBuffer<float>& outputBuffer, int st
     mapOscillator.updateParameters (processor.globalParams);
 
     // Prepare modulator buffer
-    modulatorBuffer.setSize (4, numSamples, false, false, true);
+    modulatorBuffer.setSize (6, numSamples, false, false, true);
     modulatorBuffer.copyFrom (0, 0, processor.lfoBuffer, 0, 0, numSamples); // LFO 1
     modulatorBuffer.copyFrom (1, 0, processor.lfoBuffer, 1, 0, numSamples); // LFO 2
+    modulatorBuffer.copyFrom (2, 0, processor.lfoBuffer, 2, 0, numSamples); // LFO 3
+    modulatorBuffer.copyFrom (3, 0, processor.lfoBuffer, 3, 0, numSamples); // LFO 4
 
     // Generate ADSR modulator data
-    auto* adsr1Writer = modulatorBuffer.getWritePointer (2);
-    auto* adsr2Writer = modulatorBuffer.getWritePointer (3);
+    auto* adsr1Writer = modulatorBuffer.getWritePointer (4);
+    auto* adsr2Writer = modulatorBuffer.getWritePointer (5);
     for (int i = 0; i < numSamples; ++i)
     {
         adsr1Writer[i] = adsr.process();

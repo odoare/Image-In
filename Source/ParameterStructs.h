@@ -2,7 +2,7 @@
   ==============================================================================
 
     ParameterStructs.h
-    Created: 18 Sep 2025 10:00:00am
+    Created: 17 Sep 2025 10:00:00am
     Author:  Olivier Doaré
 
   ==============================================================================
@@ -12,87 +12,79 @@
 
 #include <JuceHeader.h>
 
-enum class ModulatorSource
-{
-    LFO1,
-    LFO2,
-    ADSR1,
-    ADSR2
-};
-
-const juce::StringArray modulatorChoices { "LFO 1", "LFO 2", "ADSR 1", "ADSR 2" };
-
 enum class FilterType
 {
     Lowpass,
     Highpass
 };
 
-const juce::StringArray filterTypeChoices { "Low Pass", "High Pass" };
-
-struct ADSRParameters
-{
-    float attack;
-    float decay;
-    float sustain;
-    float release;
-};
+static const juce::StringArray filterTypeChoices { "Lowpass", "Highpass" };
+static const juce::StringArray modulatorChoices { "LFO 1", "LFO 2", "LFO 3", "LFO 4", "ADSR 1", "ADSR 2" };
 
 struct FilterParameters
 {
-    int   type;
-    float frequency;
-    float quality;
-
-    float modFreqAmount;
-    int   modFreqSelect;
-    float modQualityAmount;
-    int   modQualitySelect;
+    int type = (int)FilterType::Lowpass;
+    float frequency = 20000.0f;
+    float quality = 1.0f;
+    float modFreqAmount = 0.0f;
+    int modFreqSelect = 0;
+    float modQualityAmount = 0.0f;
+    int modQualitySelect = 0;
 };
 
 struct LineReaderParameters
 {
-    float cx, cy;
-    float length;
-    float angle;
-    float volume;
+    float cx = 0.5f;
+    float cy = 0.5f;
+    float length = 0.6f;
+    float angle = 0.0f;
+    float volume = 1.0f;
+    float pan = 0.0f;
 
-    float modCxAmount;
-    int   modCxSelect;
-    float modCyAmount;
-    int   modCySelect;
-    float modAngleAmount;
-    int   modAngleSelect;
-    float modLengthAmount;
-    int   modLengthSelect;
-    float modVolumeAmount;
-    int   modVolumeSelect;
-    float pan;
-    float modPanAmount;
-    int   modPanSelect;
+    float modCxAmount = 0.0f;
+    int   modCxSelect = 0;
+    float modCyAmount = 0.0f;
+    int   modCySelect = 0;
+    float modAngleAmount = 0.0f;
+    int   modAngleSelect = 0;
+    float modLengthAmount = 0.0f;
+    int   modLengthSelect = 0;
+    float modVolumeAmount = 0.0f;
+    int   modVolumeSelect = 0;
+    float modPanAmount = 0.0f;
+    int   modPanSelect = 0;
 
     FilterParameters filter;
 };
 
 struct CircleReaderParameters
 {
-    float cx, cy;
-    float radius;
-    float volume;
+    float cx = 0.5f;
+    float cy = 0.5f;
+    float radius = 0.25f;
+    float volume = 1.0f;
+    float pan = 0.0f;
 
-    float modCxAmount;
-    int   modCxSelect;
-    float modCyAmount;
-    int   modCySelect;
-    float modRadiusAmount;
-    int   modRadiusSelect;
-    float modVolumeAmount;
-    int   modVolumeSelect;
-    float pan;
-    float modPanAmount;
-    int   modPanSelect;
+    float modCxAmount = 0.0f;
+    int   modCxSelect = 0;
+    float modCyAmount = 0.0f;
+    int   modCySelect = 0;
+    float modRadiusAmount = 0.0f;
+    int   modRadiusSelect = 0;
+    float modVolumeAmount = 0.0f;
+    int   modVolumeSelect = 0;
+    float modPanAmount = 0.0f;
+    int   modPanSelect = 0;
 
     FilterParameters filter;
+};
+
+struct ADSRParameters
+{
+    float attack = 0.1f;
+    float decay = 0.1f;
+    float sustain = 1.0f;
+    float release = 0.4f;
 };
 
 struct GlobalParameters
