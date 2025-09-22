@@ -19,7 +19,28 @@ enum class FilterType
 };
 
 static const juce::StringArray filterTypeChoices { "Lowpass", "Highpass" };
-static const juce::StringArray modulatorChoices { "LFO 1", "LFO 2", "LFO 3", "LFO 4", "ADSR 1", "ADSR 2" };
+static const juce::StringArray modulatorChoices {
+    "LFO 1", "LFO 2", "LFO 3", "LFO 4",
+    "ADSR 1", "ADSR 2",
+    "LFO1*ADSR1", "LFO1*ADSR2",
+    "LFO2*ADSR1", "LFO2*ADSR2",
+    "LFO3*ADSR1", "LFO3*ADSR2",
+    "LFO4*ADSR1", "LFO4*ADSR2"
+};
+
+namespace ModulatorSources
+{
+    enum
+    {
+        LFO1 = 0, LFO2, LFO3, LFO4,
+        ADSR1, ADSR2,
+        LFO1_ADSR1, LFO1_ADSR2,
+        LFO2_ADSR1, LFO2_ADSR2,
+        LFO3_ADSR1, LFO3_ADSR2,
+        LFO4_ADSR1, LFO4_ADSR2,
+        NumModulators
+    };
+}
 
 struct FilterParameters
 {
@@ -53,6 +74,8 @@ struct LineReaderParameters
     int   modVolumeSelect = 0;
     float modPanAmount = 0.0f;
     int   modPanSelect = 0;
+    float modFreqAmount = 0.0f;
+    int   modFreqSelect = 0;
 
     FilterParameters filter;
 };
@@ -75,6 +98,8 @@ struct CircleReaderParameters
     int   modVolumeSelect = 0;
     float modPanAmount = 0.0f;
     int   modPanSelect = 0;
+    float modFreqAmount = 0.0f;
+    int   modFreqSelect = 0;
 
     FilterParameters filter;
 };

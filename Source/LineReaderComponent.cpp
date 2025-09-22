@@ -28,7 +28,8 @@ LineReaderComponent::LineReaderComponent(MapSynthAudioProcessor& p)
       modFilterFreqAmountKnob(p.apvts, "Mod_LineFilterFreq_Amount", juce::Colours::hotpink),
       modFilterQualityAmountKnob(p.apvts, "Mod_LineFilterQuality_Amount", juce::Colours::hotpink),
       panKnob(p.apvts, "LinePan", COLOUR),
-      modPanAmountKnob(p.apvts, "Mod_LinePan_Amount", juce::Colours::hotpink)
+      modPanAmountKnob(p.apvts, "Mod_LinePan_Amount", juce::Colours::hotpink),
+      modFreqAmountKnob(p.apvts, "Mod_LineFreq_Amount", juce::Colours::hotpink)
 {
     setupKnob(lineCxKnob);
     setupKnob(lineCyKnob);
@@ -48,6 +49,7 @@ LineReaderComponent::LineReaderComponent(MapSynthAudioProcessor& p)
     setupKnob(modFilterQualityAmountKnob);
     setupKnob(panKnob);
     setupKnob(modPanAmountKnob);
+    setupKnob(modFreqAmountKnob);
 
     setupModulatorBox (modLineCxSelectBox, modLineCxSelectAttachment, "Mod_LineCX_Select");
     setupModulatorBox (modLineCySelectBox, modLineCySelectAttachment, "Mod_LineCY_Select");
@@ -61,6 +63,7 @@ LineReaderComponent::LineReaderComponent(MapSynthAudioProcessor& p)
     setupModulatorBox(modFilterFreqSelectBox, modFilterFreqSelectAttachment, "Mod_LineFilterFreq_Select");
     setupModulatorBox(modFilterQualitySelectBox, modFilterQualitySelectAttachment, "Mod_LineFilterQuality_Select");
     setupModulatorBox(modPanSelectBox, modPanSelectAttachment, "Mod_LinePan_Select");
+    setupModulatorBox(modFreqSelectBox, modFreqSelectAttachment, "Mod_LineFreq_Select");
 }
 
 void LineReaderComponent::paint(juce::Graphics& g)
@@ -133,6 +136,10 @@ void LineReaderComponent::resized()
 
     auto modPanBox = createModControlBox(modPanAmountKnob, modPanSelectBox);
     fb.items.add (juce::FlexItem (modPanBox)
+                    .withMinWidth(70.0f).withMinHeight(70.0f).withFlex(1.0));
+
+    auto modFreqBox = createModControlBox(modFreqAmountKnob, modFreqSelectBox);
+    fb.items.add (juce::FlexItem (modFreqBox)
                     .withMinWidth(70.0f).withMinHeight(70.0f).withFlex(1.0));
 
     fb.performLayout (bounds.toFloat());

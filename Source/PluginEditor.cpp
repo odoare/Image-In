@@ -128,19 +128,53 @@ private:
 //==============================================================================
 MapSynthAudioProcessorEditor::MapSynthAudioProcessorEditor (MapSynthAudioProcessor& p)
     : AudioProcessorEditor (&p), 
-      audioProcessor (p), 
-      mapDisplayComponent (p),
+      audioProcessor (p),
       lineReaderComponent(p), 
       circleReaderComponent(p)
 {
     globalControlsComponent = std::make_unique<GlobalControlsComponent>(p);
 
-    addAndMakeVisible(mapDisplayComponent);
+    mapDisplayComponentCPU = std::make_unique<MapDisplayComponent>(p);
+    addAndMakeVisible(mapDisplayComponentCPU.get());
+
+    mapDisplayComponentGL = std::make_unique<MapDisplayComponent_GL>(p);
+    addAndMakeVisible(mapDisplayComponentGL.get());
+
+    addAndMakeVisible (loadImageButton);
+    loadImageButton.setButtonText ("Load Image");
+    loadImageButton.onClick = [this]
+    {
+        fileChooser = std::make_unique<juce::FileChooser> ("Select an image file...",
+                                                           juce::File{},
+                                                           "*.png,*.jpg,*.jpeg,*.gif");
+
+        auto chooserFlags = juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles;
+
+        fileChooser->launchAsync (chooserFlags, [this] (const juce::FileChooser& fc)
+        {
+            auto file = fc.getResult();
+
+            if (file != juce::File{})
+            {
+                if (! audioProcessor.imageBuffer.setImage (file))
+                {
+                    juce::AlertWindow::showMessageBoxAsync (juce::AlertWindow::WarningIcon, "Image Load Error", "Could not load the image file: " + file.getFileName());
+                }
+            }
+        });
+    };
+
+    addAndMakeVisible(useOpenGLButton);
+    useOpenGLButton.setButtonText("Use OpenGL");
+    useOpenGLAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(audioProcessor.apvts, "UseOpenGL", useOpenGLButton);
     
     addAndMakeVisible(readerTabs);
     readerTabs.addTab("Global / LFO", juce::Colours::transparentBlack, globalControlsComponent.get(), false);
     readerTabs.addTab("Line Reader", juce::Colours::transparentBlack, &lineReaderComponent, false);
     readerTabs.addTab("Circle Reader", juce::Colours::transparentBlack, &circleReaderComponent, false);
+
+    audioProcessor.apvts.addParameterListener("UseOpenGL", this);
+    updateRendererVisibility();
 
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
@@ -150,6 +184,15 @@ MapSynthAudioProcessorEditor::MapSynthAudioProcessorEditor (MapSynthAudioProcess
 
 MapSynthAudioProcessorEditor::~MapSynthAudioProcessorEditor()
 {
+    audioProcessor.apvts.removeParameterListener("UseOpenGL", this);
+}
+
+void MapSynthAudioProcessorEditor::parameterChanged (const juce::String& parameterID, float newValue)
+{
+    if (parameterID == "UseOpenGL")
+    {
+        updateRendererVisibility();
+    }
 }
 
 //==============================================================================
@@ -157,7 +200,7 @@ void MapSynthAudioProcessorEditor::paint (juce::Graphics& g)
 {
     // (Our component is opaque, so we must completely fill the background with a solid colour)
 
-    //g.fillAll (getLookAndFeel().findColour (juce::ResizableWindow::backgroundColourId).darker (0.2f));
+    g.fillAll (getLookAndFeel().findColour (juce::ResizableWindow::backgroundColourId).darker (0.2f));
 }
 
 void MapSynthAudioProcessorEditor::resized()
@@ -165,14 +208,25 @@ void MapSynthAudioProcessorEditor::resized()
     // This is generally where you'll want to lay out the positions of any
     // subcomponents in your editor..
     auto bounds = getLocalBounds();
+    auto leftPanelArea = bounds.removeFromLeft(juce::jmin(500, bounds.getWidth() / 2));
+    auto rightPanel = bounds;
 
-    juce::FlexBox mainFb; // Main horizontal layout
-    mainFb.flexDirection = juce::FlexBox::Direction::row;
+    auto leftPanelPadded = leftPanelArea.reduced(5);
+    auto buttonArea = leftPanelPadded.removeFromTop(30);
+    readerTabs.setBounds(leftPanelPadded);
 
-    auto tabsWidth = juce::jmin(500, bounds.getWidth() / 2);
+    loadImageButton.setBounds(buttonArea.getX(), buttonArea.getY(), 80, 24);
+    useOpenGLButton.setBounds(loadImageButton.getRight() + 10, buttonArea.getY(), 100, 24);
 
-    mainFb.items.add(juce::FlexItem(readerTabs).withWidth(tabsWidth).withMargin(5.0f));
-    mainFb.items.add(juce::FlexItem(mapDisplayComponent).withFlex(1.0f).withMargin(5.0f));
+    auto mapArea = rightPanel.reduced(5);
+    mapDisplayComponentCPU->setBounds(mapArea);
+    mapDisplayComponentGL->setBounds(mapArea);
+}
 
-    mainFb.performLayout (bounds);
+void MapSynthAudioProcessorEditor::updateRendererVisibility()
+{
+    const bool useOpenGL = audioProcessor.apvts.getRawParameterValue("UseOpenGL")->load() > 0.5f;
+
+    mapDisplayComponentGL->setVisible (useOpenGL);
+    mapDisplayComponentCPU->setVisible (!useOpenGL);
 }

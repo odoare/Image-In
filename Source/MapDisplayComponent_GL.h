@@ -1,7 +1,7 @@
 /*
   ==============================================================================
 
-    MapDisplayComponent.h
+    MapDisplayComponent_GL.h
     Created: 12 Sep 2025 10:00:00am
     Author:  Olivier Doaré
 
@@ -10,7 +10,7 @@
 
 #pragma once
 
-#include <JuceHeader.h>
+#include <juce_opengl/juce_opengl.h>
 
 #define CIRCLECOLOUR juce::Colours::blue
 #define LINECOLOUR juce::Colours::red
@@ -22,15 +22,21 @@ class MapSynthAudioProcessor;
     This component displays the image from an ImageBuffer and overlays the
     lines from one or more LineReaders.
 */
-class MapDisplayComponent  : public juce::Component,
-                             public juce::ChangeListener,
-                             private juce::Timer
+class MapDisplayComponent_GL  : public juce::Component,
+                                private juce::OpenGLRenderer,
+                                public juce::ChangeListener,
+                                private juce::Timer
 {
 public:
-    MapDisplayComponent (MapSynthAudioProcessor& p);
-    ~MapDisplayComponent() override;
+    MapDisplayComponent_GL (MapSynthAudioProcessor& p);
+    ~MapDisplayComponent_GL() override;
+
     void paint (juce::Graphics& g) override;
     void resized() override;
+
+    void newOpenGLContextCreated() override;
+    void openGLContextClosing() override;
+    void renderOpenGL() override;
 
 private:
     void timerCallback() override;
@@ -59,6 +65,10 @@ private:
     juce::Rectangle<int> displayArea;
 
     MapSynthAudioProcessor& processor;
+    juce::OpenGLContext openGLContext;
+    
+    juce::Image lastImage;
+    juce::OpenGLTexture imageTexture;
 
-    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MapDisplayComponent)
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MapDisplayComponent_GL)
 };

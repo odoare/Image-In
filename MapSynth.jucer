@@ -45,6 +45,10 @@
           file="Source/LineReaderComponent.cpp"/>
     <FILE id="Ji0Mw1" name="LineReaderComponent.h" compile="0" resource="0"
           file="Source/LineReaderComponent.h"/>
+    <FILE id="lYkUQ8" name="MapDisplayComponent_GL.cpp" compile="1" resource="0"
+          file="Source/MapDisplayComponent_GL.cpp"/>
+    <FILE id="jdWdrV" name="MapDisplayComponent_GL.h" compile="0" resource="0"
+          file="Source/MapDisplayComponent_GL.h"/>
     <FILE id="JPqJ1f" name="ReaderBase.cpp" compile="1" resource="0" file="Source/ReaderBase.cpp"/>
     <FILE id="OGihh3" name="ReaderBase.h" compile="0" resource="0" file="Source/ReaderBase.h"/>
     <FILE id="yhLOWD" name="ReaderComponent.cpp" compile="1" resource="0"

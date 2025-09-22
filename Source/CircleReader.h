@@ -38,6 +38,9 @@ public:
     std::atomic<int> modRadiusSelect { 0 };
     std::atomic<int> modVolumeSelect { 0 };
 
+    std::atomic<float> modFreqAmount { 0.0f };
+    std::atomic<int> modFreqSelect { 0 };
+
 private:
     void prepareToPlay (double sampleRate) override;
 

@@ -68,6 +68,8 @@ void CircleReader::updateParameters (const CircleReaderParameters& params)
     modVolumeSelect = params.modVolumeSelect;
     modPanAmount = params.modPanAmount;
     modPanSelect = params.modPanSelect;
+    modFreqAmount = params.modFreqAmount;
+    modFreqSelect = params.modFreqSelect;
 }
 
 void CircleReader::processBlock (const juce::Image& imageToRead, juce::AudioBuffer<float>& buffer, int startSample, int numSamples,
@@ -86,10 +88,6 @@ void CircleReader::processBlock (const juce::Image& imageToRead, juce::AudioBuff
         buffer.clear (startSample, numSamples);
         return;
     }
-
-    const float phaseIncrement = frequency / (float) sampleRate;
-    const float phaseIncrementLow = phaseIncrement * 0.5f;
-    const float phaseIncrementHigh = phaseIncrement * 2.0f;
 
     const auto twoPi = juce::MathConstants<float>::twoPi;
 
@@ -137,6 +135,16 @@ void CircleReader::processBlock (const juce::Image& imageToRead, juce::AudioBuff
         float r_sv = applyMod (r_base, modRadiusAmount.load(), modulatorBuffer.getSample (modRadiusSelect.load(), sample), true);
         float volume_sv = applyMod (volume_base, modVolumeAmount.load(), modulatorBuffer.getSample (modVolumeSelect.load(), sample), false);
         float pan_sv = applyMod(pan_base, modPanAmount.load(), modulatorBuffer.getSample(modPanSelect.load(), sample), true);
+
+        // --- Frequency Modulation ---
+        const float freqModSignal = modulatorBuffer.getSample(modFreqSelect.load(), sample);
+        const float bipolarFreqMod = freqModSignal * 2.0f - 1.0f;
+        const float numOctaves = 1.0f; // Modulate over a +/- 1 octave range for vibrato
+        const float modulatedFreq = frequency * std::pow(2.0f, modFreqAmount.load() * bipolarFreqMod * numOctaves);
+
+        const float phaseIncrement = modulatedFreq / (float) sampleRate;
+        const float phaseIncrementLow = phaseIncrement * 0.5f;
+        const float phaseIncrementHigh = phaseIncrement * 2.0f;
 
         // Clamp modulated values to a safe range
         cx_sv = juce::jlimit (0.0f, 1.0f, cx_sv);

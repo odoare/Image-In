@@ -27,16 +27,19 @@ private:
                      modLineCxAmountKnob, modLineCyAmountKnob, modLineAngleAmountKnob, modLineLengthAmountKnob, modLineVolumeAmountKnob,
                      filterFreqKnob, filterQualityKnob,
                      modFilterFreqAmountKnob, modFilterQualityAmountKnob,
-                     panKnob, modPanAmountKnob;
+                     panKnob, modPanAmountKnob,
+                     modFreqAmountKnob;
 
     juce::ComboBox modLineCxSelectBox, modLineCySelectBox, modLineAngleSelectBox, modLineLengthSelectBox, modLineVolumeSelectBox,
                    filterTypeBox,
                    modFilterFreqSelectBox, modFilterQualitySelectBox,
-                   modPanSelectBox;
+                   modPanSelectBox,
+                   modFreqSelectBox;
 
     std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment>
         modLineCxSelectAttachment, modLineCySelectAttachment, modLineAngleSelectAttachment, modLineLengthSelectAttachment, modLineVolumeSelectAttachment,
         filterTypeAttachment,
         modFilterFreqSelectAttachment, modFilterQualitySelectAttachment,
-        modPanSelectAttachment;
+        modPanSelectAttachment,
+        modFreqSelectAttachment;
 };

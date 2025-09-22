@@ -26,7 +26,8 @@ CircleReaderComponent::CircleReaderComponent(MapSynthAudioProcessor& p)
       filterQualityKnob(p.apvts, "CircleFilterQuality", juce::Colours::yellow),
       modFilterFreqAmountKnob(p.apvts, "Mod_CircleFilterFreq_Amount", juce::Colours::hotpink),
       modFilterQualityAmountKnob(p.apvts, "Mod_CircleFilterQuality_Amount", juce::Colours::hotpink),
-      modPanAmountKnob(p.apvts, "Mod_CirclePan_Amount", juce::Colours::hotpink)
+      modPanAmountKnob(p.apvts, "Mod_CirclePan_Amount", juce::Colours::hotpink),
+      modFreqAmountKnob(p.apvts, "Mod_CircleFreq_Amount", juce::Colours::hotpink)
 {
     setupKnob(cxKnob);
     setupKnob(cyKnob);
@@ -44,6 +45,7 @@ CircleReaderComponent::CircleReaderComponent(MapSynthAudioProcessor& p)
     setupKnob(modFilterQualityAmountKnob);
     setupKnob(panKnob);
     setupKnob(modPanAmountKnob);
+    setupKnob(modFreqAmountKnob);
 
     setupModulatorBox (modCxSelectBox, modCxSelectAttachment, "Mod_CircleCX_Select");
     setupModulatorBox (modCySelectBox, modCySelectAttachment, "Mod_CircleCY_Select");
@@ -56,6 +58,7 @@ CircleReaderComponent::CircleReaderComponent(MapSynthAudioProcessor& p)
     setupModulatorBox(modFilterFreqSelectBox, modFilterFreqSelectAttachment, "Mod_CircleFilterFreq_Select");
     setupModulatorBox(modFilterQualitySelectBox, modFilterQualitySelectAttachment, "Mod_CircleFilterQuality_Select");
     setupModulatorBox(modPanSelectBox, modPanSelectAttachment, "Mod_CirclePan_Select");
+    setupModulatorBox(modFreqSelectBox, modFreqSelectAttachment, "Mod_CircleFreq_Select");
 }
 
 void CircleReaderComponent::paint(juce::Graphics& g)
@@ -124,6 +127,10 @@ void CircleReaderComponent::resized()
 
     auto modPanBox = createModControlBox(modPanAmountKnob, modPanSelectBox);
     fb.items.add (juce::FlexItem (modPanBox)
+                    .withMinWidth(70.0f).withMinHeight(70.0f).withFlex(1.0));
+
+    auto modFreqBox = createModControlBox(modFreqAmountKnob, modFreqSelectBox);
+    fb.items.add (juce::FlexItem (modFreqBox)
                     .withMinWidth(70.0f).withMinHeight(70.0f).withFlex(1.0));
 
     fb.performLayout (bounds.toFloat());

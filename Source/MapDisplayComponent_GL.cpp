@@ -1,20 +1,25 @@
 /*
   ==============================================================================
 
-    MapDisplayComponent.cpp
+    MapDisplayComponent_GL.cpp
     Created: 12 Sep 2025 10:00:00am
     Author:  Olivier Doaré
 
   ==============================================================================
 */
 
-#include "MapDisplayComponent.h"
+#include "MapDisplayComponent_GL.h"
 #include "PluginProcessor.h"
 
-MapDisplayComponent::MapDisplayComponent (MapSynthAudioProcessor& p)
+MapDisplayComponent_GL::MapDisplayComponent_GL (MapSynthAudioProcessor& p)
     : processor (p)
 {
+    // Using OpenGL, so this component should be opaque.
     setOpaque (true);
+
+    openGLContext.setRenderer (this);
+    openGLContext.attachTo (*this);
+    openGLContext.setContinuousRepainting (false); // We'll trigger repaints from a timer
 
     processor.imageBuffer.addChangeListener (this);
 
@@ -23,28 +28,81 @@ MapDisplayComponent::MapDisplayComponent (MapSynthAudioProcessor& p)
     startTimerHz (30);
 }
 
-MapDisplayComponent::~MapDisplayComponent()
+MapDisplayComponent_GL::~MapDisplayComponent_GL()
 {
     stopTimer();
+    openGLContext.detach();
     processor.imageBuffer.removeChangeListener (this);
 }
 
-void MapDisplayComponent::paint (juce::Graphics& g)
+void MapDisplayComponent_GL::paint (juce::Graphics& g)
 {
-    g.fillAll (juce::Colours::darkgrey);
+    // This method is intentionally left blank.
+    // All rendering is now handled by renderOpenGL().
+}
+
+void MapDisplayComponent_GL::resized()
+{
+    auto bounds = getLocalBounds();
+    int squareSize = juce::jmin (bounds.getWidth(), bounds.getHeight());
+    displayArea = juce::Rectangle<int> (squareSize, squareSize).withCentre (bounds.getCentre());
+
+    openGLContext.triggerRepaint();
+}
+
+void MapDisplayComponent_GL::newOpenGLContextCreated()
+{
+    // One-time OpenGL setup can go here.
+}
+
+void MapDisplayComponent_GL::openGLContextClosing()
+{
+    // Release any OpenGL resources before the context is destroyed.
+    imageTexture.release();
+}
+
+void MapDisplayComponent_GL::renderOpenGL()
+{
+    juce::OpenGLHelpers::clear (juce::Colours::darkgrey);
 
     if (displayArea.isEmpty())
         return;
+
+    // Set the viewport to the square display area
+    juce::gl::glViewport (displayArea.getX(), getHeight() - displayArea.getBottom(), displayArea.getWidth(), displayArea.getHeight());
     
     auto image = processor.imageBuffer.getImage();
 
     if (image.isValid())
     {
-        g.drawImage(image, displayArea.toFloat());
+        // If the image has changed OR if the texture has been released (e.g. context loss),
+        // create a new GPU texture.
+        if (image != lastImage || imageTexture.getTextureID() == 0)
+        {
+            lastImage = image;
+            imageTexture.release();
+            imageTexture.loadImage (lastImage);
+        }
+
+        // If the texture is valid, draw it.
+        if (imageTexture.getTextureID() != 0)
+        {
+            imageTexture.bind();
+
+            // Draw a quad that fills the whole component
+            juce::gl::glBegin (juce::gl::GL_QUADS);
+                juce::gl::glTexCoord2f (0.0f, 0.0f); juce::gl::glVertex2f (-1.0f, -1.0f); // Bottom-Left
+                juce::gl::glTexCoord2f (1.0f, 0.0f); juce::gl::glVertex2f ( 1.0f, -1.0f); // Bottom-Right
+                juce::gl::glTexCoord2f (1.0f, 1.0f); juce::gl::glVertex2f ( 1.0f,  1.0f); // Top-Right
+                juce::gl::glTexCoord2f (0.0f, 1.0f); juce::gl::glVertex2f (-1.0f,  1.0f); // Top-Left
+            juce::gl::glEnd();
+        }
     }
 
-    juce::Graphics::ScopedSaveState s(g);
-    g.setOrigin(displayArea.getPosition());
+    // Create a juce::Graphics to draw our 2D overlays on top of the texture
+    std::unique_ptr<juce::LowLevelGraphicsContext> glContext (createOpenGLGraphicsContext (openGLContext, getWidth(), getHeight()));
+    juce::Graphics g (*glContext);
+    g.addTransform (juce::AffineTransform::translation ((float) displayArea.getX(), (float) displayArea.getY()));
     
     auto& apvts = processor.apvts;
 
@@ -238,16 +296,7 @@ void MapDisplayComponent::paint (juce::Graphics& g)
     }
 }
 
-void MapDisplayComponent::resized()
-{
-    auto bounds = getLocalBounds();
-    int squareSize = juce::jmin (bounds.getWidth(), bounds.getHeight());
-    displayArea = juce::Rectangle<int> (squareSize, squareSize).withCentre (bounds.getCentre());
-
-    repaint();
-}
-
-void MapDisplayComponent::mouseDown (const juce::MouseEvent& event)
+void MapDisplayComponent_GL::mouseDown (const juce::MouseEvent& event)
 {
     if (! displayArea.contains (event.getPosition()))
         return;
@@ -267,7 +316,7 @@ void MapDisplayComponent::mouseDown (const juce::MouseEvent& event)
     }
 }
 
-void MapDisplayComponent::mouseDrag (const juce::MouseEvent& event)
+void MapDisplayComponent_GL::mouseDrag (const juce::MouseEvent& event)
 {
     if (activeHandle == HandleType::None)
         return;
@@ -334,7 +383,7 @@ void MapDisplayComponent::mouseDrag (const juce::MouseEvent& event)
     }
 }
 
-void MapDisplayComponent::mouseUp (const juce::MouseEvent& event)
+void MapDisplayComponent_GL::mouseUp (const juce::MouseEvent& event)
 {
     if (activeHandle != HandleType::None)
     {
@@ -351,12 +400,12 @@ void MapDisplayComponent::mouseUp (const juce::MouseEvent& event)
     }
 }
 
-juce::Rectangle<float> MapDisplayComponent::getHandleRect (juce::Point<float> center) const
+juce::Rectangle<float> MapDisplayComponent_GL::getHandleRect (juce::Point<float> center) const
 {
     return juce::Rectangle<float> (handleSize, handleSize).withCentre (center);
 }
 
-MapDisplayComponent::HandleType MapDisplayComponent::getHandleAt (juce::Point<int> position)
+MapDisplayComponent_GL::HandleType MapDisplayComponent_GL::getHandleAt (juce::Point<int> position)
 {
     auto relativePos = position - displayArea.getPosition();
     const float w = (float) displayArea.getWidth();
@@ -381,15 +430,17 @@ MapDisplayComponent::HandleType MapDisplayComponent::getHandleAt (juce::Point<in
     return HandleType::None;
 }
 
-void MapDisplayComponent::timerCallback()
+void MapDisplayComponent_GL::timerCallback()
 {
-    repaint();
+    openGLContext.triggerRepaint();
 }
 
-void MapDisplayComponent::changeListenerCallback (juce::ChangeBroadcaster* source)
+void MapDisplayComponent_GL::changeListenerCallback (juce::ChangeBroadcaster* source)
 {
     if (source == &processor.imageBuffer)
     {
-        repaint();
+        // The image has changed. Invalidate our cached image so the texture
+        // gets recreated on the next render pass.
+        lastImage = juce::Image();
     }
 }

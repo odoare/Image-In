@@ -53,5 +53,8 @@ public:
     std::atomic<int> modLengthSelect { 0 };
     std::atomic<int> modVolumeSelect { 0 };
 
+    std::atomic<float> modFreqAmount { 0.0f };
+    std::atomic<int> modFreqSelect { 0 };
+
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (LineReader)
 };

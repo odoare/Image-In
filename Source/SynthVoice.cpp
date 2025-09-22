@@ -10,6 +10,7 @@
 
 #include "SynthVoice.h"
 #include "PluginProcessor.h"
+#include "ParameterStructs.h"
 
 SynthVoice::SynthVoice(MapSynthAudioProcessor& p, int index) : processor(p), voiceIndex(index)
 {
@@ -76,19 +77,48 @@ void SynthVoice::renderNextBlock (juce::AudioBuffer<float>& outputBuffer, int st
     mapOscillator.updateParameters (processor.globalParams);
 
     // Prepare modulator buffer
-    modulatorBuffer.setSize (6, numSamples, false, false, true);
-    modulatorBuffer.copyFrom (0, 0, processor.lfoBuffer, 0, 0, numSamples); // LFO 1
-    modulatorBuffer.copyFrom (1, 0, processor.lfoBuffer, 1, 0, numSamples); // LFO 2
-    modulatorBuffer.copyFrom (2, 0, processor.lfoBuffer, 2, 0, numSamples); // LFO 3
-    modulatorBuffer.copyFrom (3, 0, processor.lfoBuffer, 3, 0, numSamples); // LFO 4
+    modulatorBuffer.setSize (ModulatorSources::NumModulators, numSamples, false, false, true);
+    modulatorBuffer.copyFrom (ModulatorSources::LFO1, 0, processor.lfoBuffer, 0, 0, numSamples); // LFO 1
+    modulatorBuffer.copyFrom (ModulatorSources::LFO2, 0, processor.lfoBuffer, 1, 0, numSamples); // LFO 2
+    modulatorBuffer.copyFrom (ModulatorSources::LFO3, 0, processor.lfoBuffer, 2, 0, numSamples); // LFO 3
+    modulatorBuffer.copyFrom (ModulatorSources::LFO4, 0, processor.lfoBuffer, 3, 0, numSamples); // LFO 4
 
     // Generate ADSR modulator data
-    auto* adsr1Writer = modulatorBuffer.getWritePointer (4);
-    auto* adsr2Writer = modulatorBuffer.getWritePointer (5);
+    auto* adsr1Writer = modulatorBuffer.getWritePointer (ModulatorSources::ADSR1);
+    auto* adsr2Writer = modulatorBuffer.getWritePointer (ModulatorSources::ADSR2);
     for (int i = 0; i < numSamples; ++i)
     {
         adsr1Writer[i] = adsr.process();
         adsr2Writer[i] = adsr2.process();
+    }
+
+    // Generate combined LFO*ADSR modulator data
+    auto* lfo1Reader = modulatorBuffer.getReadPointer(ModulatorSources::LFO1);
+    auto* lfo2Reader = modulatorBuffer.getReadPointer(ModulatorSources::LFO2);
+    auto* lfo3Reader = modulatorBuffer.getReadPointer(ModulatorSources::LFO3);
+    auto* lfo4Reader = modulatorBuffer.getReadPointer(ModulatorSources::LFO4);
+    auto* adsr1Reader = modulatorBuffer.getReadPointer(ModulatorSources::ADSR1);
+    auto* adsr2Reader = modulatorBuffer.getReadPointer(ModulatorSources::ADSR2);
+
+    auto* lfo1adsr1Writer = modulatorBuffer.getWritePointer(ModulatorSources::LFO1_ADSR1);
+    auto* lfo1adsr2Writer = modulatorBuffer.getWritePointer(ModulatorSources::LFO1_ADSR2);
+    auto* lfo2adsr1Writer = modulatorBuffer.getWritePointer(ModulatorSources::LFO2_ADSR1);
+    auto* lfo2adsr2Writer = modulatorBuffer.getWritePointer(ModulatorSources::LFO2_ADSR2);
+    auto* lfo3adsr1Writer = modulatorBuffer.getWritePointer(ModulatorSources::LFO3_ADSR1);
+    auto* lfo3adsr2Writer = modulatorBuffer.getWritePointer(ModulatorSources::LFO3_ADSR2);
+    auto* lfo4adsr1Writer = modulatorBuffer.getWritePointer(ModulatorSources::LFO4_ADSR1);
+    auto* lfo4adsr2Writer = modulatorBuffer.getWritePointer(ModulatorSources::LFO4_ADSR2);
+
+    for (int i = 0; i < numSamples; ++i)
+    {
+        lfo1adsr1Writer[i] = lfo1Reader[i] * adsr1Reader[i];
+        lfo1adsr2Writer[i] = lfo1Reader[i] * adsr2Reader[i];
+        lfo2adsr1Writer[i] = lfo2Reader[i] * adsr1Reader[i];
+        lfo2adsr2Writer[i] = lfo2Reader[i] * adsr2Reader[i];
+        lfo3adsr1Writer[i] = lfo3Reader[i] * adsr1Reader[i];
+        lfo3adsr2Writer[i] = lfo3Reader[i] * adsr2Reader[i];
+        lfo4adsr1Writer[i] = lfo4Reader[i] * adsr1Reader[i];
+        lfo4adsr2Writer[i] = lfo4Reader[i] * adsr2Reader[i];
     }
 
     // Render audio

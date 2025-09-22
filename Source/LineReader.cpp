@@ -85,6 +85,8 @@ void LineReader::updateParameters (const LineReaderParameters& params)
     modVolumeSelect = params.modVolumeSelect;
     modPanAmount = params.modPanAmount;
     modPanSelect = params.modPanSelect;
+    modFreqAmount = params.modFreqAmount;
+    modFreqSelect = params.modFreqSelect;
 }
 
 void LineReader::processBlock (const juce::Image& imageToRead, juce::AudioBuffer<float>& buffer, int startSample, int numSamples,
@@ -103,10 +105,6 @@ void LineReader::processBlock (const juce::Image& imageToRead, juce::AudioBuffer
         buffer.clear (startSample, numSamples);
         return;
     }
-
-    const float phaseIncrement = frequency / (float) sampleRate;
-    const float phaseIncrementLow = phaseIncrement * 0.5f;
-    const float phaseIncrementHigh = phaseIncrement * 2.0f;
 
     const float imageWidth = (float) (bitmapData.width - 1);
     const float imageHeight = (float) (bitmapData.height - 1);
@@ -154,6 +152,16 @@ void LineReader::processBlock (const juce::Image& imageToRead, juce::AudioBuffer
         float angle_sv = applyMod (angle_base, modAngleAmount.load(), modulatorBuffer.getSample (modAngleSelect.load(), sample), true);
         float volume_sv = applyMod (volume_base, modVolumeAmount.load(), modulatorBuffer.getSample (modVolumeSelect.load(), sample), false);
         float pan_sv = applyMod(pan_base, modPanAmount.load(), modulatorBuffer.getSample(modPanSelect.load(), sample), true);
+
+        // --- Frequency Modulation ---
+        const float freqModSignal = modulatorBuffer.getSample(modFreqSelect.load(), sample);
+        const float bipolarFreqMod = freqModSignal * 2.0f - 1.0f;
+        const float numOctaves = 1.0f; // Modulate over a +/- 1 octave range for vibrato
+        const float modulatedFreq = frequency * std::pow(2.0f, modFreqAmount.load() * bipolarFreqMod * numOctaves);
+
+        const float phaseIncrement = modulatedFreq / (float) sampleRate;
+        const float phaseIncrementLow = phaseIncrement * 0.5f;
+        const float phaseIncrementHigh = phaseIncrement * 2.0f;
 
         // Clamp modulated values to a safe range
         cx_sv = juce::jlimit (0.0f, 1.0f, cx_sv);
