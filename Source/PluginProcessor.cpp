@@ -276,13 +276,15 @@ void MapSynthAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
     double bpm = 120.0;
     if (auto* playHead = getPlayHead())
     {
-        juce::AudioPlayHead::CurrentPositionInfo positionInfo;
-        if (playHead->getPosition () && positionInfo.bpm > 0)
-            bpm = positionInfo.bpm;
+        if (auto positionInfo = playHead->getPosition())
+        {
+            if (positionInfo->getBpm() && *positionInfo->getBpm() > 0)
+            {
+                bpm = *positionInfo->getBpm();
+            }
+                
+        }
     }
-
-
-    std::cout << "Define the LFOs here" << std::endl;
 
     auto getLfoFreq = [&] (const char* syncId, const char* rateId, const char* freqId)
     {
@@ -311,21 +313,23 @@ void MapSynthAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
         return 1.0f; // Fallback
     };
 
-    std::cout << "Lambda function defined" << std::endl;
-
     // Set up the LFOs
 
-    lfo.setFrequency (getLfoFreq("LFO1Sync", "LFO1Rate", "LFOFreq"));
+    lfo.setWaveform((LFO::Waveform)(int)apvts.getRawParameterValue("LFO1Wave")->load());
+    lfo.setFrequency(getLfoFreq("LFO1Sync", "LFO1Rate", "LFOFreq"));
     lfo.setPhaseOffset(apvts.getRawParameterValue("LFO1Phase")->load());
-    lfo2.setFrequency (getLfoFreq("LFO2Sync", "LFO2Rate", "LFO2Freq"));
+
+    lfo2.setWaveform((LFO::Waveform)(int)apvts.getRawParameterValue("LFO2Wave")->load());
+    lfo2.setFrequency(getLfoFreq("LFO2Sync", "LFO2Rate", "LFO2Freq"));
     lfo2.setPhaseOffset(apvts.getRawParameterValue("LFO2Phase")->load());
+
+    lfo3.setWaveform((LFO::Waveform)(int)apvts.getRawParameterValue("LFO3Wave")->load());
     lfo3.setFrequency(getLfoFreq("LFO3Sync", "LFO3Rate", "LFO3Freq"));
     lfo3.setPhaseOffset(apvts.getRawParameterValue("LFO3Phase")->load());
+
+    lfo4.setWaveform((LFO::Waveform)(int)apvts.getRawParameterValue("LFO4Wave")->load());
     lfo4.setFrequency(getLfoFreq("LFO4Sync", "LFO4Rate", "LFO4Freq"));
     lfo4.setPhaseOffset(apvts.getRawParameterValue("LFO4Phase")->load());
-
-    std::cout << "LFOs set up" << std::endl;
-
 
     // Process LFOs for the block
     auto* lfo1Data = lfoBuffer.getWritePointer (0);
@@ -450,15 +454,19 @@ juce::AudioProcessorValueTreeState::ParameterLayout MapSynthAudioProcessor::crea
     layout.add(std::make_unique<juce::AudioParameterFloat>("CircleVolume", "CircleVolume", juce::NormalisableRange<float>(0.f, 1.f, .01f, 1.f), 1.0f));
     layout.add(std::make_unique<juce::AudioParameterFloat>("LFOFreq", "LFO 1 Freq", juce::NormalisableRange<float>(0.01f, 200.0f, 0.01f, 0.3f), 1.0f));
     layout.add(std::make_unique<juce::AudioParameterBool>("LFO1Sync", "LFO 1 Sync", false));
+    layout.add(std::make_unique<juce::AudioParameterChoice>("LFO1Wave", "LFO 1 Wave", lfoWaveformChoices, 0));
     layout.add(std::make_unique<juce::AudioParameterChoice>("LFO1Rate", "LFO 1 Rate", tempoSyncRateChoices, 8)); // Default to 1/4
     layout.add(std::make_unique<juce::AudioParameterFloat>("LFO2Freq", "LFO 2 Freq", juce::NormalisableRange<float>(0.01f, 200.0f, 0.01f, 0.3f), 1.0f));
     layout.add(std::make_unique<juce::AudioParameterBool>("LFO2Sync", "LFO 2 Sync", false));
+    layout.add(std::make_unique<juce::AudioParameterChoice>("LFO2Wave", "LFO 2 Wave", lfoWaveformChoices, 0));
     layout.add(std::make_unique<juce::AudioParameterChoice>("LFO2Rate", "LFO 2 Rate", tempoSyncRateChoices, 8));
     layout.add(std::make_unique<juce::AudioParameterFloat>("LFO3Freq", "LFO 3 Freq", juce::NormalisableRange<float>(0.01f, 200.0f, 0.01f, 0.3f), 1.0f));
     layout.add(std::make_unique<juce::AudioParameterBool>("LFO3Sync", "LFO 3 Sync", false));
+    layout.add(std::make_unique<juce::AudioParameterChoice>("LFO3Wave", "LFO 3 Wave", lfoWaveformChoices, 0));
     layout.add(std::make_unique<juce::AudioParameterChoice>("LFO3Rate", "LFO 3 Rate", tempoSyncRateChoices, 8));
     layout.add(std::make_unique<juce::AudioParameterFloat>("LFO4Freq", "LFO 4 Freq", juce::NormalisableRange<float>(0.01f, 200.0f, 0.01f, 0.3f), 1.0f));
     layout.add(std::make_unique<juce::AudioParameterBool>("LFO4Sync", "LFO 4 Sync", false));
+    layout.add(std::make_unique<juce::AudioParameterChoice>("LFO4Wave", "LFO 4 Wave", lfoWaveformChoices, 0));
     layout.add(std::make_unique<juce::AudioParameterChoice>("LFO4Rate", "LFO 4 Rate", tempoSyncRateChoices, 8));
     layout.add(std::make_unique<juce::AudioParameterFloat>("LFO1Phase", "LFO 1 Phase", juce::NormalisableRange<float>(0.0f, 1.0f, 0.01f), 0.0f));
     layout.add(std::make_unique<juce::AudioParameterFloat>("LFO2Phase", "LFO 2 Phase", juce::NormalisableRange<float>(0.0f, 1.0f, 0.01f), 0.0f));

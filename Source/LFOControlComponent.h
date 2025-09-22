@@ -46,10 +46,12 @@ private:
     fxme::FxmeKnob phaseKnob;
     juce::ToggleButton syncButton;
     juce::ComboBox rateBox;
+    juce::ComboBox waveformBox;
     SyncControls syncControls;
 
     std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> syncAttachment;
     std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> rateAttachment;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> waveformAttachment;
 
     // FlexBox layout objects
     juce::FlexBox mainRow;

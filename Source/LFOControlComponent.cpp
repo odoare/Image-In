@@ -42,11 +42,16 @@ LFOControlComponent::LFOControlComponent(MapSynthAudioProcessor& p, int lfoIndex
 
     juce::String syncParamId = "LFO" + juce::String(index) + "Sync";
     juce::String rateParamId = "LFO" + juce::String(index) + "Rate";
+    juce::String waveParamId = "LFO" + juce::String(index) + "Wave";
 
     syncButton.setButtonText("Sync");
     syncAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(audioProcessor.apvts, syncParamId, syncButton);
 
     addAndMakeVisible(syncControls);
+
+    addAndMakeVisible(waveformBox);
+    waveformBox.addItemList(lfoWaveformChoices, 1);
+    waveformAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(audioProcessor.apvts, waveParamId, waveformBox);
 
     rateBox.addItemList(tempoSyncRateChoices, 1);
     rateAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(audioProcessor.apvts, rateParamId, rateBox);
@@ -70,6 +75,7 @@ void LFOControlComponent::resized()
     // Clear and rebuild layout
     mainRow.items.clear();
 
+    mainRow.items.add(juce::FlexItem(waveformBox).withFlex(1.0f).withMinWidth(60.f));
     mainRow.items.add(juce::FlexItem(freqKnob).withFlex(1.0f));
     mainRow.items.add(juce::FlexItem(phaseKnob).withFlex(1.0f));
     mainRow.items.add(juce::FlexItem(syncControls).withFlex(1.5f));
