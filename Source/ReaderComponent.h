@@ -22,9 +22,6 @@ public:
 
 protected:
     void setupKnob (fxme::FxmeKnob& knob);
-    void setupModulatorBox (juce::ComboBox& box,
-                            std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment>& attachment,
-                            const juce::String& paramId);
 
     MapSynthAudioProcessor& audioProcessor;
     fxme::FxmeLookAndFeel fxmeLookAndFeel;

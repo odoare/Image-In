@@ -11,6 +11,7 @@
 #pragma once
 
 #include "ReaderComponent.h"
+#include "ModControlBox.h"
 
 #define COLOUR juce::Colours::red
 
@@ -24,22 +25,13 @@ public:
 
 private:
     fxme::FxmeKnob lineCxKnob, lineCyKnob, lineLengthKnob, lineAngleKnob, lineVolumeKnob,
-                     modLineCxAmountKnob, modLineCyAmountKnob, modLineAngleAmountKnob, modLineLengthAmountKnob, modLineVolumeAmountKnob,
                      filterFreqKnob, filterQualityKnob,
-                     modFilterFreqAmountKnob, modFilterQualityAmountKnob,
-                     panKnob, modPanAmountKnob,
-                     modFreqAmountKnob;
+                     panKnob;
 
-    juce::ComboBox modLineCxSelectBox, modLineCySelectBox, modLineAngleSelectBox, modLineLengthSelectBox, modLineVolumeSelectBox,
-                   filterTypeBox,
-                   modFilterFreqSelectBox, modFilterQualitySelectBox,
-                   modPanSelectBox,
-                   modFreqSelectBox;
+    juce::ComboBox filterTypeBox;
 
-    std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment>
-        modLineCxSelectAttachment, modLineCySelectAttachment, modLineAngleSelectAttachment, modLineLengthSelectAttachment, modLineVolumeSelectAttachment,
-        filterTypeAttachment,
-        modFilterFreqSelectAttachment, modFilterQualitySelectAttachment,
-        modPanSelectAttachment,
-        modFreqSelectAttachment;
+    ModControlBox modCx, modCy, modAngle, modLength, modVolume,
+                  modFilterFreq, modFilterQuality, modPan, modFreq;
+
+    std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> filterTypeAttachment;
 };

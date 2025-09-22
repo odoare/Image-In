@@ -18,15 +18,6 @@ ReaderComponent::ReaderComponent(MapSynthAudioProcessor& p) : audioProcessor(p)
 
 void ReaderComponent::setupKnob (fxme::FxmeKnob& knob)
 {
-    addAndMakeVisible (knob.slider);
+    addAndMakeVisible (knob);
     knob.slider.setLookAndFeel (&fxmeLookAndFeel);
-}
-
-void ReaderComponent::setupModulatorBox (juce::ComboBox& box,
-                                         std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment>& attachment,
-                                         const juce::String& paramId)
-{
-    addAndMakeVisible (box);
-    box.addItemList (modulatorChoices, 1);
-    attachment = std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment> (audioProcessor.apvts, paramId, box);
 }

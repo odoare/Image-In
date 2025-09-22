@@ -19,6 +19,10 @@ enum class FilterType
 };
 
 static const juce::StringArray filterTypeChoices { "Lowpass", "Highpass" };
+static const juce::StringArray tempoSyncRateChoices {
+    "1/32", "1/16T", "1/16", "1/16D", "1/8T", "1/8", "1/8D", "1/4T", "1/4", "1/4D", "1/2T", "1/2", "1/2D", "1 Bar"
+};
+
 static const juce::StringArray modulatorChoices {
     "LFO 1", "LFO 2", "LFO 3", "LFO 4",
     "ADSR 1", "ADSR 2",

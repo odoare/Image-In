@@ -8,6 +8,13 @@
       <FILE id="BXxvYB" name="world.png" compile="0" resource="1" file="Source/Assets/world.png"/>
     </GROUP>
     <GROUP id="{633F86FB-EABC-E5B3-C698-8086F97CD0F3}" name="Source">
+      <FILE id="U6L8h5" name="ModControlBox.cpp" compile="1" resource="0"
+            file="Source/ModControlBox.cpp"/>
+      <FILE id="mHKSjN" name="ModControlBox.h" compile="0" resource="0" file="Source/ModControlBox.h"/>
+      <FILE id="bnthBT" name="LFOControlComponent.cpp" compile="1" resource="0"
+            file="Source/LFOControlComponent.cpp"/>
+      <FILE id="ccrcBZ" name="LFOControlComponent.h" compile="0" resource="0"
+            file="Source/LFOControlComponent.h"/>
       <FILE id="mibf5V" name="ParameterStructs.h" compile="0" resource="0"
             file="Source/ParameterStructs.h"/>
       <FILE id="Lbsucc" name="ADSR.cpp" compile="1" resource="0" file="Source/ADSR.cpp"/>

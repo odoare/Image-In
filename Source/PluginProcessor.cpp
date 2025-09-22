@@ -244,20 +244,88 @@ void MapSynthAudioProcessor::updateParameters()
     globalParams.adsr2.release = apvts.getRawParameterValue ("Release2")->load();
 }
 
+float getRateMultiplier(int choice)
+{
+    // These are multipliers for a base frequency of 1 beat (a quarter note)
+    switch (choice)
+    {
+        case 0:  return 8.0f;        // 1/32
+        case 1:  return 4.0f * 1.5f; // 1/16T
+        case 2:  return 4.0f;        // 1/16
+        case 3:  return 4.0f / 1.5f; // 1/16D
+        case 4:  return 2.0f * 1.5f; // 1/8T
+        case 5:  return 2.0f;        // 1/8
+        case 6:  return 2.0f / 1.5f; // 1/8D
+        case 7:  return 1.0f * 1.5f; // 1/4T
+        case 8:  return 1.0f;        // 1/4
+        case 9:  return 1.0f / 1.5f; // 1/4D
+        case 10: return 0.5f * 1.5f; // 1/2T
+        case 11: return 0.5f;        // 1/2
+        case 12: return 0.5f / 1.5f; // 1/2D
+        case 13: return 0.25f;       // 1 Bar
+        default: return 1.0f;
+    }
+}
+
 void MapSynthAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
     juce::ScopedNoDenormals noDenormals;
 
     updateParameters();
 
-    lfo.setFrequency (apvts.getRawParameterValue ("LFOFreq")->load());
+    double bpm = 120.0;
+    if (auto* playHead = getPlayHead())
+    {
+        juce::AudioPlayHead::CurrentPositionInfo positionInfo;
+        if (playHead->getPosition () && positionInfo.bpm > 0)
+            bpm = positionInfo.bpm;
+    }
+
+
+    std::cout << "Define the LFOs here" << std::endl;
+
+    auto getLfoFreq = [&] (const char* syncId, const char* rateId, const char* freqId)
+    {
+        auto* syncParam = apvts.getRawParameterValue(syncId);
+        jassert (syncParam != nullptr); // This will fire in a debug build if the syncId is wrong
+
+        if (syncParam != nullptr && syncParam->load() > 0.5f)
+        {
+            auto* rateParam = apvts.getRawParameterValue(rateId);
+            jassert (rateParam != nullptr); // This will fire if the rateId is wrong
+
+            if (rateParam == nullptr)
+                return 1.0f; // Fallback to prevent crash in release build
+
+            const int rateIndex = (int)rateParam->load();
+            const float multiplier = getRateMultiplier(rateIndex);
+            return (float) (bpm / 60.0 * multiplier);
+        }
+        
+        auto* freqParam = apvts.getRawParameterValue(freqId);
+        jassert (freqParam != nullptr); // This will fire if the freqId is wrong
+
+        if (freqParam != nullptr)
+            return freqParam->load();
+        
+        return 1.0f; // Fallback
+    };
+
+    std::cout << "Lambda function defined" << std::endl;
+
+    // Set up the LFOs
+
+    lfo.setFrequency (getLfoFreq("LFO1Sync", "LFO1Rate", "LFOFreq"));
     lfo.setPhaseOffset(apvts.getRawParameterValue("LFO1Phase")->load());
-    lfo2.setFrequency (apvts.getRawParameterValue ("LFO2Freq")->load());
+    lfo2.setFrequency (getLfoFreq("LFO2Sync", "LFO2Rate", "LFO2Freq"));
     lfo2.setPhaseOffset(apvts.getRawParameterValue("LFO2Phase")->load());
-    lfo3.setFrequency(apvts.getRawParameterValue("LFO3Freq")->load());
+    lfo3.setFrequency(getLfoFreq("LFO3Sync", "LFO3Rate", "LFO3Freq"));
     lfo3.setPhaseOffset(apvts.getRawParameterValue("LFO3Phase")->load());
-    lfo4.setFrequency(apvts.getRawParameterValue("LFO4Freq")->load());
+    lfo4.setFrequency(getLfoFreq("LFO4Sync", "LFO4Rate", "LFO4Freq"));
     lfo4.setPhaseOffset(apvts.getRawParameterValue("LFO4Phase")->load());
+
+    std::cout << "LFOs set up" << std::endl;
+
 
     // Process LFOs for the block
     auto* lfo1Data = lfoBuffer.getWritePointer (0);
@@ -381,9 +449,17 @@ juce::AudioProcessorValueTreeState::ParameterLayout MapSynthAudioProcessor::crea
     layout.add(std::make_unique<juce::AudioParameterFloat>("LineVolume", "LineVolume", juce::NormalisableRange<float>(0.f, 1.f, .01f, 1.f), 1.0f));
     layout.add(std::make_unique<juce::AudioParameterFloat>("CircleVolume", "CircleVolume", juce::NormalisableRange<float>(0.f, 1.f, .01f, 1.f), 1.0f));
     layout.add(std::make_unique<juce::AudioParameterFloat>("LFOFreq", "LFO 1 Freq", juce::NormalisableRange<float>(0.01f, 200.0f, 0.01f, 0.3f), 1.0f));
+    layout.add(std::make_unique<juce::AudioParameterBool>("LFO1Sync", "LFO 1 Sync", false));
+    layout.add(std::make_unique<juce::AudioParameterChoice>("LFO1Rate", "LFO 1 Rate", tempoSyncRateChoices, 8)); // Default to 1/4
     layout.add(std::make_unique<juce::AudioParameterFloat>("LFO2Freq", "LFO 2 Freq", juce::NormalisableRange<float>(0.01f, 200.0f, 0.01f, 0.3f), 1.0f));
+    layout.add(std::make_unique<juce::AudioParameterBool>("LFO2Sync", "LFO 2 Sync", false));
+    layout.add(std::make_unique<juce::AudioParameterChoice>("LFO2Rate", "LFO 2 Rate", tempoSyncRateChoices, 8));
     layout.add(std::make_unique<juce::AudioParameterFloat>("LFO3Freq", "LFO 3 Freq", juce::NormalisableRange<float>(0.01f, 200.0f, 0.01f, 0.3f), 1.0f));
+    layout.add(std::make_unique<juce::AudioParameterBool>("LFO3Sync", "LFO 3 Sync", false));
+    layout.add(std::make_unique<juce::AudioParameterChoice>("LFO3Rate", "LFO 3 Rate", tempoSyncRateChoices, 8));
     layout.add(std::make_unique<juce::AudioParameterFloat>("LFO4Freq", "LFO 4 Freq", juce::NormalisableRange<float>(0.01f, 200.0f, 0.01f, 0.3f), 1.0f));
+    layout.add(std::make_unique<juce::AudioParameterBool>("LFO4Sync", "LFO 4 Sync", false));
+    layout.add(std::make_unique<juce::AudioParameterChoice>("LFO4Rate", "LFO 4 Rate", tempoSyncRateChoices, 8));
     layout.add(std::make_unique<juce::AudioParameterFloat>("LFO1Phase", "LFO 1 Phase", juce::NormalisableRange<float>(0.0f, 1.0f, 0.01f), 0.0f));
     layout.add(std::make_unique<juce::AudioParameterFloat>("LFO2Phase", "LFO 2 Phase", juce::NormalisableRange<float>(0.0f, 1.0f, 0.01f), 0.0f));
     layout.add(std::make_unique<juce::AudioParameterFloat>("LFO3Phase", "LFO 3 Phase", juce::NormalisableRange<float>(0.0f, 1.0f, 0.01f), 0.0f));

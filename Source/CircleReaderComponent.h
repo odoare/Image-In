@@ -11,6 +11,7 @@
 #pragma once
 
 #include "ReaderComponent.h"
+#include "ModControlBox.h"
 
 #define CIRCLECOLOUR juce::Colours::blue
 
@@ -24,22 +25,13 @@ public:
 
 private:
     fxme::FxmeKnob cxKnob, cyKnob, rKnob, circleVolumeKnob,
-                     modCxAmountKnob, modCyAmountKnob, modRadiusAmountKnob, modVolumeAmountKnob,
                      filterFreqKnob, filterQualityKnob,
-                     modFilterFreqAmountKnob, modFilterQualityAmountKnob,
-                     panKnob, modPanAmountKnob,
-                     modFreqAmountKnob;
+                     panKnob;
 
-    juce::ComboBox modCxSelectBox, modCySelectBox, modRadiusSelectBox, modVolumeSelectBox,
-                   filterTypeBox,
-                   modFilterFreqSelectBox, modFilterQualitySelectBox,
-                   modPanSelectBox,
-                   modFreqSelectBox;
+    juce::ComboBox filterTypeBox;
 
-    std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment>
-        modCxSelectAttachment, modCySelectAttachment, modRadiusSelectAttachment, modVolumeSelectAttachment,
-        filterTypeAttachment,
-        modFilterFreqSelectAttachment, modFilterQualitySelectAttachment,
-        modPanSelectAttachment,
-        modFreqSelectAttachment;
+    ModControlBox modCx, modCy, modRadius, modVolume,
+                  modFilterFreq, modFilterQuality, modPan, modFreq;
+
+    std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> filterTypeAttachment;
 };
