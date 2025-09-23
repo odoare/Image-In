@@ -14,7 +14,8 @@
 #include "SynthSound.h"
 #include "ParameterStructs.h"
 #include "SynthVoice.h"
-// Let's define the number of voices for our synth
+
+// Number of voices for the synth
 #define NUM_VOICES 4
 
 struct VoiceDisplayState
@@ -27,7 +28,8 @@ struct VoiceDisplayState
 //==============================================================================
 /**
 */
-class MapSynthAudioProcessor  : public juce::AudioProcessor
+class MapSynthAudioProcessor  : public juce::AudioProcessor,
+                                public juce::AudioProcessorValueTreeState::Listener
 {
 public:
     //==============================================================================
@@ -66,6 +68,8 @@ public:
     //==============================================================================
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
+
+    void parameterChanged (const juce::String& parameterID, float newValue) override;
 
     ImageBuffer imageBuffer;
     juce::AudioProcessorValueTreeState apvts {*this, nullptr, "Parameters", createParameters()};

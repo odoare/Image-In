@@ -10,6 +10,18 @@
 #include "PluginEditor.h"
 #include "SynthSound.h"
 
+static juce::StringArray getFactoryImageChoices()
+{
+    juce::StringArray choices;
+    choices.add("Custom"); // For user-loaded images
+    for (int i = 0; i < BinaryData::namedResourceListSize; ++i)
+    {
+        auto friendlyName = juce::String(BinaryData::originalFilenames[i]).fromFirstOccurrenceOf("_", false, false).upToLastOccurrenceOf(".", false, false);
+        choices.add(friendlyName);
+    }
+    return choices;
+}
+
 //==============================================================================
 MapSynthAudioProcessor::MapSynthAudioProcessor()
      : AudioProcessor (BusesProperties()
@@ -21,8 +33,6 @@ MapSynthAudioProcessor::MapSynthAudioProcessor()
                      #endif
                        )
 {
-    imageBuffer.setImage (juce::ImageCache::getFromMemory (BinaryData::world_png, BinaryData::world_pngSize));
-
     // Set up the initial readers
     readerTypes.add (ReaderBase::Type::Line);
     readerTypes.add (ReaderBase::Type::Circle);
@@ -35,10 +45,15 @@ MapSynthAudioProcessor::MapSynthAudioProcessor()
 
     // This must be called after voices are created.
     updateVoices();
+
+    apvts.addParameterListener("FactoryImage", this);
+    // Manually trigger initial state from the parameter's default value
+    parameterChanged("FactoryImage", apvts.getRawParameterValue("FactoryImage")->load());
 }
 
 MapSynthAudioProcessor::~MapSynthAudioProcessor()
 {
+    apvts.removeParameterListener("FactoryImage", this);
 }
 
 //==============================================================================
@@ -170,6 +185,27 @@ void MapSynthAudioProcessor::updateVoices()
         if (auto* voice = dynamic_cast<SynthVoice*> (synth.getVoice (i)))
         {
             voice->rebuildReaders (readerTypes);
+        }
+    }
+}
+
+void MapSynthAudioProcessor::parameterChanged(const juce::String& parameterID, float newValue)
+{
+    if (parameterID == "FactoryImage")
+    {
+        int imageIndex = (int)newValue;
+        if (imageIndex > 0) // 0 is "Custom"
+        {
+            int resourceIndex = imageIndex - 1;
+            if (juce::isPositiveAndBelow(resourceIndex, BinaryData::namedResourceListSize))
+            {
+                const char* resourceName = BinaryData::namedResourceList[resourceIndex];
+                int dataSize = 0;
+                const char* resourceData = BinaryData::getNamedResource(resourceName, dataSize);
+
+                if (resourceData != nullptr && dataSize > 0)
+                    imageBuffer.setImage(juce::ImageFileFormat::loadFrom(resourceData, (size_t)dataSize));
+            }
         }
     }
 }
@@ -363,70 +399,40 @@ juce::AudioProcessorEditor* MapSynthAudioProcessor::createEditor()
 //==============================================================================
 void MapSynthAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
 {
-    // Get the parameters' state from APVTS
     auto state = apvts.copyState();
     std::unique_ptr<juce::XmlElement> xml (state.createXml());
 
-    // Get the source file for the current image
-    auto imageFile = imageBuffer.getFile();
-
-    if (imageFile.existsAsFile())
+    // If the current image is a custom user-loaded one, save its path.
+    // The "FactoryImage" parameter will be at index 0 ("Custom").
+    if (static_cast<int>(apvts.getRawParameterValue("FactoryImage")->load()) == 0)
     {
-        // If we have a valid file, save its path
-        xml->setAttribute ("imagePath", imageFile.getFullPathName());
-    }
-    else
-    {
-        // Otherwise (e.g. for the default image), save the raw image data as a fallback
-        auto image = imageBuffer.getImage();
-        if (image.isValid())
+        auto imageFile = imageBuffer.getFile();
+        if (imageFile.existsAsFile())
         {
-            juce::MemoryOutputStream memoryStream;
-            juce::PNGImageFormat pngFormat;
-            if (pngFormat.writeImageToStream (image, memoryStream))
-            {
-                xml->setAttribute ("imageData", memoryStream.getMemoryBlock().toBase64Encoding());
-            }
+            xml->setAttribute ("imagePath", imageFile.getFullPathName());
         }
     }
-    
-    // Store the combined XML state in the memory block
+
     copyXmlToBinary (*xml, destData);
 }
 
 void MapSynthAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
-    // Restore the state from XML
     std::unique_ptr<juce::XmlElement> xmlState (getXmlFromBinary (data, sizeInBytes));
 
     if (xmlState != nullptr)
     {
         if (xmlState->hasTagName (apvts.state.getType()))
         {
-            // First, try to restore from a file path
+            // Restore parameters. This will trigger parameterChanged for FactoryImage if it's not "Custom".
+            apvts.replaceState (juce::ValueTree::fromXml (*xmlState));
+
             if (xmlState->hasAttribute ("imagePath"))
             {
                 auto imagePath = xmlState->getStringAttribute ("imagePath");
-                if (! imageBuffer.setImage (juce::File (imagePath)))
-                {
-                    // If loading from path fails, do nothing, keep current/default image.
-                    // You could show an error message here if you wanted.
-                }
+                // This will fail silently if file not found, which is acceptable.
+                imageBuffer.setImage (juce::File (imagePath));
             }
-            // If no path, try to restore from embedded data (for older presets or default state)
-            else if (xmlState->hasAttribute ("imageData"))
-            {
-                auto base64Data = xmlState->getStringAttribute ("imageData");
-                juce::MemoryBlock imageData;
-                if (imageData.fromBase64Encoding (base64Data))
-                {
-                    juce::Image loadedImage = juce::ImageFileFormat::loadFrom (imageData.getData(), imageData.getSize());
-                    imageBuffer.setImage (loadedImage);
-                }
-            }
-
-            // Then, restore the parameters using the APVTS
-            apvts.replaceState (juce::ValueTree::fromXml (*xmlState));
         }
     }
 }
@@ -440,8 +446,11 @@ juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 
 juce::AudioProcessorValueTreeState::ParameterLayout MapSynthAudioProcessor::createParameters()
 {
+    static juce::StringArray factoryImageChoices = getFactoryImageChoices();
+
     juce::AudioProcessorValueTreeState::ParameterLayout layout;
         
+    layout.add(std::make_unique<juce::AudioParameterChoice>("FactoryImage", "Factory Image", factoryImageChoices, 1));
     layout.add(std::make_unique<juce::AudioParameterFloat>("Level","Level",juce::NormalisableRange<float>(-60.f,12.f,1e-2f,1.f),0.f));
     layout.add(std::make_unique<juce::AudioParameterFloat>("LineCX", "LineCX", juce::NormalisableRange<float>(0.f, 1.f, .01f, 1.f), 0.5f));
     layout.add(std::make_unique<juce::AudioParameterFloat>("LineCY", "LineCY", juce::NormalisableRange<float>(0.f, 1.f, .01f, 1.f), 0.5f));

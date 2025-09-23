@@ -89,7 +89,7 @@ public:
         lfoRowsContainer.items.add(juce::FlexItem(lfo4Controls).withFlex(1.0f));
 
         // Add main containers to globalFb
-        globalFb.items.add (juce::FlexItem(lfoRowsContainer).withFlex(2.0));
+        globalFb.items.add (juce::FlexItem(lfoRowsContainer).withFlex(3.0));
         globalFb.items.add (juce::FlexItem(adsrBox).withFlex(1.0).withMargin(juce::FlexItem::Margin(5.f, 0, 0, 0)));
         globalFb.items.add (juce::FlexItem(adsr2Box).withFlex(1.0));
 
@@ -132,8 +132,21 @@ MapSynthAudioProcessorEditor::MapSynthAudioProcessorEditor (MapSynthAudioProcess
     mapDisplayComponentGL = std::make_unique<MapDisplayComponent_GL>(p);
     addAndMakeVisible(mapDisplayComponentGL.get());
 
+    addAndMakeVisible(factoryImageLabel);
+    factoryImageLabel.setText("Preset Image:", juce::dontSendNotification);
+    factoryImageLabel.setJustificationType(juce::Justification::right);
+    factoryImageLabel.attachToComponent(&factoryImageSelector, true);
+    addAndMakeVisible(factoryImageSelector);
+
+    if (auto* choiceParam = dynamic_cast<juce::AudioParameterChoice*>(audioProcessor.apvts.getParameter("FactoryImage")))
+    {
+        factoryImageSelector.addItemList(choiceParam->choices, 1);
+    }
+
+    factoryImageAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(audioProcessor.apvts, "FactoryImage", factoryImageSelector);
+
     addAndMakeVisible (loadImageButton);
-    loadImageButton.setButtonText ("Load Image");
+    loadImageButton.setButtonText ("Load...");
     loadImageButton.onClick = [this]
     {
         fileChooser = std::make_unique<juce::FileChooser> ("Select an image file...",
@@ -148,7 +161,13 @@ MapSynthAudioProcessorEditor::MapSynthAudioProcessorEditor (MapSynthAudioProcess
 
             if (file != juce::File{})
             {
-                if (! audioProcessor.imageBuffer.setImage (file))
+                if (audioProcessor.imageBuffer.setImage (file))
+                {
+                    // If user loads an image, set the selector to "Custom"
+                    if (auto* param = audioProcessor.apvts.getParameter("FactoryImage"))
+                        param->setValueNotifyingHost(0.0f);
+                }
+                else
                 {
                     juce::AlertWindow::showMessageBoxAsync (juce::AlertWindow::WarningIcon, "Image Load Error", "Could not load the image file: " + file.getFileName());
                 }
@@ -207,7 +226,8 @@ void MapSynthAudioProcessorEditor::resized()
     auto buttonArea = leftPanelPadded.removeFromTop(30);
     readerTabs.setBounds(leftPanelPadded);
 
-    loadImageButton.setBounds(buttonArea.getX(), buttonArea.getY(), 80, 24);
+    factoryImageSelector.setBounds(buttonArea.getX() + 80, buttonArea.getY(), 120, 24);
+    loadImageButton.setBounds(factoryImageSelector.getRight() + 10, buttonArea.getY(), 80, 24);
     useOpenGLButton.setBounds(loadImageButton.getRight() + 10, buttonArea.getY(), 100, 24);
 
     auto mapArea = rightPanel.reduced(5);

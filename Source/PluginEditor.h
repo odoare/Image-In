@@ -51,6 +51,10 @@ private:
 
     juce::TabbedComponent readerTabs { juce::TabbedButtonBar::TabsAtLeft };
 
+    juce::Label factoryImageLabel;
+    juce::ComboBox factoryImageSelector;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> factoryImageAttachment;
+
     juce::TextButton loadImageButton;
     std::unique_ptr<juce::FileChooser> fileChooser;
     juce::ToggleButton useOpenGLButton;

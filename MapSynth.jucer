@@ -5,7 +5,12 @@
               pluginCharacteristicsValue="pluginIsSynth,pluginWantsMidiIn">
   <MAINGROUP id="qPv3X3" name="MapSynth">
     <GROUP id="{27D00790-75A2-E8C7-052E-0DD0E88BB159}" name="Assets">
-      <FILE id="BXxvYB" name="world.png" compile="0" resource="1" file="Source/Assets/world.png"/>
+      <FILE id="b2x9LT" name="01_world.png" compile="0" resource="1" file="Source/Assets/01_world.png"/>
+      <FILE id="PSPrkY" name="02_roadatnight.jpg" compile="0" resource="1"
+            file="Source/Assets/02_roadatnight.jpg"/>
+      <FILE id="oac9jW" name="03_apocalypse.png" compile="0" resource="1"
+            file="Source/Assets/03_apocalypse.png"/>
+      <FILE id="rOvzm5" name="04_anecho.png" compile="0" resource="1" file="Source/Assets/04_anecho.png"/>
     </GROUP>
     <GROUP id="{633F86FB-EABC-E5B3-C698-8086F97CD0F3}" name="Source">
       <FILE id="U6L8h5" name="ModControlBox.cpp" compile="1" resource="0"

@@ -75,10 +75,10 @@ void LFOControlComponent::resized()
     // Clear and rebuild layout
     mainRow.items.clear();
 
-    mainRow.items.add(juce::FlexItem(waveformBox).withFlex(1.0f).withMinWidth(60.f));
+    mainRow.items.add(juce::FlexItem(waveformBox).withFlex(.4f).withMinWidth(60.f));
     mainRow.items.add(juce::FlexItem(freqKnob).withFlex(1.0f));
     mainRow.items.add(juce::FlexItem(phaseKnob).withFlex(1.0f));
-    mainRow.items.add(juce::FlexItem(syncControls).withFlex(1.5f));
+    mainRow.items.add(juce::FlexItem(syncControls).withFlex(.7f));
 
     mainRow.performLayout(getLocalBounds());
 }
