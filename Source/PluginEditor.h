@@ -17,7 +17,8 @@ class MapSynthAudioProcessor;
 #include "MapDisplayComponent_GL.h"
 #include "EllipseReaderComponent.h"
 
-class GlobalControlsComponent;
+class LFOsComponent;
+class ADSRsComponent;
 
 //==============================================================================
 /**
@@ -46,7 +47,8 @@ private:
     EllipseReaderComponent ellipseReaderComponent1;
     EllipseReaderComponent ellipseReaderComponent2;
     EllipseReaderComponent ellipseReaderComponent3;
-    std::unique_ptr<GlobalControlsComponent> globalControlsComponent;
+    std::unique_ptr<LFOsComponent> lfosComponent;
+    std::unique_ptr<ADSRsComponent> adsrsComponent;
 
     juce::TabbedComponent readerTabs { juce::TabbedButtonBar::TabsAtLeft };
 

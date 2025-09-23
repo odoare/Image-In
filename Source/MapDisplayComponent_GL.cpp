@@ -130,6 +130,36 @@ void MapDisplayComponent_GL::renderOpenGL()
     };
 
 
+    // Draw glow for static paths
+    for (int i = 0; i < 3; ++i)
+    {
+        juce::String prefix = "Ellipse" + juce::String(i + 1) + "_";
+        const float volume = apvts.getRawParameterValue(prefix + "Volume")->load();
+        if (volume > 0.01f)
+        {
+            const float cx_base = apvts.getRawParameterValue(prefix + "CX")->load();
+            const float cy_base = apvts.getRawParameterValue(prefix + "CY")->load();
+            const float r1_actual = static_cast<juce::AudioParameterFloat*>(apvts.getParameter(prefix + "R1"))->get();
+            const float r2_actual = static_cast<juce::AudioParameterFloat*>(apvts.getParameter(prefix + "R2"))->get();
+            const float angle_base = apvts.getRawParameterValue(prefix + "Angle")->load();
+
+            juce::Path p;
+            const float r1_pixels = r1_actual * juce::jmin(w, h);
+            const float r2_pixels = r2_actual * juce::jmin(w, h);
+            p.addEllipse(cx_base * w - r1_pixels, cy_base * h - r2_pixels, r1_pixels * 2.0f, r2_pixels * 2.0f);
+            p.applyTransform(juce::AffineTransform::rotation(angle_base, cx_base * w, cy_base * h));
+
+            // Create a path that represents the stroke of the ellipse
+            juce::PathStrokeType stroke (2.0f);
+            juce::Path strokedPath;
+            stroke.createStrokedPath (strokedPath, p);
+
+            // Create and draw the glow effect for the stroked path
+            juce::DropShadow shadow (ELLIPSECOLOURS[i].withMultipliedSaturation(.2f).withAlpha (volume), (int)(5 + volume * 50.0f), {});
+            shadow.drawForPath (g, strokedPath);
+        }
+    }
+
     // Draw main (LFO-modulated only) paths
     for (int i = 0; i < 3; ++i)
     {
@@ -379,9 +409,9 @@ MapDisplayComponent_GL::Handle MapDisplayComponent_GL::getHandleAt (juce::Point<
     auto& apvts = processor.apvts;
 
     // Check in reverse order so we pick the one on top
-    for (int i = 3; i >= 1; --i)
+    for (int i = 2; i >= 0; --i)
     {
-        juce::String prefix = "Ellipse" + juce::String(i) + "_";
+        juce::String prefix = "Ellipse" + juce::String(i + 1) + "_";
         if (apvts.getRawParameterValue(prefix + "Volume")->load() > 0.01f)
         {
             const float cx_e = apvts.getRawParameterValue(prefix + "CX")->load();
@@ -394,9 +424,9 @@ MapDisplayComponent_GL::Handle MapDisplayComponent_GL::getHandleAt (juce::Point<
             const float cosAngle_e = std::cos(angle_e);
             const float sinAngle_e = std::sin(angle_e);
 
-            if (getHandleRect({ cx_e * w - r2_pixels * sinAngle_e, cy_e * h + r2_pixels * cosAngle_e }).contains((float)relativePos.x, (float)relativePos.y)) return { HandleType::EllipseR2, i };
-            if (getHandleRect({ cx_e * w + r1_pixels * cosAngle_e, cy_e * h + r1_pixels * sinAngle_e }).contains((float)relativePos.x, (float)relativePos.y)) return { HandleType::EllipseR1, i };
-            if (getHandleRect({ cx_e * w, cy_e * h }).contains((float)relativePos.x, (float)relativePos.y)) return { HandleType::EllipseCenter, i };
+            if (getHandleRect({ cx_e * w - r2_pixels * sinAngle_e, cy_e * h + r2_pixels * cosAngle_e }).contains((float)relativePos.x, (float)relativePos.y)) return { HandleType::EllipseR2, i + 1 };
+            if (getHandleRect({ cx_e * w + r1_pixels * cosAngle_e, cy_e * h + r1_pixels * sinAngle_e }).contains((float)relativePos.x, (float)relativePos.y)) return { HandleType::EllipseR1, i + 1 };
+            if (getHandleRect({ cx_e * w, cy_e * h }).contains((float)relativePos.x, (float)relativePos.y)) return { HandleType::EllipseCenter, i + 1 };
         }
     }
 

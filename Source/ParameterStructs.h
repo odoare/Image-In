@@ -29,23 +29,23 @@ static const juce::StringArray lfoWaveformChoices {
 
 static const juce::StringArray modulatorChoices {
     "LFO 1", "LFO 2", "LFO 3", "LFO 4",
-    "ADSR 1", "ADSR 2",
-    "LFO1*ADSR1", "LFO1*ADSR2",
-    "LFO2*ADSR1", "LFO2*ADSR2",
-    "LFO3*ADSR1", "LFO3*ADSR2",
-    "LFO4*ADSR1", "LFO4*ADSR2"
+    "ADSR 1", "ADSR 2", "ADSR 3",
+    "LFO1*ADSR1", "LFO1*ADSR2", "LFO1*ADSR3",
+    "LFO2*ADSR1", "LFO2*ADSR2", "LFO2*ADSR3",
+    "LFO3*ADSR1", "LFO3*ADSR2", "LFO3*ADSR3",
+    "LFO4*ADSR1", "LFO4*ADSR2", "LFO4*ADSR3"
 };
 
 namespace ModulatorSources
 {
     enum
     {
-        LFO1 = 0, LFO2, LFO3, LFO4,
-        ADSR1, ADSR2,
-        LFO1_ADSR1, LFO1_ADSR2,
-        LFO2_ADSR1, LFO2_ADSR2,
-        LFO3_ADSR1, LFO3_ADSR2,
-        LFO4_ADSR1, LFO4_ADSR2,
+        LFO1 = 0, LFO2, LFO3, LFO4,           // 0-3
+        ADSR1, ADSR2, ADSR3,                   // 4-6
+        LFO1_ADSR1, LFO1_ADSR2, LFO1_ADSR3,     // 7-9
+        LFO2_ADSR1, LFO2_ADSR2, LFO2_ADSR3,     // 10-12
+        LFO3_ADSR1, LFO3_ADSR2, LFO3_ADSR3,     // 13-15
+        LFO4_ADSR1, LFO4_ADSR2, LFO4_ADSR3,     // 16-18
         NumModulators
     };
 }
@@ -131,4 +131,5 @@ struct GlobalParameters
     std::array<EllipseReaderParameters, 3> ellipses;
     ADSRParameters adsr;
     ADSRParameters adsr2;
+    ADSRParameters adsr3;
 };

@@ -43,6 +43,7 @@ private:
     MapOscillator mapOscillator;
     ADSR adsr; // Main ADSR for volume
     ADSR adsr2; // Modulation ADSR
+    ADSR adsr3; // Modulation ADSR
     juce::AudioBuffer<float> tempRenderBuffer;
     int voiceIndex;
     float noteVel{0.f};

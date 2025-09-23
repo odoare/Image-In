@@ -75,7 +75,12 @@ void LFOControlComponent::resized()
     // Clear and rebuild layout
     mainRow.items.clear();
 
-    mainRow.items.add(juce::FlexItem(waveformBox).withFlex(.4f).withMinWidth(60.f));
+    const float comboBoxHeight = getLocalBounds().getHeight() * 0.5f;
+
+    mainRow.items.add(juce::FlexItem(waveformBox).withFlex(.3f)
+                                                 .withMinWidth(40.f)
+                                                 .withHeight(comboBoxHeight)
+                                                 .withAlignSelf(juce::FlexItem::AlignSelf::center));
     mainRow.items.add(juce::FlexItem(freqKnob).withFlex(1.0f));
     mainRow.items.add(juce::FlexItem(phaseKnob).withFlex(1.0f));
     mainRow.items.add(juce::FlexItem(syncControls).withFlex(.7f));

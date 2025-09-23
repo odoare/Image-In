@@ -380,6 +380,12 @@ void MapSynthAudioProcessor::updateParameters()
     globalParams.adsr2.decay = apvts.getRawParameterValue ("Decay2")->load();
     globalParams.adsr2.sustain = apvts.getRawParameterValue ("Sustain2")->load();
     globalParams.adsr2.release = apvts.getRawParameterValue ("Release2")->load();
+
+    // ADSR 3
+    globalParams.adsr3.attack = apvts.getRawParameterValue ("Attack3")->load();
+    globalParams.adsr3.decay = apvts.getRawParameterValue ("Decay3")->load();
+    globalParams.adsr3.sustain = apvts.getRawParameterValue ("Sustain3")->load();
+    globalParams.adsr3.release = apvts.getRawParameterValue ("Release3")->load();
 }
 
 float getRateMultiplier(int choice)
@@ -604,6 +610,11 @@ juce::AudioProcessorValueTreeState::ParameterLayout MapSynthAudioProcessor::crea
     layout.add(std::make_unique<juce::AudioParameterFloat>("Decay2", "Decay 2", juce::NormalisableRange<float>(0.0f, 5.0f, 0.01f, 0.5f), 0.1f));
     layout.add(std::make_unique<juce::AudioParameterFloat>("Sustain2", "Sustain 2", juce::NormalisableRange<float>(0.0f, 1.0f, 0.01f), 1.0f));
     layout.add(std::make_unique<juce::AudioParameterFloat>("Release2", "Release 2", juce::NormalisableRange<float>(0.0f, 5.0f, 0.01f, 0.5f), 0.4f));
+
+    layout.add(std::make_unique<juce::AudioParameterFloat>("Attack3", "Attack 3", juce::NormalisableRange<float>(0.0f, 5.0f, 0.01f, 0.5f), 0.1f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>("Decay3", "Decay 3", juce::NormalisableRange<float>(0.0f, 5.0f, 0.01f, 0.5f), 0.1f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>("Sustain3", "Sustain 3", juce::NormalisableRange<float>(0.0f, 1.0f, 0.01f), 1.0f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>("Release3", "Release 3", juce::NormalisableRange<float>(0.0f, 5.0f, 0.01f, 0.5f), 0.4f));
 
     for (int i = 1; i <= 3; ++i)
     {
