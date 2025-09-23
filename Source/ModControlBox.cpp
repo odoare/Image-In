@@ -13,8 +13,9 @@
 
 ModControlBox::ModControlBox(MapSynthAudioProcessor& p,
                              const juce::String& modAmountParamId,
-                             const juce::String& modSelectParamId)
-    : amountKnob(p.apvts, modAmountParamId, juce::Colours::hotpink)
+                             const juce::String& modSelectParamId,
+                             const juce::Colour& colour)
+    : amountKnob(p.apvts, modAmountParamId, colour)
 {
     amountKnob.slider.setLookAndFeel(&fxmeLookAndFeel);
     addAndMakeVisible(amountKnob);
@@ -28,7 +29,7 @@ void ModControlBox::resized()
 {
     juce::FlexBox flexBox;
     flexBox.flexDirection = juce::FlexBox::Direction::column;
-    flexBox.items.add(juce::FlexItem(amountKnob).withFlex(3.0f));
+    flexBox.items.add(juce::FlexItem(amountKnob).withFlex(4.0f));
     flexBox.items.add(juce::FlexItem(selectBox).withFlex(1.0f).withMargin(juce::FlexItem::Margin(2.f, 0, 0, 0)));
     flexBox.performLayout(getLocalBounds());
 }

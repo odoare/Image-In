@@ -22,20 +22,20 @@ EllipseReaderComponent::EllipseReaderComponent(MapSynthAudioProcessor& p, int re
     ellipseR2Knob     = std::make_unique<fxme::FxmeKnob>(p.apvts, idPrefix + "R2", ELLIPSECOLOURS[readerIndex - 1]);
     ellipseAngleKnob  = std::make_unique<fxme::FxmeKnob>(p.apvts, idPrefix + "Angle", ELLIPSECOLOURS[readerIndex - 1]);
     ellipseVolumeKnob = std::make_unique<fxme::FxmeKnob>(p.apvts, idPrefix + "Volume", ELLIPSECOLOURS[readerIndex - 1]);
-    filterFreqKnob    = std::make_unique<fxme::FxmeKnob>(p.apvts, idPrefix + "FilterFreq", juce::Colours::yellow);
-    filterQualityKnob = std::make_unique<fxme::FxmeKnob>(p.apvts, idPrefix + "FilterQuality", juce::Colours::yellow);
+    filterFreqKnob    = std::make_unique<fxme::FxmeKnob>(p.apvts, idPrefix + "FilterFreq", ELLIPSECOLOURS[readerIndex - 1]);
+    filterQualityKnob = std::make_unique<fxme::FxmeKnob>(p.apvts, idPrefix + "FilterQuality", ELLIPSECOLOURS[readerIndex - 1]);
     panKnob           = std::make_unique<fxme::FxmeKnob>(p.apvts, idPrefix + "Pan", ELLIPSECOLOURS[readerIndex - 1]);
 
-    modCx            = std::make_unique<ModControlBox>(p, "Mod_" + idPrefix + "CX_Amount", "Mod_" + idPrefix + "CX_Select");
-    modCy            = std::make_unique<ModControlBox>(p, "Mod_" + idPrefix + "CY_Amount", "Mod_" + idPrefix + "CY_Select");
-    modR1            = std::make_unique<ModControlBox>(p, "Mod_" + idPrefix + "R1_Amount", "Mod_" + idPrefix + "R1_Select");
-    modR2            = std::make_unique<ModControlBox>(p, "Mod_" + idPrefix + "R2_Amount", "Mod_" + idPrefix + "R2_Select");
-    modAngle         = std::make_unique<ModControlBox>(p, "Mod_" + idPrefix + "Angle_Amount", "Mod_" + idPrefix + "Angle_Select");
-    modVolume        = std::make_unique<ModControlBox>(p, "Mod_" + idPrefix + "Volume_Amount", "Mod_" + idPrefix + "Volume_Select");
-    modFilterFreq    = std::make_unique<ModControlBox>(p, "Mod_" + idPrefix + "FilterFreq_Amount", "Mod_" + idPrefix + "FilterFreq_Select");
-    modFilterQuality = std::make_unique<ModControlBox>(p, "Mod_" + idPrefix + "FilterQuality_Amount", "Mod_" + idPrefix + "FilterQuality_Select");
-    modPan           = std::make_unique<ModControlBox>(p, "Mod_" + idPrefix + "Pan_Amount", "Mod_" + idPrefix + "Pan_Select");
-    modFreq          = std::make_unique<ModControlBox>(p, "Mod_" + idPrefix + "Freq_Amount", "Mod_" + idPrefix + "Freq_Select");
+    modCx            = std::make_unique<ModControlBox>(p, "Mod_" + idPrefix + "CX_Amount", "Mod_" + idPrefix + "CX_Select", ELLIPSECOLOURS[readerIndex - 1]);
+    modCy            = std::make_unique<ModControlBox>(p, "Mod_" + idPrefix + "CY_Amount", "Mod_" + idPrefix + "CY_Select", ELLIPSECOLOURS[readerIndex - 1]);
+    modR1            = std::make_unique<ModControlBox>(p, "Mod_" + idPrefix + "R1_Amount", "Mod_" + idPrefix + "R1_Select", ELLIPSECOLOURS[readerIndex - 1]);
+    modR2            = std::make_unique<ModControlBox>(p, "Mod_" + idPrefix + "R2_Amount", "Mod_" + idPrefix + "R2_Select", ELLIPSECOLOURS[readerIndex - 1]);
+    modAngle         = std::make_unique<ModControlBox>(p, "Mod_" + idPrefix + "Angle_Amount", "Mod_" + idPrefix + "Angle_Select", ELLIPSECOLOURS[readerIndex - 1]);
+    modVolume        = std::make_unique<ModControlBox>(p, "Mod_" + idPrefix + "Volume_Amount", "Mod_" + idPrefix + "Volume_Select", ELLIPSECOLOURS[readerIndex - 1]);
+    modFilterFreq    = std::make_unique<ModControlBox>(p, "Mod_" + idPrefix + "FilterFreq_Amount", "Mod_" + idPrefix + "FilterFreq_Select", ELLIPSECOLOURS[readerIndex - 1]);
+    modFilterQuality = std::make_unique<ModControlBox>(p, "Mod_" + idPrefix + "FilterQuality_Amount", "Mod_" + idPrefix + "FilterQuality_Select", ELLIPSECOLOURS[readerIndex - 1]);
+    modPan           = std::make_unique<ModControlBox>(p, "Mod_" + idPrefix + "Pan_Amount", "Mod_" + idPrefix + "Pan_Select", ELLIPSECOLOURS[readerIndex - 1]);
+    modFreq          = std::make_unique<ModControlBox>(p, "Mod_" + idPrefix + "Freq_Amount", "Mod_" + idPrefix + "Freq_Select", ELLIPSECOLOURS[readerIndex - 1]);
 
     setupKnob(*ellipseCxKnob);
     setupKnob(*ellipseCyKnob);
@@ -72,30 +72,51 @@ void EllipseReaderComponent::resized()
 {
     auto bounds = getLocalBounds().reduced(10);
 
-    juce::FlexBox fb;
-    fb.flexWrap = juce::FlexBox::Wrap::wrap;
-    fb.justifyContent = juce::FlexBox::JustifyContent::center;
-    fb.alignContent = juce::FlexBox::AlignContent::spaceBetween;
+    juce::FlexBox fbM, fbRow1, fbRow2, fbRow3, fbRow4;
+    fbM.flexDirection = juce::FlexBox::Direction::column;
+    fbRow1.flexDirection = juce::FlexBox::Direction::row;
+    fbRow2.flexDirection = juce::FlexBox::Direction::row;
+    fbRow3.flexDirection = juce::FlexBox::Direction::row;
+    fbRow4.flexDirection = juce::FlexBox::Direction::row;
 
-    auto addItem = [&fb](juce::Component& c) {
-        fb.items.add(juce::FlexItem(c).withMinWidth(70.0f).withMinHeight(70.0f).withFlex(1.0f));
-    };
+    // auto addItem = [&fb](juce::Component& c) {
+    //     fb.items.add(juce::FlexItem(c).withMinWidth(70.0f).withMinHeight(70.0f).withFlex(1.0f));
+    // };
 
-    addItem(*ellipseCxKnob);    addItem(*ellipseCyKnob);    addItem(*ellipseR1Knob);
-    addItem(*ellipseR2Knob);    addItem(*ellipseAngleKnob); addItem(*ellipseVolumeKnob);
+    using fi = juce::FlexItem;
+    fbRow1.items.add(fi(*ellipseCxKnob).withFlex(1.f));
+    fbRow1.items.add(fi(*ellipseCyKnob).withFlex(1.f));
+    fbRow1.items.add(fi(*ellipseR1Knob).withFlex(1.f));
+    fbRow1.items.add(fi(*ellipseR2Knob).withFlex(1.f));
+    fbRow1.items.add(fi(*ellipseAngleKnob).withFlex(1.f));
+    fbRow1.performLayout(bounds);
 
-    juce::FlexBox filterBox;
-    filterBox.flexDirection = juce::FlexBox::Direction::column;
-    filterBox.items.add(juce::FlexItem(*filterFreqKnob).withFlex(3.0f));
-    filterBox.items.add(juce::FlexItem(filterTypeBox).withFlex(1.0f).withMargin(juce::FlexItem::Margin(2.f, 0, 0, 0)));
-    fb.items.add(juce::FlexItem(filterBox).withMinWidth(70.0f).withMinHeight(70.0f).withFlex(1.0));
-    addItem(*filterQualityKnob);
-    addItem(*panKnob);
+    fbRow2.items.add(fi(*modCx).withFlex(1.f));
+    fbRow2.items.add(fi(*modCy).withFlex(1.f));
+    fbRow2.items.add(fi(*modR1).withFlex(1.f));
+    fbRow2.items.add(fi(*modR2).withFlex(1.f));
+    fbRow2.items.add(fi(*modAngle).withFlex(1.f));
+    fbRow2.performLayout(bounds);
 
-    addItem(*modCx);    addItem(*modCy);    addItem(*modR1);
-    addItem(*modR2);    addItem(*modAngle); addItem(*modVolume);
-    addItem(*modPan);   addItem(*modFreq);  addItem(*modFilterFreq);
-    addItem(*modFilterQuality);
+    const float comboBoxHeight = getLocalBounds().getHeight()*0.05;
+    fbRow3.items.add(juce::FlexItem(filterTypeBox).withFlex(1.0f).withHeight(comboBoxHeight).withAlignSelf(juce::FlexItem::AlignSelf::center));
+    fbRow3.items.add(fi(*filterFreqKnob).withFlex(1.f));
+    fbRow3.items.add(fi(*filterQualityKnob).withFlex(1.f));
+    fbRow3.items.add(fi(*panKnob).withFlex(1.f));
+    fbRow3.items.add(fi(*ellipseVolumeKnob).withFlex(1.f));
+    fbRow3.performLayout(bounds);
 
-    fb.performLayout(bounds.toFloat());
+    fbRow4.items.add(fi(*modFreq).withFlex(1.f));
+    fbRow4.items.add(fi(*modFilterFreq).withFlex(1.f));
+    fbRow4.items.add(fi(*modFilterQuality).withFlex(1.f));
+    fbRow4.items.add(fi(*modPan).withFlex(1.f));
+    fbRow4.items.add(fi(*modVolume).withFlex(1.f));
+    fbRow4.performLayout(bounds);
+
+    fbM.items.add(fi(fbRow1).withFlex(1.f));
+    fbM.items.add(fi(fbRow2).withFlex(1.f));
+    fbM.items.add(fi(fbRow3).withFlex(1.f).withMargin(juce::FlexItem::Margin(10.f,0.f,0.f,0.f)));
+    fbM.items.add(fi(fbRow4).withFlex(1.f));
+
+    fbM.performLayout(bounds.toFloat());
 }

@@ -16,7 +16,7 @@ LFOControlComponent::SyncControls::SyncControls(juce::ToggleButton& button, juce
     addAndMakeVisible(syncButton);
     addAndMakeVisible(rateBox);
 
-    flexBox.flexDirection = juce::FlexBox::Direction::column;
+    flexBox.flexDirection = juce::FlexBox::Direction::row;
 }
 
 void LFOControlComponent::SyncControls::resized()
@@ -67,23 +67,24 @@ LFOControlComponent::LFOControlComponent(MapSynthAudioProcessor& p, int lfoIndex
     updateKnobEnabledState(); // Set initial state
 
     // Init FlexBoxes
-    mainRow.flexDirection = juce::FlexBox::Direction::row;
+    fbM.flexDirection = juce::FlexBox::Direction::column;
+    fbRow1.flexDirection = juce::FlexBox::Direction::row;
+    fbRow2.flexDirection = juce::FlexBox::Direction::row;
 }
 
 void LFOControlComponent::resized()
 {
     // Clear and rebuild layout
-    mainRow.items.clear();
+    fbM.items.clear();
+    fbRow1.items.clear();
+    fbRow2.items.clear();
 
-    const float comboBoxHeight = getLocalBounds().getHeight() * 0.5f;
-
-    mainRow.items.add(juce::FlexItem(waveformBox).withFlex(.3f)
-                                                 .withMinWidth(40.f)
-                                                 .withHeight(comboBoxHeight)
-                                                 .withAlignSelf(juce::FlexItem::AlignSelf::center));
-    mainRow.items.add(juce::FlexItem(freqKnob).withFlex(1.0f));
-    mainRow.items.add(juce::FlexItem(phaseKnob).withFlex(1.0f));
-    mainRow.items.add(juce::FlexItem(syncControls).withFlex(.7f));
-
-    mainRow.performLayout(getLocalBounds());
+    fbRow1.items.add(juce::FlexItem(waveformBox).withFlex(.8f));
+    fbRow1.items.add(juce::FlexItem(syncControls).withFlex(1.f));
+    fbRow2.items.add(juce::FlexItem(freqKnob).withFlex(1.f));
+    fbRow2.items.add(juce::FlexItem(phaseKnob).withFlex(1.f));
+    
+    fbM.items.add(juce::FlexItem(fbRow1).withFlex(0.2));
+    fbM.items.add(juce::FlexItem(fbRow2).withFlex(1));
+    fbM.performLayout(getLocalBounds());
 }

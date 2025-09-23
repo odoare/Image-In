@@ -20,7 +20,8 @@ class ModControlBox : public juce::Component
 public:
     ModControlBox(MapSynthAudioProcessor& p,
                   const juce::String& modAmountParamId,
-                  const juce::String& modSelectParamId);
+                  const juce::String& modSelectParamId,
+                  const juce::Colour& colour);
 
     ~ModControlBox() override = default;
 

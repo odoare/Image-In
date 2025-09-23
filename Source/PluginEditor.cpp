@@ -22,7 +22,9 @@ public:
           lfo3Controls(p, 3),
           lfo4Controls(p, 4)
     {
-        lfoRowsContainer.flexDirection = juce::FlexBox::Direction::column;
+        lfoRow1.flexDirection = juce::FlexBox::Direction::row;
+        lfoRow2.flexDirection = juce::FlexBox::Direction::row;
+        lfoCol.flexDirection = juce::FlexBox::Direction::column;
 
         addAndMakeVisible(lfo1Controls);
         addAndMakeVisible(lfo2Controls);
@@ -33,18 +35,22 @@ public:
     void resized() override
     {
         auto bounds = getLocalBounds().reduced(5);
-        lfoRowsContainer.items.clear();
-        lfoRowsContainer.items.add(juce::FlexItem(lfo1Controls).withFlex(1.0f));
-        lfoRowsContainer.items.add(juce::FlexItem(lfo2Controls).withFlex(1.0f));
-        lfoRowsContainer.items.add(juce::FlexItem(lfo3Controls).withFlex(1.0f));
-        lfoRowsContainer.items.add(juce::FlexItem(lfo4Controls).withFlex(1.0f));
-        lfoRowsContainer.performLayout(bounds);
+        lfoRow1.items.clear();
+        lfoRow2.items.clear();
+        const auto margin = juce::FlexItem::Margin(10.f);
+        lfoRow1.items.add(juce::FlexItem(lfo1Controls).withFlex(1.0f).withMargin(margin));
+        lfoRow1.items.add(juce::FlexItem(lfo2Controls).withFlex(1.0f).withMargin(margin));
+        lfoRow2.items.add(juce::FlexItem(lfo3Controls).withFlex(1.0f).withMargin(margin));
+        lfoRow2.items.add(juce::FlexItem(lfo4Controls).withFlex(1.0f).withMargin(margin));
+        lfoCol.items.add(juce::FlexItem(lfoRow1).withFlex(1.0f));
+        lfoCol.items.add(juce::FlexItem(lfoRow2).withFlex(1.0f));
+        lfoCol.performLayout(bounds);
     }
 
 private:
     MapSynthAudioProcessor& audioProcessor;
     LFOControlComponent lfo1Controls, lfo2Controls, lfo3Controls, lfo4Controls;
-    juce::FlexBox lfoRowsContainer;
+    juce::FlexBox lfoRow1, lfoRow2, lfoCol;
 };
 
 class ADSRsComponent : public juce::Component
@@ -216,11 +222,11 @@ MapSynthAudioProcessorEditor::MapSynthAudioProcessorEditor (MapSynthAudioProcess
     masterVolumeLabel.attachToComponent(&masterVolumeSlider, true);
 
     addAndMakeVisible(readerTabs);
-    readerTabs.addTab("LFOs", juce::Colours::transparentBlack, lfosComponent.get(), false);
-    readerTabs.addTab("ADSRs", juce::Colours::transparentBlack, adsrsComponent.get(), false);
     readerTabs.addTab("Reader 1", juce::Colours::transparentBlack, &ellipseReaderComponent1, false);
     readerTabs.addTab("Reader 2", juce::Colours::transparentBlack, &ellipseReaderComponent2, false);
     readerTabs.addTab("Reader 3", juce::Colours::transparentBlack, &ellipseReaderComponent3, false);
+    readerTabs.addTab("LFOs", juce::Colours::transparentBlack, lfosComponent.get(), false);
+    readerTabs.addTab("ADSRs", juce::Colours::transparentBlack, adsrsComponent.get(), false);
 
     audioProcessor.openGLStateBroadcaster.addChangeListener (this);
     updateRendererVisibility();
@@ -228,7 +234,7 @@ MapSynthAudioProcessorEditor::MapSynthAudioProcessorEditor (MapSynthAudioProcess
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
     setResizable(true, true);
-    setSize (960, 480);
+    setSize (1024, 512);
 }
 
 MapSynthAudioProcessorEditor::~MapSynthAudioProcessorEditor()

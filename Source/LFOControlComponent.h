@@ -55,5 +55,6 @@ private:
     std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> waveformAttachment;
 
     // FlexBox layout objects
-    juce::FlexBox mainRow;
+    juce::FlexBox fbM;
+    juce::FlexBox fbRow1, fbRow2;
 };
