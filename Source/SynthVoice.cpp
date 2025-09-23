@@ -50,6 +50,7 @@ bool SynthVoice::isVoiceActive() const
 
 void SynthVoice::setCurrentPlaybackSampleRate (double newRate)
 {
+    juce::SynthesiserVoice::setCurrentPlaybackSampleRate (newRate);
     mapOscillator.prepareToPlay (getSampleRate());
     adsr.prepareToPlay (getSampleRate());
     adsr2.prepareToPlay (getSampleRate());
