@@ -11,10 +11,7 @@
 #pragma once
 
 #include <JuceHeader.h>
-
-#define CIRCLECOLOUR juce::Colours::blue
-#define LINECOLOUR juce::Colours::red
-
+#include "colours.h"
 
 class MapSynthAudioProcessor;
 

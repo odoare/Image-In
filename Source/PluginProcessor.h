@@ -84,10 +84,20 @@ public:
     std::array<VoiceDisplayState, NUM_VOICES> voiceDisplayStates;
     juce::CriticalSection displayStateLock;
 
+    // OpenGL state management
+    void setUseOpenGL (bool shouldUseOpenGL);
+    bool getUseOpenGL() const;
+    juce::ChangeBroadcaster openGLStateBroadcaster;
+
     void addReader (ReaderBase::Type type);
     void removeReader (int index);
 
 private:
+    // Preset Management
+    int currentProgram = 0;
+    bool isLoadingPreset = false;
+    bool useOpenGL = false;
+
     juce::Synthesiser synth;
     static juce::AudioProcessorValueTreeState::ParameterLayout createParameters();  
     void updateParameters();

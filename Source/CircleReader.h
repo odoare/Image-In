@@ -12,6 +12,7 @@
 
 #include "ReaderBase.h"
 #include "ParameterStructs.h"
+#include "colours.h"
 
 class CircleReader  : public ReaderBase
 {

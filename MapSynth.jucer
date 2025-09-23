@@ -13,6 +13,9 @@
       <FILE id="rOvzm5" name="04_anecho.png" compile="0" resource="1" file="Source/Assets/04_anecho.png"/>
     </GROUP>
     <GROUP id="{633F86FB-EABC-E5B3-C698-8086F97CD0F3}" name="Source">
+      <FILE id="OPSMvw" name="colours.h" compile="0" resource="0" file="Source/colours.h"/>
+      <FILE id="jUWhXb" name="FactoryPresets.h" compile="0" resource="0"
+            file="Source/FactoryPresets.h"/>
       <FILE id="U6L8h5" name="ModControlBox.cpp" compile="1" resource="0"
             file="Source/ModControlBox.cpp"/>
       <FILE id="mHKSjN" name="ModControlBox.h" compile="0" resource="0" file="Source/ModControlBox.h"/>

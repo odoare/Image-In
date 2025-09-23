@@ -74,7 +74,7 @@ void MapDisplayComponent::paint (juce::Graphics& g)
 
     // Draw main (LFO-modulated only) paths
     {
-        g.setColour (juce::Colours::grey);
+        g.setColour (LFOMODULATEDCOLOUR);
         const float cx_base = apvts.getRawParameterValue ("LineCX")->load();
         const float cy_base = apvts.getRawParameterValue ("LineCY")->load();
         const float length_base = apvts.getRawParameterValue ("LineLength")->load();
@@ -115,7 +115,7 @@ void MapDisplayComponent::paint (juce::Graphics& g)
         g.drawLine (x1 * w, y1 * h, x2 * w, y2 * h, 2.0f);
     }
     {
-        g.setColour (juce::Colours::grey);
+        g.setColour (LFOMODULATEDCOLOUR);
         const float cx_base = apvts.getRawParameterValue ("CX")->load();
         const float cy_base = apvts.getRawParameterValue ("CY")->load();
         const float radius_base_actual = static_cast<juce::AudioParameterFloat*>(apvts.getParameter("R"))->get();

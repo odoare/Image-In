@@ -177,14 +177,17 @@ MapSynthAudioProcessorEditor::MapSynthAudioProcessorEditor (MapSynthAudioProcess
 
     addAndMakeVisible(useOpenGLButton);
     useOpenGLButton.setButtonText("Use OpenGL");
-    useOpenGLAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(audioProcessor.apvts, "UseOpenGL", useOpenGLButton);
+    useOpenGLButton.onClick = [this]
+    {
+        audioProcessor.setUseOpenGL (useOpenGLButton.getToggleState());
+    };
     
     addAndMakeVisible(readerTabs);
     readerTabs.addTab("Global / LFO", juce::Colours::transparentBlack, globalControlsComponent.get(), false);
     readerTabs.addTab("Line Reader", juce::Colours::transparentBlack, &lineReaderComponent, false);
     readerTabs.addTab("Circle Reader", juce::Colours::transparentBlack, &circleReaderComponent, false);
 
-    audioProcessor.apvts.addParameterListener("UseOpenGL", this);
+    audioProcessor.openGLStateBroadcaster.addChangeListener (this);
     updateRendererVisibility();
 
     // Make sure that before the constructor has finished, you've set the
@@ -195,12 +198,12 @@ MapSynthAudioProcessorEditor::MapSynthAudioProcessorEditor (MapSynthAudioProcess
 
 MapSynthAudioProcessorEditor::~MapSynthAudioProcessorEditor()
 {
-    audioProcessor.apvts.removeParameterListener("UseOpenGL", this);
+    audioProcessor.openGLStateBroadcaster.removeChangeListener (this);
 }
 
-void MapSynthAudioProcessorEditor::parameterChanged (const juce::String& parameterID, float newValue)
+void MapSynthAudioProcessorEditor::changeListenerCallback (juce::ChangeBroadcaster* source)
 {
-    if (parameterID == "UseOpenGL")
+    if (source == &audioProcessor.openGLStateBroadcaster)
     {
         updateRendererVisibility();
     }
@@ -237,8 +240,9 @@ void MapSynthAudioProcessorEditor::resized()
 
 void MapSynthAudioProcessorEditor::updateRendererVisibility()
 {
-    const bool useOpenGL = audioProcessor.apvts.getRawParameterValue("UseOpenGL")->load() > 0.5f;
+    const bool useOpenGL = audioProcessor.getUseOpenGL();
 
+    useOpenGLButton.setToggleState (useOpenGL, juce::dontSendNotification);
     mapDisplayComponentGL->setVisible (useOpenGL);
     mapDisplayComponentCPU->setVisible (!useOpenGL);
 }

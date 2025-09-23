@@ -13,6 +13,7 @@
 #include <JuceHeader.h>
 #include "PluginProcessor.h"
 #include "ParameterStructs.h"
+#include "colours.h"
 
 class LFOControlComponent : public juce::Component
 {

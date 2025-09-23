@@ -23,15 +23,14 @@ class GlobalControlsComponent;
 //==============================================================================
 /**
 */
-class MapSynthAudioProcessorEditor  : public juce::AudioProcessorEditor,
-                                      private juce::AudioProcessorValueTreeState::Listener
+class MapSynthAudioProcessorEditor  : public juce::AudioProcessorEditor, public juce::ChangeListener
 {
 public:
     MapSynthAudioProcessorEditor (MapSynthAudioProcessor&);
     ~MapSynthAudioProcessorEditor() override;
 
     //==============================================================================
-    void parameterChanged (const juce::String& parameterID, float newValue) override;
+    void changeListenerCallback (juce::ChangeBroadcaster* source) override;
     void paint (juce::Graphics&) override;
     void resized() override;
 
@@ -58,7 +57,6 @@ private:
     juce::TextButton loadImageButton;
     std::unique_ptr<juce::FileChooser> fileChooser;
     juce::ToggleButton useOpenGLButton;
-    std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> useOpenGLAttachment;
 
     void updateRendererVisibility();
 

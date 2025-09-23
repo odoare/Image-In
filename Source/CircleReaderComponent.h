@@ -12,8 +12,7 @@
 
 #include "ReaderComponent.h"
 #include "ModControlBox.h"
-
-#define CIRCLECOLOUR juce::Colours::blue
+#include "colours.h"
 
 class CircleReaderComponent : public ReaderComponent
 {

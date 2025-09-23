@@ -9,6 +9,7 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 #include "SynthSound.h"
+#include "FactoryPresets.h"
 
 static juce::StringArray getFactoryImageChoices()
 {
@@ -46,14 +47,30 @@ MapSynthAudioProcessor::MapSynthAudioProcessor()
     // This must be called after voices are created.
     updateVoices();
 
-    apvts.addParameterListener("FactoryImage", this);
+    // Add this as a listener to all parameters to detect when the user
+    // modifies the state, so we can mark the current program as "dirty".
+    for (auto* param : getParameters())
+    {
+        if (auto* paramWithID = dynamic_cast<juce::AudioProcessorParameterWithID*> (param))
+            apvts.addParameterListener (paramWithID->getParameterID(), this);
+    }
+
     // Manually trigger initial state from the parameter's default value
     parameterChanged("FactoryImage", apvts.getRawParameterValue("FactoryImage")->load());
+
+    // Load the first preset by default when the plugin is instantiated.
+    setCurrentProgram (0);
 }
 
 MapSynthAudioProcessor::~MapSynthAudioProcessor()
 {
-    apvts.removeParameterListener("FactoryImage", this);
+    // Remove listeners
+    for (auto* param : getParameters())
+    {
+        if (auto* paramWithID = dynamic_cast<juce::AudioProcessorParameterWithID*> (param))
+            if (apvts.getParameter (paramWithID->getParameterID()) != nullptr)
+                apvts.removeParameterListener (paramWithID->getParameterID(), this);
+    }
 }
 
 //==============================================================================
@@ -96,26 +113,68 @@ double MapSynthAudioProcessor::getTailLengthSeconds() const
 
 int MapSynthAudioProcessor::getNumPrograms()
 {
-    return 1;   // NB: some hosts don't cope very well if you tell them there are 0 programs,
-                // so this should be at least 1, even if you're not really implementing programs.
+    // N factory presets + 1 slot for "user" or "dirty" states.
+    return FactoryPresets::numFactoryPresets + 1;
 }
 
 int MapSynthAudioProcessor::getCurrentProgram()
 {
-    return 0;
+    return currentProgram;
 }
 
 void MapSynthAudioProcessor::setCurrentProgram (int index)
 {
+    const int userProgramIndex = FactoryPresets::numFactoryPresets;
+
+    // If the index is for a user preset, we just update the index and do nothing else.
+    // The state is assumed to be managed by the host via setStateInformation.
+    if (index >= userProgramIndex)
+    {
+        currentProgram = userProgramIndex;
+        return;
+    }
+
+    // If it's a factory preset, load it.
+    if (! juce::isPositiveAndBelow (index, userProgramIndex))
+        return;
+
+    // Use a flag to prevent parameterChanged from thinking the user edited the preset.
+    juce::ScopedValueSetter<bool> loading (isLoadingPreset, true);
+
+    currentProgram = index;
+
+    // Get the XML data for the preset.
+    const char* presetData = FactoryPresets::factoryPresets[index].data;
+
+    // Create an XML element from the data.
+    std::unique_ptr<juce::XmlElement> xmlState = juce::XmlDocument::parse (presetData);
+
+    // Load the state from the XML.
+    if (xmlState != nullptr)
+    {
+        if (xmlState->hasTagName (apvts.state.getType())) {
+            apvts.replaceState(juce::ValueTree::fromXml(*xmlState));
+        }
+    }
 }
 
 const juce::String MapSynthAudioProcessor::getProgramName (int index)
 {
+    if (juce::isPositiveAndBelow (index, FactoryPresets::numFactoryPresets))
+        return FactoryPresets::factoryPresets[index].name;
+
+    if (index == FactoryPresets::numFactoryPresets)
+        return "User Preset";
+
     return {};
 }
 
 void MapSynthAudioProcessor::changeProgramName (int index, const juce::String& newName)
 {
+    // When the user saves a preset in the host, this might be called.
+    // We can take this as a hint that the current state is now a "user" preset.
+    // This isn't guaranteed to be called by all hosts, but it's a good fallback.
+    currentProgram = FactoryPresets::numFactoryPresets;
 }
 
 //==============================================================================
@@ -163,6 +222,18 @@ bool MapSynthAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts)
 }
 #endif
 
+void MapSynthAudioProcessor::setUseOpenGL (bool shouldUseOpenGL)
+{
+    if (useOpenGL != shouldUseOpenGL)
+    {
+        useOpenGL = shouldUseOpenGL;
+        openGLStateBroadcaster.sendChangeMessage();
+    }
+}
+
+bool MapSynthAudioProcessor::getUseOpenGL() const { return useOpenGL; }
+
+
 void MapSynthAudioProcessor::addReader (ReaderBase::Type type)
 {
     readerTypes.add (type);
@@ -206,6 +277,15 @@ void MapSynthAudioProcessor::parameterChanged(const juce::String& parameterID, f
                 if (resourceData != nullptr && dataSize > 0)
                     imageBuffer.setImage(juce::ImageFileFormat::loadFrom(resourceData, (size_t)dataSize));
             }
+        }
+    }
+
+    // Any parameter change makes the preset "dirty" (a user preset).
+    // We check the isLoadingPreset flag to avoid this when loading a preset.
+    if (!isLoadingPreset)
+    {
+        if (currentProgram < FactoryPresets::numFactoryPresets) {
+            currentProgram = FactoryPresets::numFactoryPresets;
         }
     }
 }
@@ -402,6 +482,12 @@ void MapSynthAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
     auto state = apvts.copyState();
     std::unique_ptr<juce::XmlElement> xml (state.createXml());
 
+    // Store the current program index so the host can recall it.
+    xml->setAttribute ("currentProgram", currentProgram);
+
+    // Also store the OpenGL state, but outside the main parameter block
+    xml->setAttribute ("useOpenGL", useOpenGL);
+
     // If the current image is a custom user-loaded one, save its path.
     // The "FactoryImage" parameter will be at index 0 ("Custom").
     if (static_cast<int>(apvts.getRawParameterValue("FactoryImage")->load()) == 0)
@@ -424,6 +510,15 @@ void MapSynthAudioProcessor::setStateInformation (const void* data, int sizeInBy
     {
         if (xmlState->hasTagName (apvts.state.getType()))
         {
+            // Restore OpenGL state. Default to false if not present.
+            setUseOpenGL (xmlState->getBoolAttribute ("useOpenGL", false));
+
+            // Use a flag to prevent parameterChanged from marking this as a user edit.
+            juce::ScopedValueSetter<bool> loading (isLoadingPreset, true);
+
+            // Restore the program index before restoring the full state.
+            currentProgram = xmlState->getIntAttribute ("currentProgram", FactoryPresets::numFactoryPresets);
+
             // Restore parameters. This will trigger parameterChanged for FactoryImage if it's not "Custom".
             apvts.replaceState (juce::ValueTree::fromXml (*xmlState));
 
@@ -554,8 +649,6 @@ juce::AudioProcessorValueTreeState::ParameterLayout MapSynthAudioProcessor::crea
     // Circle Freq Mod
     layout.add(std::make_unique<juce::AudioParameterFloat>("Mod_CircleFreq_Amount", "Mod->CircFreq", juce::NormalisableRange<float>(-1.f, 1.f, .01f), 0.0f));
     layout.add(std::make_unique<juce::AudioParameterChoice>("Mod_CircleFreq_Select", "Mod Select", modulatorChoices, 0));
-
-    layout.add(std::make_unique<juce::AudioParameterBool>("UseOpenGL", "Use OpenGL", true));
 
     return layout;
 }
