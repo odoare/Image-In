@@ -118,30 +118,6 @@ struct EllipseReaderParameters
     FilterParameters filter;
 };
 
-struct CircleReaderParameters
-{
-    float cx = 0.5f;
-    float cy = 0.5f;
-    float radius = 0.25f;
-    float volume = 1.0f;
-    float pan = 0.0f;
-
-    float modCxAmount = 0.0f;
-    int   modCxSelect = 0;
-    float modCyAmount = 0.0f;
-    int   modCySelect = 0;
-    float modRadiusAmount = 0.0f;
-    int   modRadiusSelect = 0;
-    float modVolumeAmount = 0.0f;
-    int   modVolumeSelect = 0;
-    float modPanAmount = 0.0f;
-    int   modPanSelect = 0;
-    float modFreqAmount = 0.0f;
-    int   modFreqSelect = 0;
-
-    FilterParameters filter;
-};
-
 struct ADSRParameters
 {
     float attack = 0.1f;
@@ -152,9 +128,7 @@ struct ADSRParameters
 
 struct GlobalParameters
 {
-    LineReaderParameters line;
-    CircleReaderParameters circle;
-    EllipseReaderParameters ellipse;
+    std::array<EllipseReaderParameters, 3> ellipses;
     ADSRParameters adsr;
     ADSRParameters adsr2;
 };

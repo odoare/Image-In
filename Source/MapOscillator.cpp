@@ -64,16 +64,9 @@ void MapOscillator::rebuildReaders (const juce::Array<ReaderBase::Type>& types)
 {
     readers.clear();
 
-    for (const auto& type : types)
+    for (int i = 0; i < 3; ++i)
     {
-        ReaderBase* newReader = nullptr;
-        if (type == ReaderBase::Type::Line)
-            newReader = addLineReader();
-        else if (type == ReaderBase::Type::Circle)
-            newReader = addCircleReader();
-        else if (type == ReaderBase::Type::Ellipse)
-            newReader = addEllipseReader();
-
+        auto* newReader = addEllipseReader();
         if (newReader != nullptr)
             newReader->prepareToPlay (currentSampleRate);
     }
@@ -81,37 +74,12 @@ void MapOscillator::rebuildReaders (const juce::Array<ReaderBase::Type>& types)
 
 void MapOscillator::updateParameters (const GlobalParameters& params)
 {
-    for (auto* reader : readers)
+    // Assuming the number of readers matches the number of parameter sets
+    for (int i = 0; i < readers.size() && i < params.ellipses.size(); ++i)
     {
-        if (auto* lineReader = dynamic_cast<LineReader*> (reader))
-        {
-            lineReader->updateParameters (params.line);
-        }
-        else if (auto* circleReader = dynamic_cast<CircleReader*> (reader))
-        {
-            circleReader->updateParameters (params.circle);
-        }
-        else if (auto* ellipseReader = dynamic_cast<EllipseReader*> (reader))
-        {
-            ellipseReader->updateParameters (params.ellipse);
-        }
+        if (auto* ellipseReader = dynamic_cast<EllipseReader*> (readers[i]))
+            ellipseReader->updateParameters (params.ellipses[i]);
     }
-}
-
-LineReader* MapOscillator::addLineReader()
-{
-    // In a real application, you might want to notify listeners that a reader was added.
-    auto* newReader = new LineReader();
-    readers.add (newReader);
-    return newReader;
-}
-
-CircleReader* MapOscillator::addCircleReader()
-{
-    // In a real application, you might want to notify listeners that a reader was added.
-    auto* newReader = new CircleReader();
-    readers.add (newReader);
-    return newReader;
 }
 
 EllipseReader* MapOscillator::addEllipseReader()

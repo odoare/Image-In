@@ -31,18 +31,16 @@ namespace FactoryPresets
     // A simple sound using the line reader, with its length modulated by LFO 1.
     const char* pulsingLineXml = R"xml(
 <Parameters>
-  <PARAM id="FactoryImage" value="1.0" />
-  <PARAM id="LineCX" value="0.5" />
-  <PARAM id="LineCY" value="0.5" />
-  <PARAM id="LineLength" value="0.3" />
-  <PARAM id="LineAngle" value="0.7853981852531433" />
-  <PARAM id="LineVolume" value="1.0" />
-  <PARAM id="LinePan" value="0.0" />
-  <PARAM id="CX" value="0.5" />
-  <PARAM id="CY" value="0.5" />
-  <PARAM id="R" value="0.25" />
-  <PARAM id="CircleVolume" value="0.0" />
-  <PARAM id="CirclePan" value="0.0" />
+  <PARAM id="FactoryImage" value="1"/>
+  <PARAM id="Ellipse1_CX" value="0.5"/>
+  <PARAM id="Ellipse1_CY" value="0.5"/>
+  <PARAM id="Ellipse1_R1" value="0.15"/>
+  <PARAM id="Ellipse1_R2" value="0.001"/>
+  <PARAM id="Ellipse1_Angle" value="0.785398185"/>
+  <PARAM id="Ellipse1_Volume" value="1.0"/>
+  <PARAM id="Ellipse1_Pan" value="0.0"/>
+  <PARAM id="Ellipse2_Volume" value="0.0"/>
+  <PARAM id="Ellipse3_Volume" value="0.0"/>
   <PARAM id="LFOFreq" value="2.0" />
   <PARAM id="LFO1Sync" value="0.0" />
   <PARAM id="LFO1Wave" value="0.0" />
@@ -51,10 +49,10 @@ namespace FactoryPresets
   <PARAM id="Decay" value="0.3" />
   <PARAM id="Sustain" value="0.8" />
   <PARAM id="Release" value="0.5" />
-  <PARAM id="Mod_LineLength_Amount" value="0.7" />
-  <PARAM id="Mod_LineLength_Select" value="0.0" />
-  <PARAM id="Mod_LineVolume_Amount" value="1.0" />
-  <PARAM id="Mod_LineVolume_Select" value="4.0" />
+  <PARAM id="Mod_Ellipse1_R1_Amount" value="0.7"/>
+  <PARAM id="Mod_Ellipse1_R1_Select" value="0"/>
+  <PARAM id="Mod_Ellipse1_Volume_Amount" value="1.0"/>
+  <PARAM id="Mod_Ellipse1_Volume_Select" value="4"/>
 </Parameters>
 )xml";
 
@@ -62,18 +60,20 @@ namespace FactoryPresets
     // A pad-like sound using the circle reader, with its position modulated by two LFOs.
     const char* wobblyCircleXml = R"xml(
 <Parameters>
-  <PARAM id="FactoryImage" value="2.0" />
-  <PARAM id="LineVolume" value="0.0" />
-  <PARAM id="CircleVolume" value="1.0" />
-  <PARAM id="CX" value="0.5" />
-  <PARAM id="CY" value="0.5" />
-  <PARAM id="R" value="0.2" />
+  <PARAM id="FactoryImage" value="2"/>
+  <PARAM id="Ellipse1_Volume" value="1.0"/>
+  <PARAM id="Ellipse1_CX" value="0.5"/>
+  <PARAM id="Ellipse1_CY" value="0.5"/>
+  <PARAM id="Ellipse1_R1" value="0.2"/>
+  <PARAM id="Ellipse1_R2" value="0.2"/>
+  <PARAM id="Ellipse2_Volume" value="0.0"/>
+  <PARAM id="Ellipse3_Volume" value="0.0"/>
   <PARAM id="LFO2Freq" value="0.3" />
   <PARAM id="LFO3Freq" value="0.45" />
-  <PARAM id="Mod_CircleCX_Amount" value="0.4" />
-  <PARAM id="Mod_CircleCX_Select" value="1.0" />
-  <PARAM id="Mod_CircleCY_Amount" value="0.4" />
-  <PARAM id="Mod_CircleCY_Select" value="2.0" />
+  <PARAM id="Mod_Ellipse1_CX_Amount" value="0.4"/>
+  <PARAM id="Mod_Ellipse1_CX_Select" value="1"/>
+  <PARAM id="Mod_Ellipse1_CY_Amount" value="0.4"/>
+  <PARAM id="Mod_Ellipse1_CY_Select" value="2"/>
   <PARAM id="Attack" value="0.2" />
   <PARAM id="Sustain" value="1.0" />
   <PARAM id="Release" value="0.8" />
@@ -84,18 +84,18 @@ namespace FactoryPresets
     // An ellipse reader with its angle modulated by an LFO.
     const char* rotatingEllipseXml = R"xml(
 <Parameters>
-  <PARAM id="FactoryImage" value="3.0" />
-  <PARAM id="LineVolume" value="0.0" />
-  <PARAM id="CircleVolume" value="0.0" />
-  <PARAM id="EllipseVolume" value="1.0" />
-  <PARAM id="EllipseCX" value="0.5" />
-  <PARAM id="EllipseCY" value="0.5" />
-  <PARAM id="EllipseR1" value="0.4" />
-  <PARAM id="EllipseR2" value="0.15" />
-  <PARAM id="EllipseAngle" value="0.0" />
+  <PARAM id="FactoryImage" value="3"/>
+  <PARAM id="Ellipse1_Volume" value="1.0"/>
+  <PARAM id="Ellipse1_CX" value="0.5"/>
+  <PARAM id="Ellipse1_CY" value="0.5"/>
+  <PARAM id="Ellipse1_R1" value="0.4"/>
+  <PARAM id="Ellipse1_R2" value="0.15"/>
+  <PARAM id="Ellipse1_Angle" value="0.0"/>
+  <PARAM id="Ellipse2_Volume" value="0.0"/>
+  <PARAM id="Ellipse3_Volume" value="0.0"/>
   <PARAM id="LFO1Freq" value="0.2" />
-  <PARAM id="Mod_EllipseAngle_Amount" value="1.0" />
-  <PARAM id="Mod_EllipseAngle_Select" value="0.0" />
+  <PARAM id="Mod_Ellipse1_Angle_Amount" value="1.0"/>
+  <PARAM id="Mod_Ellipse1_Angle_Select" value="0"/>
   <PARAM id="Attack" value="0.1" />
   <PARAM id="Sustain" value="1.0" />
   <PARAM id="Release" value="0.6" />

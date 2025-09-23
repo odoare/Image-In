@@ -150,6 +150,20 @@ void EllipseReader::processBlock (const juce::Image& imageToRead, juce::AudioBuf
         const float phaseIncrementLow = phaseIncrement * 0.5f;
         const float phaseIncrementHigh = phaseIncrement * 2.0f;
 
+        // Optimization: if volume is zero, we can skip the expensive sample reading part.
+        if (volume_sv < 0.0001f)
+        {
+            // We still need to advance the phases to keep them in sync
+            phase = std::fmod (phase + phaseIncrement, 1.0f);
+            phaseLow = std::fmod (phaseLow + phaseIncrementLow, 1.0f);
+            phaseHigh = std::fmod (phaseHigh + phaseIncrementHigh, 1.0f);
+
+            if (sample == startSample + numSamples - 1)
+                lastDrawingInfo.isActive = false;
+
+            continue; // Skip to next sample, buffer is additive so no sound is added
+        }
+
         // Clamp modulated values
         cx_sv = juce::jlimit (0.0f, 1.0f, cx_sv);
         cy_sv = juce::jlimit (0.0f, 1.0f, cy_sv);
@@ -219,9 +233,9 @@ void EllipseReader::processBlock (const juce::Image& imageToRead, juce::AudioBuf
         if (ampHigh > 0.0f) finalSampleValue += ampHigh * getSampleAtPhase (phaseHigh);
 
         // Apply filter
-        const float modFreqSignal = modulatorBuffer.getSample(modFilterFreqSelect.load(), sample);
+        const float modFreqSignalForFilter = modulatorBuffer.getSample(modFilterFreqSelect.load(), sample);
         const float modQualitySignal = modulatorBuffer.getSample(modFilterQualitySelect.load(), sample);
-        finalSampleValue = applyFilter(finalSampleValue, modFreqSignal, modQualitySignal);
+        finalSampleValue = applyFilter(finalSampleValue, modFreqSignalForFilter, modQualitySignal);
 
         // Apply Volume and Pan
         finalSampleValue *= volume_sv;

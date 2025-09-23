@@ -27,9 +27,9 @@ public:
 
     void updateParameters (const EllipseReaderParameters& params);
     Type getType() const override { return Type::Ellipse; }
+    void prepareToPlay (double sampleRate) override;
 
 private:
-    void prepareToPlay (double sampleRate) override;
 
     std::atomic<float> cx { 0.5f }, cy { 0.5f };
     std::atomic<float> r1 { 0.4f }, r2 { 0.2f }, angle { 0.0f };

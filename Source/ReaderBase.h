@@ -18,23 +18,16 @@ class LFO;
 class ReaderBase : public juce::ChangeBroadcaster
 {
 public:
-    enum class Type { Line, Circle, Ellipse };
+    enum class Type { Ellipse };
 
     struct DrawingInfo
     {
-        Type type = Type::Line;
+        Type type = Type::Ellipse;
         bool isActive = false;
         float volume = 0.0f;
 
-        // For Line
-        float x1 = 0.0f, y1 = 0.0f;
-        float x2 = 0.0f, y2 = 0.0f;
-
-        // For Circle
-        float cx = 0.0f, cy = 0.0f;
-        float radius = 0.0f;
-
         // For Ellipse
+        float cx = 0.0f, cy = 0.0f;
         float r1 = 0.0f, r2 = 0.0f, angle = 0.0f;
     };
 

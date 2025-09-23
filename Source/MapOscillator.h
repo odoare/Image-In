@@ -12,8 +12,6 @@
 
 #include "ImageBuffer.h"
 #include "ReaderBase.h"
-#include "LineReader.h"
-#include "CircleReader.h"
 #include "EllipseReader.h"
 
 struct GlobalParameters;
@@ -33,8 +31,6 @@ public:
     void processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages, int startSample, int numSamples, ImageBuffer& imageBuffer, const juce::AudioBuffer<float>& modulatorBuffer);
     void rebuildReaders (const juce::Array<ReaderBase::Type>& types);
     void updateParameters (const GlobalParameters& params);
-    LineReader* addLineReader();
-    CircleReader* addCircleReader();
     EllipseReader* addEllipseReader();
     void removeReader (int index);
     int getNumReaders() const;

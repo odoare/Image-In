@@ -11,6 +11,54 @@
 #include "SynthSound.h"
 #include "FactoryPresets.h"
 
+namespace ParameterHelpers
+{
+    void addEllipseParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, int index, const juce::StringArray& modulatorChoices, const juce::StringArray& filterTypeChoices)
+    {
+        juce::String idPrefix = "Ellipse" + juce::String(index) + "_";
+        juce::String namePrefix = "Ellipse " + juce::String(index) + " ";
+
+        float defaultVolume = (index == 1) ? 1.0f : 0.0f;
+        float defaultR1 = 0.4f - (index - 1) * 0.1f;
+        float defaultR2 = 0.2f - (index - 1) * 0.05f;
+
+        layout.add(std::make_unique<juce::AudioParameterFloat>(idPrefix + "CX", namePrefix + "CX", juce::NormalisableRange<float>(0.f, 1.f, .01f, 1.f), 0.5f));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(idPrefix + "CY", namePrefix + "CY", juce::NormalisableRange<float>(0.f, 1.f, .01f, 1.f), 0.5f));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(idPrefix + "R1", namePrefix + "R1", juce::NormalisableRange<float>(0.f, 0.5f, .01f, 1.f), defaultR1));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(idPrefix + "R2", namePrefix + "R2", juce::NormalisableRange<float>(0.f, 0.5f, .01f, 1.f), defaultR2));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(idPrefix + "Angle", namePrefix + "Angle", juce::NormalisableRange<float>(0.f, juce::MathConstants<float>::twoPi, .01f, 1.f), 0.0f));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(idPrefix + "Volume", namePrefix + "Volume", juce::NormalisableRange<float>(0.f, 1.f, .01f, 1.f), defaultVolume));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(idPrefix + "Pan", namePrefix + "Pan", juce::NormalisableRange<float>(-1.0f, 1.0f, 0.01f), 0.0f));
+
+        // Modulation
+        layout.add(std::make_unique<juce::AudioParameterFloat>("Mod_" + idPrefix + "CX_Amount", "Mod->" + namePrefix + "CX", juce::NormalisableRange<float>(-1.f, 1.f, .01f), 0.0f));
+        layout.add(std::make_unique<juce::AudioParameterChoice>("Mod_" + idPrefix + "CX_Select", "Mod Select", modulatorChoices, 0));
+        layout.add(std::make_unique<juce::AudioParameterFloat>("Mod_" + idPrefix + "CY_Amount", "Mod->" + namePrefix + "CY", juce::NormalisableRange<float>(-1.f, 1.f, .01f), 0.0f));
+        layout.add(std::make_unique<juce::AudioParameterChoice>("Mod_" + idPrefix + "CY_Select", "Mod Select", modulatorChoices, 0));
+        layout.add(std::make_unique<juce::AudioParameterFloat>("Mod_" + idPrefix + "R1_Amount", "Mod->" + namePrefix + "R1", juce::NormalisableRange<float>(-1.f, 1.f, .01f), 0.0f));
+        layout.add(std::make_unique<juce::AudioParameterChoice>("Mod_" + idPrefix + "R1_Select", "Mod Select", modulatorChoices, 0));
+        layout.add(std::make_unique<juce::AudioParameterFloat>("Mod_" + idPrefix + "R2_Amount", "Mod->" + namePrefix + "R2", juce::NormalisableRange<float>(-1.f, 1.f, .01f), 0.0f));
+        layout.add(std::make_unique<juce::AudioParameterChoice>("Mod_" + idPrefix + "R2_Select", "Mod Select", modulatorChoices, 0));
+        layout.add(std::make_unique<juce::AudioParameterFloat>("Mod_" + idPrefix + "Angle_Amount", "Mod->" + namePrefix + "Angle", juce::NormalisableRange<float>(-1.f, 1.f, .01f), 0.0f));
+        layout.add(std::make_unique<juce::AudioParameterChoice>("Mod_" + idPrefix + "Angle_Select", "Mod Select", modulatorChoices, 0));
+        layout.add(std::make_unique<juce::AudioParameterFloat>("Mod_" + idPrefix + "Volume_Amount", "Mod->" + namePrefix + "Vol", juce::NormalisableRange<float>(-1.f, 1.f, .01f), 1.0f));
+        layout.add(std::make_unique<juce::AudioParameterChoice>("Mod_" + idPrefix + "Volume_Select", "Mod Select", modulatorChoices, 4)); // Default to ADSR1
+        layout.add(std::make_unique<juce::AudioParameterFloat>("Mod_" + idPrefix + "Pan_Amount", "Mod->" + namePrefix + "Pan", juce::NormalisableRange<float>(-1.f, 1.f, .01f), 0.0f));
+        layout.add(std::make_unique<juce::AudioParameterChoice>("Mod_" + idPrefix + "Pan_Select", "Mod Select", modulatorChoices, 0));
+        layout.add(std::make_unique<juce::AudioParameterFloat>("Mod_" + idPrefix + "Freq_Amount", "Mod->" + namePrefix + "Freq", juce::NormalisableRange<float>(-1.f, 1.f, .01f), 0.0f));
+        layout.add(std::make_unique<juce::AudioParameterChoice>("Mod_" + idPrefix + "Freq_Select", "Mod Select", modulatorChoices, 0));
+
+        // Filter
+        layout.add(std::make_unique<juce::AudioParameterChoice>(idPrefix + "FilterType", namePrefix + "Filter Type", filterTypeChoices, 0));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(idPrefix + "FilterFreq", namePrefix + "Filter Freq", juce::NormalisableRange<float>(20.0f, 20000.0f, 1.0f, 0.3f), 20000.0f));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(idPrefix + "FilterQuality", namePrefix + "Filter Q", juce::NormalisableRange<float>(0.1f, 18.0f, 0.01f), 1.0f));
+        layout.add(std::make_unique<juce::AudioParameterFloat>("Mod_" + idPrefix + "FilterFreq_Amount", "Mod->" + namePrefix + "FltFreq", juce::NormalisableRange<float>(-1.f, 1.f, .01f), 0.0f));
+        layout.add(std::make_unique<juce::AudioParameterChoice>("Mod_" + idPrefix + "FilterFreq_Select", "Mod Select", modulatorChoices, 0));
+        layout.add(std::make_unique<juce::AudioParameterFloat>("Mod_" + idPrefix + "FilterQuality_Amount", "Mod->" + namePrefix + "FltQ", juce::NormalisableRange<float>(-1.f, 1.f, .01f), 0.0f));
+        layout.add(std::make_unique<juce::AudioParameterChoice>("Mod_" + idPrefix + "FilterQuality_Select", "Mod Select", modulatorChoices, 0));
+    }
+}
+
 static juce::StringArray getFactoryImageChoices()
 {
     juce::StringArray choices;
@@ -34,11 +82,6 @@ MapSynthAudioProcessor::MapSynthAudioProcessor()
                      #endif
                        )
 {
-    // Set up the initial readers
-    readerTypes.add (ReaderBase::Type::Line);
-    readerTypes.add (ReaderBase::Type::Circle);
-    readerTypes.add (ReaderBase::Type::Ellipse);
-
     synth.addSound (new SynthSound());
     for (int i = 0; i < NUM_VOICES; ++i)
     {
@@ -241,29 +284,16 @@ void MapSynthAudioProcessor::setUseOpenGL (bool shouldUseOpenGL)
 
 bool MapSynthAudioProcessor::getUseOpenGL() const { return useOpenGL; }
 
-
-void MapSynthAudioProcessor::addReader (ReaderBase::Type type)
-{
-    readerTypes.add (type);
-    updateVoices();
-}
-
-void MapSynthAudioProcessor::removeReader (int index)
-{
-    if (juce::isPositiveAndBelow (index, readerTypes.size()))
-    {
-        readerTypes.remove (index);
-        updateVoices();
-    }
-}
-
 void MapSynthAudioProcessor::updateVoices()
 {
+    juce::Array<ReaderBase::Type> types;
+    for (int i = 0; i < 3; ++i)
+        types.add (ReaderBase::Type::Ellipse);
     for (int i = 0; i < synth.getNumVoices(); ++i)
     {
         if (auto* voice = dynamic_cast<SynthVoice*> (synth.getVoice (i)))
         {
-            voice->rebuildReaders (readerTypes);
+            voice->rebuildReaders (types);
         }
     }
 }
@@ -300,92 +330,44 @@ void MapSynthAudioProcessor::parameterChanged(const juce::String& parameterID, f
 
 void MapSynthAudioProcessor::updateParameters()
 {
-    // Line Reader
-    globalParams.line.cx = apvts.getRawParameterValue ("LineCX")->load();
-    globalParams.line.cy = apvts.getRawParameterValue ("LineCY")->load();
-    globalParams.line.length = apvts.getRawParameterValue ("LineLength")->load();
-    globalParams.line.angle = apvts.getRawParameterValue ("LineAngle")->load();
-    globalParams.line.volume = apvts.getRawParameterValue ("LineVolume")->load();
-    globalParams.line.modCxAmount = apvts.getRawParameterValue ("Mod_LineCX_Amount")->load();
-    globalParams.line.modCxSelect = (int) apvts.getRawParameterValue ("Mod_LineCX_Select")->load();
-    globalParams.line.modCyAmount = apvts.getRawParameterValue ("Mod_LineCY_Amount")->load();
-    globalParams.line.modCySelect = (int) apvts.getRawParameterValue ("Mod_LineCY_Select")->load();
-    globalParams.line.modAngleAmount = apvts.getRawParameterValue ("Mod_LineAngle_Amount")->load();
-    globalParams.line.modAngleSelect = (int) apvts.getRawParameterValue ("Mod_LineAngle_Select")->load();
-    globalParams.line.modLengthAmount = apvts.getRawParameterValue ("Mod_LineLength_Amount")->load();
-    globalParams.line.modLengthSelect = (int) apvts.getRawParameterValue ("Mod_LineLength_Select")->load();
-    globalParams.line.modVolumeAmount = apvts.getRawParameterValue ("Mod_LineVolume_Amount")->load();
-    globalParams.line.modVolumeSelect = (int) apvts.getRawParameterValue ("Mod_LineVolume_Select")->load();
-    globalParams.line.filter.type = (int)apvts.getRawParameterValue("LineFilterType")->load();
-    globalParams.line.filter.frequency = apvts.getRawParameterValue("LineFilterFreq")->load();
-    globalParams.line.filter.quality = apvts.getRawParameterValue("LineFilterQuality")->load();
-    globalParams.line.filter.modFreqAmount = apvts.getRawParameterValue("Mod_LineFilterFreq_Amount")->load();
-    globalParams.line.filter.modFreqSelect = (int)apvts.getRawParameterValue("Mod_LineFilterFreq_Select")->load();
-    globalParams.line.filter.modQualityAmount = apvts.getRawParameterValue("Mod_LineFilterQuality_Amount")->load();
-    globalParams.line.filter.modQualitySelect = (int)apvts.getRawParameterValue("Mod_LineFilterQuality_Select")->load();
-    globalParams.line.pan = apvts.getRawParameterValue("LinePan")->load();
-    globalParams.line.modPanAmount = apvts.getRawParameterValue("Mod_LinePan_Amount")->load();
-    globalParams.line.modPanSelect = (int)apvts.getRawParameterValue("Mod_LinePan_Select")->load();
-    globalParams.line.modFreqAmount = apvts.getRawParameterValue("Mod_LineFreq_Amount")->load();
-    globalParams.line.modFreqSelect = (int)apvts.getRawParameterValue("Mod_LineFreq_Select")->load();
+    for (int i = 0; i < 3; ++i)
+    {
+        auto& ellipseParams = globalParams.ellipses[i];
+        juce::String prefix = "Ellipse" + juce::String(i + 1) + "_";
 
-    // Circle Reader
-    globalParams.circle.cx = apvts.getRawParameterValue ("CX")->load();
-    globalParams.circle.cy = apvts.getRawParameterValue ("CY")->load();
-    globalParams.circle.radius = apvts.getRawParameterValue ("R")->load();
-    globalParams.circle.volume = apvts.getRawParameterValue ("CircleVolume")->load();
-    globalParams.circle.modCxAmount = apvts.getRawParameterValue ("Mod_CircleCX_Amount")->load();
-    globalParams.circle.modCxSelect = (int) apvts.getRawParameterValue ("Mod_CircleCX_Select")->load();
-    globalParams.circle.modCyAmount = apvts.getRawParameterValue ("Mod_CircleCY_Amount")->load();
-    globalParams.circle.modCySelect = (int) apvts.getRawParameterValue ("Mod_CircleCY_Select")->load();
-    globalParams.circle.modRadiusAmount = apvts.getRawParameterValue ("Mod_CircleRadius_Amount")->load();
-    globalParams.circle.modRadiusSelect = (int) apvts.getRawParameterValue ("Mod_CircleRadius_Select")->load();
-    globalParams.circle.modVolumeAmount = apvts.getRawParameterValue ("Mod_CircleVolume_Amount")->load();
-    globalParams.circle.modVolumeSelect = (int) apvts.getRawParameterValue ("Mod_CircleVolume_Select")->load();
-    globalParams.circle.filter.type = (int)apvts.getRawParameterValue("CircleFilterType")->load();
-    globalParams.circle.filter.frequency = apvts.getRawParameterValue("CircleFilterFreq")->load();
-    globalParams.circle.filter.quality = apvts.getRawParameterValue("CircleFilterQuality")->load();
-    globalParams.circle.filter.modFreqAmount = apvts.getRawParameterValue("Mod_CircleFilterFreq_Amount")->load();
-    globalParams.circle.filter.modFreqSelect = (int)apvts.getRawParameterValue("Mod_CircleFilterFreq_Select")->load();
-    globalParams.circle.filter.modQualityAmount = apvts.getRawParameterValue("Mod_CircleFilterQuality_Amount")->load();
-    globalParams.circle.filter.modQualitySelect = (int)apvts.getRawParameterValue("Mod_CircleFilterQuality_Select")->load();
-    globalParams.circle.pan = apvts.getRawParameterValue("CirclePan")->load();
-    globalParams.circle.modPanAmount = apvts.getRawParameterValue("Mod_CirclePan_Amount")->load();
-    globalParams.circle.modPanSelect = (int)apvts.getRawParameterValue("Mod_CirclePan_Select")->load();
-    globalParams.circle.modFreqAmount = apvts.getRawParameterValue("Mod_CircleFreq_Amount")->load();
-    globalParams.circle.modFreqSelect = (int)apvts.getRawParameterValue("Mod_CircleFreq_Select")->load();
+        ellipseParams.cx = apvts.getRawParameterValue(prefix + "CX")->load();
+        ellipseParams.cy = apvts.getRawParameterValue(prefix + "CY")->load();
+        ellipseParams.r1 = apvts.getRawParameterValue(prefix + "R1")->load();
+        ellipseParams.r2 = apvts.getRawParameterValue(prefix + "R2")->load();
+        ellipseParams.angle = apvts.getRawParameterValue(prefix + "Angle")->load();
+        ellipseParams.volume = apvts.getRawParameterValue(prefix + "Volume")->load();
+        ellipseParams.pan = apvts.getRawParameterValue(prefix + "Pan")->load();
 
-    // Ellipse Reader
-    globalParams.ellipse.cx = apvts.getRawParameterValue("EllipseCX")->load();
-    globalParams.ellipse.cy = apvts.getRawParameterValue("EllipseCY")->load();
-    globalParams.ellipse.r1 = apvts.getRawParameterValue("EllipseR1")->load();
-    globalParams.ellipse.r2 = apvts.getRawParameterValue("EllipseR2")->load();
-    globalParams.ellipse.angle = apvts.getRawParameterValue("EllipseAngle")->load();
-    globalParams.ellipse.volume = apvts.getRawParameterValue("EllipseVolume")->load();
-    globalParams.ellipse.modCxAmount = apvts.getRawParameterValue("Mod_EllipseCX_Amount")->load();
-    globalParams.ellipse.modCxSelect = (int)apvts.getRawParameterValue("Mod_EllipseCX_Select")->load();
-    globalParams.ellipse.modCyAmount = apvts.getRawParameterValue("Mod_EllipseCY_Amount")->load();
-    globalParams.ellipse.modCySelect = (int)apvts.getRawParameterValue("Mod_EllipseCY_Select")->load();
-    globalParams.ellipse.modR1Amount = apvts.getRawParameterValue("Mod_EllipseR1_Amount")->load();
-    globalParams.ellipse.modR1Select = (int)apvts.getRawParameterValue("Mod_EllipseR1_Select")->load();
-    globalParams.ellipse.modR2Amount = apvts.getRawParameterValue("Mod_EllipseR2_Amount")->load();
-    globalParams.ellipse.modR2Select = (int)apvts.getRawParameterValue("Mod_EllipseR2_Select")->load();
-    globalParams.ellipse.modAngleAmount = apvts.getRawParameterValue("Mod_EllipseAngle_Amount")->load();
-    globalParams.ellipse.modAngleSelect = (int)apvts.getRawParameterValue("Mod_EllipseAngle_Select")->load();
-    globalParams.ellipse.modVolumeAmount = apvts.getRawParameterValue("Mod_EllipseVolume_Amount")->load();
-    globalParams.ellipse.modVolumeSelect = (int)apvts.getRawParameterValue("Mod_EllipseVolume_Select")->load();
-    globalParams.ellipse.filter.type = (int)apvts.getRawParameterValue("EllipseFilterType")->load();
-    globalParams.ellipse.filter.frequency = apvts.getRawParameterValue("EllipseFilterFreq")->load();
-    globalParams.ellipse.filter.quality = apvts.getRawParameterValue("EllipseFilterQuality")->load();
-    globalParams.ellipse.filter.modFreqAmount = apvts.getRawParameterValue("Mod_EllipseFilterFreq_Amount")->load();
-    globalParams.ellipse.filter.modFreqSelect = (int)apvts.getRawParameterValue("Mod_EllipseFilterFreq_Select")->load();
-    globalParams.ellipse.filter.modQualityAmount = apvts.getRawParameterValue("Mod_EllipseFilterQuality_Amount")->load();
-    globalParams.ellipse.filter.modQualitySelect = (int)apvts.getRawParameterValue("Mod_EllipseFilterQuality_Select")->load();
-    globalParams.ellipse.pan = apvts.getRawParameterValue("EllipsePan")->load();
-    globalParams.ellipse.modPanAmount = apvts.getRawParameterValue("Mod_EllipsePan_Amount")->load();
-    globalParams.ellipse.modPanSelect = (int)apvts.getRawParameterValue("Mod_EllipsePan_Select")->load();
-    globalParams.ellipse.modFreqAmount = apvts.getRawParameterValue("Mod_EllipseFreq_Amount")->load();
-    globalParams.ellipse.modFreqSelect = (int)apvts.getRawParameterValue("Mod_EllipseFreq_Select")->load();
+        ellipseParams.modCxAmount = apvts.getRawParameterValue("Mod_" + prefix + "CX_Amount")->load();
+        ellipseParams.modCxSelect = (int)apvts.getRawParameterValue("Mod_" + prefix + "CX_Select")->load();
+        ellipseParams.modCyAmount = apvts.getRawParameterValue("Mod_" + prefix + "CY_Amount")->load();
+        ellipseParams.modCySelect = (int)apvts.getRawParameterValue("Mod_" + prefix + "CY_Select")->load();
+        ellipseParams.modR1Amount = apvts.getRawParameterValue("Mod_" + prefix + "R1_Amount")->load();
+        ellipseParams.modR1Select = (int)apvts.getRawParameterValue("Mod_" + prefix + "R1_Select")->load();
+        ellipseParams.modR2Amount = apvts.getRawParameterValue("Mod_" + prefix + "R2_Amount")->load();
+        ellipseParams.modR2Select = (int)apvts.getRawParameterValue("Mod_" + prefix + "R2_Select")->load();
+        ellipseParams.modAngleAmount = apvts.getRawParameterValue("Mod_" + prefix + "Angle_Amount")->load();
+        ellipseParams.modAngleSelect = (int)apvts.getRawParameterValue("Mod_" + prefix + "Angle_Select")->load();
+        ellipseParams.modVolumeAmount = apvts.getRawParameterValue("Mod_" + prefix + "Volume_Amount")->load();
+        ellipseParams.modVolumeSelect = (int)apvts.getRawParameterValue("Mod_" + prefix + "Volume_Select")->load();
+        ellipseParams.modPanAmount = apvts.getRawParameterValue("Mod_" + prefix + "Pan_Amount")->load();
+        ellipseParams.modPanSelect = (int)apvts.getRawParameterValue("Mod_" + prefix + "Pan_Select")->load();
+        ellipseParams.modFreqAmount = apvts.getRawParameterValue("Mod_" + prefix + "Freq_Amount")->load();
+        ellipseParams.modFreqSelect = (int)apvts.getRawParameterValue("Mod_" + prefix + "Freq_Select")->load();
+
+        ellipseParams.filter.type = (int)apvts.getRawParameterValue(prefix + "FilterType")->load();
+        ellipseParams.filter.frequency = apvts.getRawParameterValue(prefix + "FilterFreq")->load();
+        ellipseParams.filter.quality = apvts.getRawParameterValue(prefix + "FilterQuality")->load();
+        ellipseParams.filter.modFreqAmount = apvts.getRawParameterValue("Mod_" + prefix + "FilterFreq_Amount")->load();
+        ellipseParams.filter.modFreqSelect = (int)apvts.getRawParameterValue("Mod_" + prefix + "FilterFreq_Select")->load();
+        ellipseParams.filter.modQualityAmount = apvts.getRawParameterValue("Mod_" + prefix + "FilterQuality_Amount")->load();
+        ellipseParams.filter.modQualitySelect = (int)apvts.getRawParameterValue("Mod_" + prefix + "FilterQuality_Select")->load();
+    }
 
     // ADSR
     globalParams.adsr.attack = apvts.getRawParameterValue ("Attack")->load();
@@ -591,21 +573,6 @@ juce::AudioProcessorValueTreeState::ParameterLayout MapSynthAudioProcessor::crea
         
     layout.add(std::make_unique<juce::AudioParameterChoice>("FactoryImage", "Factory Image", factoryImageChoices, 1));
     layout.add(std::make_unique<juce::AudioParameterFloat>("Level","Level",juce::NormalisableRange<float>(-60.f,12.f,1e-2f,1.f),0.f));
-    layout.add(std::make_unique<juce::AudioParameterFloat>("LineCX", "LineCX", juce::NormalisableRange<float>(0.f, 1.f, .01f, 1.f), 0.5f));
-    layout.add(std::make_unique<juce::AudioParameterFloat>("LineCY", "LineCY", juce::NormalisableRange<float>(0.f, 1.f, .01f, 1.f), 0.5f));
-    layout.add(std::make_unique<juce::AudioParameterFloat>("LineLength", "LineLength", juce::NormalisableRange<float>(0.f, 1.f, .01f, 1.f), 0.6f));
-    layout.add(std::make_unique<juce::AudioParameterFloat>("LineAngle", "LineAngle", juce::NormalisableRange<float>(0.f, juce::MathConstants<float>::twoPi, .01f, 1.f), 0.0f));    
-    layout.add(std::make_unique<juce::AudioParameterFloat>("CX", "CX", juce::NormalisableRange<float>(0.f, 1.f, .01f, 1.f), 0.5f));
-    layout.add(std::make_unique<juce::AudioParameterFloat>("CY", "CY", juce::NormalisableRange<float>(0.f, 1.f, .01f, 1.f), 0.5f));
-    layout.add(std::make_unique<juce::AudioParameterFloat>("R", "R", juce::NormalisableRange<float>(0.f, 0.5f, .01f, 1.f), 0.25f));
-    layout.add(std::make_unique<juce::AudioParameterFloat>("LineVolume", "LineVolume", juce::NormalisableRange<float>(0.f, 1.f, .01f, 1.f), 1.0f));
-    layout.add(std::make_unique<juce::AudioParameterFloat>("CircleVolume", "CircleVolume", juce::NormalisableRange<float>(0.f, 1.f, .01f, 1.f), 1.0f));
-    layout.add(std::make_unique<juce::AudioParameterFloat>("EllipseCX", "EllipseCX", juce::NormalisableRange<float>(0.f, 1.f, .01f, 1.f), 0.5f));
-    layout.add(std::make_unique<juce::AudioParameterFloat>("EllipseCY", "EllipseCY", juce::NormalisableRange<float>(0.f, 1.f, .01f, 1.f), 0.5f));
-    layout.add(std::make_unique<juce::AudioParameterFloat>("EllipseR1", "EllipseR1", juce::NormalisableRange<float>(0.f, 0.5f, .01f, 1.f), 0.4f));
-    layout.add(std::make_unique<juce::AudioParameterFloat>("EllipseR2", "EllipseR2", juce::NormalisableRange<float>(0.f, 0.5f, .01f, 1.f), 0.2f));
-    layout.add(std::make_unique<juce::AudioParameterFloat>("EllipseAngle", "EllipseAngle", juce::NormalisableRange<float>(0.f, juce::MathConstants<float>::twoPi, .01f, 1.f), 0.0f));
-    layout.add(std::make_unique<juce::AudioParameterFloat>("EllipseVolume", "EllipseVolume", juce::NormalisableRange<float>(0.f, 1.f, .01f, 1.f), 0.0f));
 
     layout.add(std::make_unique<juce::AudioParameterFloat>("LFOFreq", "LFO 1 Freq", juce::NormalisableRange<float>(0.01f, 200.0f, 0.01f, 0.3f), 1.0f));
     layout.add(std::make_unique<juce::AudioParameterBool>("LFO1Sync", "LFO 1 Sync", false));
@@ -638,104 +605,10 @@ juce::AudioProcessorValueTreeState::ParameterLayout MapSynthAudioProcessor::crea
     layout.add(std::make_unique<juce::AudioParameterFloat>("Sustain2", "Sustain 2", juce::NormalisableRange<float>(0.0f, 1.0f, 0.01f), 1.0f));
     layout.add(std::make_unique<juce::AudioParameterFloat>("Release2", "Release 2", juce::NormalisableRange<float>(0.0f, 5.0f, 0.01f, 0.5f), 0.4f));
 
-    layout.add(std::make_unique<juce::AudioParameterFloat>("Mod_LineCX_Amount", "Mod->LineCX", juce::NormalisableRange<float>(-1.f, 1.f, .01f), 0.0f));
-    layout.add(std::make_unique<juce::AudioParameterChoice>("Mod_LineCX_Select", "Mod Select", modulatorChoices, 0));
-
-    layout.add(std::make_unique<juce::AudioParameterFloat>("Mod_LineCY_Amount", "Mod->LineCY", juce::NormalisableRange<float>(-1.f, 1.f, .01f), 0.0f));
-    layout.add(std::make_unique<juce::AudioParameterChoice>("Mod_LineCY_Select", "Mod Select", modulatorChoices, 0));
-
-    layout.add(std::make_unique<juce::AudioParameterFloat>("Mod_LineAngle_Amount", "Mod->Angle", juce::NormalisableRange<float>(-1.f, 1.f, .01f), 0.0f));
-    layout.add(std::make_unique<juce::AudioParameterChoice>("Mod_LineAngle_Select", "Mod Select", modulatorChoices, 0));
-
-    layout.add(std::make_unique<juce::AudioParameterFloat>("Mod_LineLength_Amount", "Mod->Length", juce::NormalisableRange<float>(-1.f, 1.f, .01f), 0.0f));
-    layout.add(std::make_unique<juce::AudioParameterChoice>("Mod_LineLength_Select", "Mod Select", modulatorChoices, 0));
-
-    layout.add(std::make_unique<juce::AudioParameterFloat>("Mod_LineVolume_Amount", "Mod->LineVol", juce::NormalisableRange<float>(-1.f, 1.f, .01f), 1.0f));
-    layout.add(std::make_unique<juce::AudioParameterChoice>("Mod_LineVolume_Select", "Mod Select", modulatorChoices, 4)); // Default to ADSR1
-
-    layout.add(std::make_unique<juce::AudioParameterFloat>("Mod_CircleCX_Amount", "Mod->CircleCX", juce::NormalisableRange<float>(-1.f, 1.f, .01f), 0.0f));
-    layout.add(std::make_unique<juce::AudioParameterChoice>("Mod_CircleCX_Select", "Mod Select", modulatorChoices, 0));
-
-    layout.add(std::make_unique<juce::AudioParameterFloat>("Mod_CircleCY_Amount", "Mod->CircleCY", juce::NormalisableRange<float>(-1.f, 1.f, .01f), 0.0f));
-    layout.add(std::make_unique<juce::AudioParameterChoice>("Mod_CircleCY_Select", "Mod Select", modulatorChoices, 0));
-
-    layout.add(std::make_unique<juce::AudioParameterFloat>("Mod_CircleRadius_Amount", "Mod->Radius", juce::NormalisableRange<float>(-1.f, 1.f, .01f), 0.0f));
-    layout.add(std::make_unique<juce::AudioParameterChoice>("Mod_CircleRadius_Select", "Mod Select", modulatorChoices, 0));
-
-    layout.add(std::make_unique<juce::AudioParameterFloat>("Mod_CircleVolume_Amount", "Mod->CircleVol", juce::NormalisableRange<float>(-1.f, 1.f, .01f), 1.0f));
-    layout.add(std::make_unique<juce::AudioParameterChoice>("Mod_CircleVolume_Select", "Mod Select", modulatorChoices, 4)); // Default to ADSR1
-
-    layout.add(std::make_unique<juce::AudioParameterFloat>("Mod_EllipseCX_Amount", "Mod->EllipseCX", juce::NormalisableRange<float>(-1.f, 1.f, .01f), 0.0f));
-    layout.add(std::make_unique<juce::AudioParameterChoice>("Mod_EllipseCX_Select", "Mod Select", modulatorChoices, 0));
-
-    layout.add(std::make_unique<juce::AudioParameterFloat>("Mod_EllipseCY_Amount", "Mod->EllipseCY", juce::NormalisableRange<float>(-1.f, 1.f, .01f), 0.0f));
-    layout.add(std::make_unique<juce::AudioParameterChoice>("Mod_EllipseCY_Select", "Mod Select", modulatorChoices, 0));
-
-    layout.add(std::make_unique<juce::AudioParameterFloat>("Mod_EllipseR1_Amount", "Mod->R1", juce::NormalisableRange<float>(-1.f, 1.f, .01f), 0.0f));
-    layout.add(std::make_unique<juce::AudioParameterChoice>("Mod_EllipseR1_Select", "Mod Select", modulatorChoices, 0));
-
-    layout.add(std::make_unique<juce::AudioParameterFloat>("Mod_EllipseR2_Amount", "Mod->R2", juce::NormalisableRange<float>(-1.f, 1.f, .01f), 0.0f));
-    layout.add(std::make_unique<juce::AudioParameterChoice>("Mod_EllipseR2_Select", "Mod Select", modulatorChoices, 0));
-
-    layout.add(std::make_unique<juce::AudioParameterFloat>("Mod_EllipseAngle_Amount", "Mod->EllipseAngle", juce::NormalisableRange<float>(-1.f, 1.f, .01f), 0.0f));
-    layout.add(std::make_unique<juce::AudioParameterChoice>("Mod_EllipseAngle_Select", "Mod Select", modulatorChoices, 0));
-
-    layout.add(std::make_unique<juce::AudioParameterFloat>("Mod_EllipseVolume_Amount", "Mod->EllipseVol", juce::NormalisableRange<float>(-1.f, 1.f, .01f), 1.0f));
-    layout.add(std::make_unique<juce::AudioParameterChoice>("Mod_EllipseVolume_Select", "Mod Select", modulatorChoices, 4)); // Default to ADSR1
-
-    // Line Reader Filter
-    layout.add(std::make_unique<juce::AudioParameterChoice>("LineFilterType", "Line Filter Type", filterTypeChoices, 0));
-    layout.add(std::make_unique<juce::AudioParameterFloat>("LineFilterFreq", "Line Filter Freq", juce::NormalisableRange<float>(20.0f, 20000.0f, 1.0f, 0.3f), 20000.0f));
-    layout.add(std::make_unique<juce::AudioParameterFloat>("LineFilterQuality", "Line Filter Q", juce::NormalisableRange<float>(0.1f, 18.0f, 0.01f), 1.0f));
-    layout.add(std::make_unique<juce::AudioParameterFloat>("Mod_LineFilterFreq_Amount", "Mod->LineFltFreq", juce::NormalisableRange<float>(-1.f, 1.f, .01f), 0.0f));
-    layout.add(std::make_unique<juce::AudioParameterChoice>("Mod_LineFilterFreq_Select", "Mod Select", modulatorChoices, 0));
-    layout.add(std::make_unique<juce::AudioParameterFloat>("Mod_LineFilterQuality_Amount", "Mod->LineFltQ", juce::NormalisableRange<float>(-1.f, 1.f, .01f), 0.0f));
-    layout.add(std::make_unique<juce::AudioParameterChoice>("Mod_LineFilterQuality_Select", "Mod Select", modulatorChoices, 0));
-
-    // Circle Reader Filter
-    layout.add(std::make_unique<juce::AudioParameterChoice>("CircleFilterType", "Circle Filter Type", filterTypeChoices, 0));
-    layout.add(std::make_unique<juce::AudioParameterFloat>("CircleFilterFreq", "Circle Filter Freq", juce::NormalisableRange<float>(20.0f, 20000.0f, 1.0f, 0.3f), 20000.0f));
-    layout.add(std::make_unique<juce::AudioParameterFloat>("CircleFilterQuality", "Circle Filter Q", juce::NormalisableRange<float>(0.1f, 18.0f, 0.01f), 1.0f));
-    layout.add(std::make_unique<juce::AudioParameterFloat>("Mod_CircleFilterFreq_Amount", "Mod->CircFltFreq", juce::NormalisableRange<float>(-1.f, 1.f, .01f), 0.0f));
-    layout.add(std::make_unique<juce::AudioParameterChoice>("Mod_CircleFilterFreq_Select", "Mod Select", modulatorChoices, 0));
-    layout.add(std::make_unique<juce::AudioParameterFloat>("Mod_CircleFilterQuality_Amount", "Mod->CircFltQ", juce::NormalisableRange<float>(-1.f, 1.f, .01f), 0.0f));
-    layout.add(std::make_unique<juce::AudioParameterChoice>("Mod_CircleFilterQuality_Select", "Mod Select", modulatorChoices, 0));
-
-    // Ellipse Reader Filter
-    layout.add(std::make_unique<juce::AudioParameterChoice>("EllipseFilterType", "Ellipse Filter Type", filterTypeChoices, 0));
-    layout.add(std::make_unique<juce::AudioParameterFloat>("EllipseFilterFreq", "Ellipse Filter Freq", juce::NormalisableRange<float>(20.0f, 20000.0f, 1.0f, 0.3f), 20000.0f));
-    layout.add(std::make_unique<juce::AudioParameterFloat>("EllipseFilterQuality", "Ellipse Filter Q", juce::NormalisableRange<float>(0.1f, 18.0f, 0.01f), 1.0f));
-    layout.add(std::make_unique<juce::AudioParameterFloat>("Mod_EllipseFilterFreq_Amount", "Mod->EllipseFltFreq", juce::NormalisableRange<float>(-1.f, 1.f, .01f), 0.0f));
-    layout.add(std::make_unique<juce::AudioParameterChoice>("Mod_EllipseFilterFreq_Select", "Mod Select", modulatorChoices, 0));
-    layout.add(std::make_unique<juce::AudioParameterFloat>("Mod_EllipseFilterQuality_Amount", "Mod->EllipseFltQ", juce::NormalisableRange<float>(-1.f, 1.f, .01f), 0.0f));
-    layout.add(std::make_unique<juce::AudioParameterChoice>("Mod_EllipseFilterQuality_Select", "Mod Select", modulatorChoices, 0));
-
-    // Line Reader Pan
-    layout.add(std::make_unique<juce::AudioParameterFloat>("LinePan", "Line Pan", juce::NormalisableRange<float>(-1.0f, 1.0f, 0.01f), 0.0f));
-    layout.add(std::make_unique<juce::AudioParameterFloat>("Mod_LinePan_Amount", "Mod->LinePan", juce::NormalisableRange<float>(-1.f, 1.f, .01f), 0.0f));
-    layout.add(std::make_unique<juce::AudioParameterChoice>("Mod_LinePan_Select", "Mod Select", modulatorChoices, 0));
-
-    // Circle Reader Pan
-    layout.add(std::make_unique<juce::AudioParameterFloat>("CirclePan", "Circle Pan", juce::NormalisableRange<float>(-1.0f, 1.0f, 0.01f), 0.0f));
-    layout.add(std::make_unique<juce::AudioParameterFloat>("Mod_CirclePan_Amount", "Mod->CircPan", juce::NormalisableRange<float>(-1.f, 1.f, .01f), 0.0f));
-    layout.add(std::make_unique<juce::AudioParameterChoice>("Mod_CirclePan_Select", "Mod Select", modulatorChoices, 0));
-
-    // Ellipse Reader Pan
-    layout.add(std::make_unique<juce::AudioParameterFloat>("EllipsePan", "Ellipse Pan", juce::NormalisableRange<float>(-1.0f, 1.0f, 0.01f), 0.0f));
-    layout.add(std::make_unique<juce::AudioParameterFloat>("Mod_EllipsePan_Amount", "Mod->EllipsePan", juce::NormalisableRange<float>(-1.f, 1.f, .01f), 0.0f));
-    layout.add(std::make_unique<juce::AudioParameterChoice>("Mod_EllipsePan_Select", "Mod Select", modulatorChoices, 0));
-
-    // Line Freq Mod
-    layout.add(std::make_unique<juce::AudioParameterFloat>("Mod_LineFreq_Amount", "Mod->LineFreq", juce::NormalisableRange<float>(-1.f, 1.f, .01f), 0.0f));
-    layout.add(std::make_unique<juce::AudioParameterChoice>("Mod_LineFreq_Select", "Mod Select", modulatorChoices, 0));
-
-    // Circle Freq Mod
-    layout.add(std::make_unique<juce::AudioParameterFloat>("Mod_CircleFreq_Amount", "Mod->CircFreq", juce::NormalisableRange<float>(-1.f, 1.f, .01f), 0.0f));
-    layout.add(std::make_unique<juce::AudioParameterChoice>("Mod_CircleFreq_Select", "Mod Select", modulatorChoices, 0));
-
-    // Ellipse Freq Mod
-    layout.add(std::make_unique<juce::AudioParameterFloat>("Mod_EllipseFreq_Amount", "Mod->EllipseFreq", juce::NormalisableRange<float>(-1.f, 1.f, .01f), 0.0f));
-    layout.add(std::make_unique<juce::AudioParameterChoice>("Mod_EllipseFreq_Select", "Mod Select", modulatorChoices, 0));
+    for (int i = 1; i <= 3; ++i)
+    {
+        ParameterHelpers::addEllipseParameters(layout, i, modulatorChoices, filterTypeChoices);
+    }
 
     return layout;
 }

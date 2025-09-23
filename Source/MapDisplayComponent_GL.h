@@ -43,13 +43,17 @@ private:
     enum class HandleType
     {
         None,
-        LineCenter,
-        LineEndpoint,
-        CircleCenter,
-        CircleRadius,
         EllipseCenter,
         EllipseR1,
         EllipseR2
+    };
+
+    struct Handle
+    {
+        HandleType type { HandleType::None };
+        int readerIndex { -1 };
+
+        bool operator!= (const Handle& other) const { return type != other.type || readerIndex != other.readerIndex; }
     };
 
     void mouseDown (const juce::MouseEvent& event) override;
@@ -57,9 +61,9 @@ private:
     void mouseUp (const juce::MouseEvent& event) override;
 
     juce::Rectangle<float> getHandleRect (juce::Point<float> center) const;
-    HandleType getHandleAt (juce::Point<int> position);
+    Handle getHandleAt (juce::Point<int> position);
 
-    HandleType activeHandle { HandleType::None };
+    Handle activeHandle;
     const float handleSize = 10.0f;
 
     juce::Rectangle<int> displayArea;

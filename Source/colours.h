@@ -13,5 +13,11 @@
 
 const juce::Colour LINECOLOUR = juce::Colours::red;
 const juce::Colour CIRCLECOLOUR = juce::Colours::blue;
-const juce::Colour ELLIPSECOLOUR = juce::Colours::orange;
+const juce::Colour ELLIPSECOLOURS[6] =
+  {juce::Colours::red,
+    juce::Colours::green,
+    juce::Colours::blue,
+    juce::Colours::magenta,
+    juce::Colours::yellow,
+    juce::Colours::cyan};
 const juce::Colour LFOMODULATEDCOLOUR = juce::Colours::grey.withAlpha(0.4f);

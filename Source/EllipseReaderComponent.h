@@ -17,20 +17,20 @@
 class EllipseReaderComponent : public ReaderComponent
 {
 public:
-    EllipseReaderComponent(MapSynthAudioProcessor& p);
+    EllipseReaderComponent(MapSynthAudioProcessor& p, int readerIndex);
 
     void resized() override;
     void paint(juce::Graphics& g) override;
 
 private:
-    fxme::FxmeKnob ellipseCxKnob, ellipseCyKnob, ellipseR1Knob, ellipseR2Knob, ellipseAngleKnob, ellipseVolumeKnob,
-        filterFreqKnob, filterQualityKnob,
-        panKnob;
+    std::unique_ptr<fxme::FxmeKnob> ellipseCxKnob, ellipseCyKnob, ellipseR1Knob, ellipseR2Knob, ellipseAngleKnob, ellipseVolumeKnob,
+                                    filterFreqKnob, filterQualityKnob,
+                                    panKnob;
 
     juce::ComboBox filterTypeBox;
 
-    ModControlBox modCx, modCy, modR1, modR2, modAngle, modVolume,
-        modFilterFreq, modFilterQuality, modPan, modFreq;
+    std::unique_ptr<ModControlBox> modCx, modCy, modR1, modR2, modAngle, modVolume,
+                                   modFilterFreq, modFilterQuality, modPan, modFreq;
 
     std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> filterTypeAttachment;
 };

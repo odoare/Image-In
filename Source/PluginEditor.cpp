@@ -9,6 +9,7 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 #include "ParameterStructs.h"
+#include "colours.h"
 #include "LFOControlComponent.h"
 
 class GlobalControlsComponent  : public juce::Component
@@ -116,9 +117,9 @@ private:
 MapSynthAudioProcessorEditor::MapSynthAudioProcessorEditor (MapSynthAudioProcessor& p)
     : AudioProcessorEditor (&p), 
       audioProcessor (p),
-      lineReaderComponent(p),
-      circleReaderComponent(p),
-      ellipseReaderComponent(p)
+      ellipseReaderComponent1(p, 1),
+      ellipseReaderComponent2(p, 2),
+      ellipseReaderComponent3(p, 3)
 {
     globalControlsComponent = std::make_unique<GlobalControlsComponent>(p);
 
@@ -190,9 +191,9 @@ MapSynthAudioProcessorEditor::MapSynthAudioProcessorEditor (MapSynthAudioProcess
 
     addAndMakeVisible(readerTabs);
     readerTabs.addTab("Global / LFO", juce::Colours::transparentBlack, globalControlsComponent.get(), false);
-    readerTabs.addTab("Line Reader", juce::Colours::transparentBlack, &lineReaderComponent, false);
-    readerTabs.addTab("Circle Reader", juce::Colours::transparentBlack, &circleReaderComponent, false);
-    readerTabs.addTab("Ellipse Reader", juce::Colours::transparentBlack, &ellipseReaderComponent, false);
+    readerTabs.addTab("Reader 1", juce::Colours::transparentBlack, &ellipseReaderComponent1, false);
+    readerTabs.addTab("Reader 2", juce::Colours::transparentBlack, &ellipseReaderComponent2, false);
+    readerTabs.addTab("Reader 3", juce::Colours::transparentBlack, &ellipseReaderComponent3, false);
 
     audioProcessor.openGLStateBroadcaster.addChangeListener (this);
     updateRendererVisibility();

@@ -79,7 +79,6 @@ public:
     LFO lfo4;
     juce::AudioBuffer<float> lfoBuffer;
     GlobalParameters globalParams; // This now contains all parameter structs
-    juce::Array<ReaderBase::Type> readerTypes;
 
     std::array<VoiceDisplayState, NUM_VOICES> voiceDisplayStates;
     juce::CriticalSection displayStateLock;
@@ -88,9 +87,6 @@ public:
     void setUseOpenGL (bool shouldUseOpenGL);
     bool getUseOpenGL() const;
     juce::ChangeBroadcaster openGLStateBroadcaster;
-
-    void addReader (ReaderBase::Type type);
-    void removeReader (int index);
 
 private:
     // Preset Management
