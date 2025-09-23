@@ -99,6 +99,7 @@ private:
     bool useOpenGL = false;
 
     juce::Synthesiser synth;
+    juce::LinearSmoothedValue<float> masterLevelSmoother;
     static juce::AudioProcessorValueTreeState::ParameterLayout createParameters();  
     void updateParameters();
     void updateVoices();

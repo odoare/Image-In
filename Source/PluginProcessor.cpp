@@ -182,6 +182,8 @@ void MapSynthAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlo
 {
     synth.setCurrentPlaybackSampleRate (sampleRate);
 
+    masterLevelSmoother.reset(sampleRate, 0.05);
+
     lfoBuffer.setSize (4, samplesPerBlock);
 
     lfo.prepareToPlay (sampleRate);
@@ -387,6 +389,8 @@ void MapSynthAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
 {
     juce::ScopedNoDenormals noDenormals;
 
+    masterLevelSmoother.setTargetValue(juce::Decibels::decibelsToGain(apvts.getRawParameterValue("Level")->load()));
+
     updateParameters();
 
     double bpm = 120.0;
@@ -463,6 +467,8 @@ void MapSynthAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
 
     buffer.clear();
     synth.renderNextBlock (buffer, midiMessages, 0, buffer.getNumSamples());
+
+    masterLevelSmoother.applyGain(buffer, buffer.getNumSamples());
 }
 
 //==============================================================================

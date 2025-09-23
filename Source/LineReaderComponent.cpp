@@ -71,7 +71,7 @@ void LineReaderComponent::resized()
     juce::FlexBox fb;
     fb.flexWrap = juce::FlexBox::Wrap::wrap;
     fb.justifyContent = juce::FlexBox::JustifyContent::center;
-    fb.alignContent = juce::FlexBox::AlignContent::center;
+    fb.alignContent = juce::FlexBox::AlignContent::spaceBetween;
 
     fb.items.add (juce::FlexItem (lineCxKnob).withMinWidth(70.0f).withMinHeight(70.0f).withFlex(1.0));
     fb.items.add (juce::FlexItem (lineCyKnob).withMinWidth(70.0f).withMinHeight(70.0f).withFlex(1.0));

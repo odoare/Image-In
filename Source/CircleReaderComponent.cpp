@@ -67,7 +67,7 @@ void CircleReaderComponent::resized()
     juce::FlexBox fb;
     fb.flexWrap = juce::FlexBox::Wrap::wrap;
     fb.justifyContent = juce::FlexBox::JustifyContent::center;
-    fb.alignContent = juce::FlexBox::AlignContent::center;
+    fb.alignContent = juce::FlexBox::AlignContent::spaceBetween;
 
     fb.items.add (juce::FlexItem (cxKnob).withMinWidth(70.0f).withMinHeight(70.0f).withFlex(1.0));
     fb.items.add (juce::FlexItem (cyKnob).withMinWidth(70.0f).withMinHeight(70.0f).withFlex(1.0));

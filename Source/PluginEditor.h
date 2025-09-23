@@ -57,6 +57,9 @@ private:
     juce::TextButton loadImageButton;
     std::unique_ptr<juce::FileChooser> fileChooser;
     juce::ToggleButton useOpenGLButton;
+    juce::Slider masterVolumeSlider;
+    juce::Label masterVolumeLabel;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> masterVolumeAttachment;
 
     void updateRendererVisibility();
 

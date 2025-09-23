@@ -181,7 +181,17 @@ MapSynthAudioProcessorEditor::MapSynthAudioProcessorEditor (MapSynthAudioProcess
     {
         audioProcessor.setUseOpenGL (useOpenGLButton.getToggleState());
     };
-    
+
+    addAndMakeVisible(masterVolumeSlider);
+    masterVolumeSlider.setSliderStyle(juce::Slider::SliderStyle::LinearHorizontal);
+    masterVolumeSlider.setTextBoxStyle(juce::Slider::TextBoxRight, false, 80, 20);
+    masterVolumeAttachment = std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(audioProcessor.apvts, "Level", masterVolumeSlider);
+
+    addAndMakeVisible(masterVolumeLabel);
+    masterVolumeLabel.setText("Master Volume", juce::dontSendNotification);
+    masterVolumeLabel.setJustificationType(juce::Justification::centredRight);
+    masterVolumeLabel.attachToComponent(&masterVolumeSlider, true);
+
     addAndMakeVisible(readerTabs);
     readerTabs.addTab("Global / LFO", juce::Colours::transparentBlack, globalControlsComponent.get(), false);
     readerTabs.addTab("Line Reader", juce::Colours::transparentBlack, &lineReaderComponent, false);
@@ -193,7 +203,7 @@ MapSynthAudioProcessorEditor::MapSynthAudioProcessorEditor (MapSynthAudioProcess
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
     setResizable(true, true);
-    setSize (900, 450);
+    setSize (960, 480);
 }
 
 MapSynthAudioProcessorEditor::~MapSynthAudioProcessorEditor()
@@ -226,14 +236,18 @@ void MapSynthAudioProcessorEditor::resized()
     auto rightPanel = bounds;
 
     auto leftPanelPadded = leftPanelArea.reduced(5);
-    auto buttonArea = leftPanelPadded.removeFromTop(30);
+    auto volumeArea = leftPanelPadded.removeFromBottom(30);
+    auto buttonArea = leftPanelPadded.removeFromBottom(30);
     readerTabs.setBounds(leftPanelPadded);
 
-    factoryImageSelector.setBounds(buttonArea.getX() + 80, buttonArea.getY(), 120, 24);
-    loadImageButton.setBounds(factoryImageSelector.getRight() + 10, buttonArea.getY(), 80, 24);
-    useOpenGLButton.setBounds(loadImageButton.getRight() + 10, buttonArea.getY(), 100, 24);
+    masterVolumeSlider.setBounds(volumeArea);
+
+    factoryImageSelector.setBounds(buttonArea.getX() + 80, buttonArea.getY() + 3, 120, 24);
+    loadImageButton.setBounds(factoryImageSelector.getRight() + 10, buttonArea.getY() + 3, 80, 24);
+    useOpenGLButton.setBounds(loadImageButton.getRight() + 10, buttonArea.getY() + 3, 100, 24);
 
     auto mapArea = rightPanel.reduced(5);
+
     mapDisplayComponentCPU->setBounds(mapArea);
     mapDisplayComponentGL->setBounds(mapArea);
 }
