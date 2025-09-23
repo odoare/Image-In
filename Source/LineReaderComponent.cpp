@@ -57,16 +57,12 @@ LineReaderComponent::LineReaderComponent(MapSynthAudioProcessor& p)
 
 void LineReaderComponent::paint(juce::Graphics& g)
 {
-    g.setColour (juce::Colours::darkgrey.withAlpha(0.5f));
-    g.fillRoundedRectangle(getLocalBounds().toFloat(), 5.0f);
-    g.setColour (juce::Colours::white);
-    g.drawFittedText ("Line Reader", getLocalBounds().reduced(5).removeFromTop(20), juce::Justification::centredTop, 1);
+    // The background is transparent, so no painting is needed here.
 }
 
 void LineReaderComponent::resized()
 {
     auto bounds = getLocalBounds().reduced(10);
-    bounds.removeFromTop(10);
 
     juce::FlexBox fb;
     fb.flexWrap = juce::FlexBox::Wrap::wrap;

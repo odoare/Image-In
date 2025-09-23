@@ -182,6 +182,11 @@ void MapSynthAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlo
 {
     synth.setCurrentPlaybackSampleRate (sampleRate);
 
+    juce::dsp::ProcessSpec spec;
+    spec.sampleRate = sampleRate;
+    spec.maximumBlockSize = (juce::uint32) samplesPerBlock;
+    spec.numChannels = (juce::uint32) getTotalNumOutputChannels();
+
     masterLevelSmoother.reset(sampleRate, 0.05);
 
     lfoBuffer.setSize (4, samplesPerBlock);

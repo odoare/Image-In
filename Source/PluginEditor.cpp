@@ -29,9 +29,6 @@ public:
           sustain2Knob (p.apvts, "Sustain2", juce::Colours::cyan),
           release2Knob (p.apvts, "Release2", juce::Colours::cyan)
     {
-        addAndMakeVisible(globalControlsGroup);
-        globalControlsGroup.setText("Global / LFO");
-
         // Initialize member FlexBox objects
         globalFb.flexDirection = juce::FlexBox::Direction::column;
         lfoRowsContainer.flexDirection = juce::FlexBox::Direction::column;
@@ -62,8 +59,7 @@ public:
 
     void resized() override
     {
-        globalControlsGroup.setBounds (getLocalBounds());
-        auto globalContentBounds = globalControlsGroup.getBounds().reduced (5).withTrimmedTop (15);
+        auto globalContentBounds = getLocalBounds().reduced(5);
 
         // Clear items before re-adding to prevent duplicates on resize
         globalFb.items.clear();
@@ -103,7 +99,6 @@ public:
 private:
     MapSynthAudioProcessor& audioProcessor;
     fxme::FxmeLookAndFeel fxmeLookAndFeel;
-    juce::GroupComponent globalControlsGroup;
 
     LFOControlComponent lfo1Controls, lfo2Controls, lfo3Controls, lfo4Controls;
 
@@ -223,8 +218,16 @@ void MapSynthAudioProcessorEditor::changeListenerCallback (juce::ChangeBroadcast
 void MapSynthAudioProcessorEditor::paint (juce::Graphics& g)
 {
     // (Our component is opaque, so we must completely fill the background with a solid colour)
+    auto diagonale = (getLocalBounds().getTopLeft() - getLocalBounds().getBottomRight()).toFloat();
+    auto length = diagonale.getDistanceFromOrigin();
+    auto perpendicular = diagonale.rotatedAboutOrigin (juce::degreesToRadians (270.0f)) / length;
+    auto height = float (getWidth() * getHeight()) / length;
+    auto bluegreengrey = juce::Colour::fromFloatRGBA (0.15f, 0.15f, 0.25f, 1.0f);
+    juce::ColourGradient grad (bluegreengrey.darker().darker().darker(), perpendicular * height,
+                           bluegreengrey, perpendicular * -height, false);
+    g.setGradientFill(grad);
+    g.fillAll();
 
-    g.fillAll (getLookAndFeel().findColour (juce::ResizableWindow::backgroundColourId).darker (0.2f));
 }
 
 void MapSynthAudioProcessorEditor::resized()
