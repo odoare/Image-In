@@ -17,6 +17,7 @@ class MapSynthAudioProcessor;
 #include "MapDisplayComponent_GL.h"
 #include "LineReaderComponent.h"
 #include "CircleReaderComponent.h"
+#include "EllipseReaderComponent.h"
 
 class GlobalControlsComponent;
 
@@ -46,6 +47,7 @@ private:
 
     LineReaderComponent lineReaderComponent;
     CircleReaderComponent circleReaderComponent;
+    EllipseReaderComponent ellipseReaderComponent;
     std::unique_ptr<GlobalControlsComponent> globalControlsComponent;
 
     juce::TabbedComponent readerTabs { juce::TabbedButtonBar::TabsAtLeft };

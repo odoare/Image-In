@@ -116,8 +116,9 @@ private:
 MapSynthAudioProcessorEditor::MapSynthAudioProcessorEditor (MapSynthAudioProcessor& p)
     : AudioProcessorEditor (&p), 
       audioProcessor (p),
-      lineReaderComponent(p), 
-      circleReaderComponent(p)
+      lineReaderComponent(p),
+      circleReaderComponent(p),
+      ellipseReaderComponent(p)
 {
     globalControlsComponent = std::make_unique<GlobalControlsComponent>(p);
 
@@ -191,6 +192,7 @@ MapSynthAudioProcessorEditor::MapSynthAudioProcessorEditor (MapSynthAudioProcess
     readerTabs.addTab("Global / LFO", juce::Colours::transparentBlack, globalControlsComponent.get(), false);
     readerTabs.addTab("Line Reader", juce::Colours::transparentBlack, &lineReaderComponent, false);
     readerTabs.addTab("Circle Reader", juce::Colours::transparentBlack, &circleReaderComponent, false);
+    readerTabs.addTab("Ellipse Reader", juce::Colours::transparentBlack, &ellipseReaderComponent, false);
 
     audioProcessor.openGLStateBroadcaster.addChangeListener (this);
     updateRendererVisibility();

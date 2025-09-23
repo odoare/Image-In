@@ -71,6 +71,8 @@ void MapOscillator::rebuildReaders (const juce::Array<ReaderBase::Type>& types)
             newReader = addLineReader();
         else if (type == ReaderBase::Type::Circle)
             newReader = addCircleReader();
+        else if (type == ReaderBase::Type::Ellipse)
+            newReader = addEllipseReader();
 
         if (newReader != nullptr)
             newReader->prepareToPlay (currentSampleRate);
@@ -89,6 +91,10 @@ void MapOscillator::updateParameters (const GlobalParameters& params)
         {
             circleReader->updateParameters (params.circle);
         }
+        else if (auto* ellipseReader = dynamic_cast<EllipseReader*> (reader))
+        {
+            ellipseReader->updateParameters (params.ellipse);
+        }
     }
 }
 
@@ -104,6 +110,14 @@ CircleReader* MapOscillator::addCircleReader()
 {
     // In a real application, you might want to notify listeners that a reader was added.
     auto* newReader = new CircleReader();
+    readers.add (newReader);
+    return newReader;
+}
+
+EllipseReader* MapOscillator::addEllipseReader()
+{
+    // In a real application, you might want to notify listeners that a reader was added.
+    auto* newReader = new EllipseReader();
     readers.add (newReader);
     return newReader;
 }

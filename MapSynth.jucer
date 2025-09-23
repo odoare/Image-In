@@ -13,6 +13,13 @@
       <FILE id="rOvzm5" name="04_anecho.png" compile="0" resource="1" file="Source/Assets/04_anecho.png"/>
     </GROUP>
     <GROUP id="{633F86FB-EABC-E5B3-C698-8086F97CD0F3}" name="Source">
+      <FILE id="lWRedN" name="EllipseReader.cpp" compile="1" resource="0"
+            file="Source/EllipseReader.cpp"/>
+      <FILE id="JxeKgW" name="EllipseReader.h" compile="0" resource="0" file="Source/EllipseReader.h"/>
+      <FILE id="yPpDRA" name="EllipseReaderComponent.cpp" compile="1" resource="0"
+            file="Source/EllipseReaderComponent.cpp"/>
+      <FILE id="FP4nYg" name="EllipseReaderComponent.h" compile="0" resource="0"
+            file="Source/EllipseReaderComponent.h"/>
       <FILE id="OPSMvw" name="colours.h" compile="0" resource="0" file="Source/colours.h"/>
       <FILE id="jUWhXb" name="FactoryPresets.h" compile="0" resource="0"
             file="Source/FactoryPresets.h"/>

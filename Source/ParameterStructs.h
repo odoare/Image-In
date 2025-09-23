@@ -88,6 +88,36 @@ struct LineReaderParameters
     FilterParameters filter;
 };
 
+struct EllipseReaderParameters
+{
+    float cx = 0.5f;
+    float cy = 0.5f;
+    float r1 = 0.4f;
+    float r2 = 0.2f;
+    float angle = 0.0f;
+    float volume = 1.0f;
+    float pan = 0.0f;
+
+    float modCxAmount = 0.0f;
+    int   modCxSelect = 0;
+    float modCyAmount = 0.0f;
+    int   modCySelect = 0;
+    float modR1Amount = 0.0f;
+    int   modR1Select = 0;
+    float modR2Amount = 0.0f;
+    int   modR2Select = 0;
+    float modAngleAmount = 0.0f;
+    int   modAngleSelect = 0;
+    float modVolumeAmount = 0.0f;
+    int   modVolumeSelect = 0;
+    float modPanAmount = 0.0f;
+    int   modPanSelect = 0;
+    float modFreqAmount = 0.0f;
+    int   modFreqSelect = 0;
+
+    FilterParameters filter;
+};
+
 struct CircleReaderParameters
 {
     float cx = 0.5f;
@@ -124,6 +154,7 @@ struct GlobalParameters
 {
     LineReaderParameters line;
     CircleReaderParameters circle;
+    EllipseReaderParameters ellipse;
     ADSRParameters adsr;
     ADSRParameters adsr2;
 };

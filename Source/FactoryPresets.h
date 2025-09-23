@@ -80,11 +80,34 @@ namespace FactoryPresets
 </Parameters>
 )xml";
 
+    // Preset 3: "Rotating Ellipse"
+    // An ellipse reader with its angle modulated by an LFO.
+    const char* rotatingEllipseXml = R"xml(
+<Parameters>
+  <PARAM id="FactoryImage" value="3.0" />
+  <PARAM id="LineVolume" value="0.0" />
+  <PARAM id="CircleVolume" value="0.0" />
+  <PARAM id="EllipseVolume" value="1.0" />
+  <PARAM id="EllipseCX" value="0.5" />
+  <PARAM id="EllipseCY" value="0.5" />
+  <PARAM id="EllipseR1" value="0.4" />
+  <PARAM id="EllipseR2" value="0.15" />
+  <PARAM id="EllipseAngle" value="0.0" />
+  <PARAM id="LFO1Freq" value="0.2" />
+  <PARAM id="Mod_EllipseAngle_Amount" value="1.0" />
+  <PARAM id="Mod_EllipseAngle_Select" value="0.0" />
+  <PARAM id="Attack" value="0.1" />
+  <PARAM id="Sustain" value="1.0" />
+  <PARAM id="Release" value="0.6" />
+</Parameters>
+)xml";
+
     // Array of all factory presets
     const Preset factoryPresets[] =
     {
         { "Pulsing Line",  pulsingLineXml },
-        { "Wobbly Circle", wobblyCircleXml }
+        { "Wobbly Circle", wobblyCircleXml },
+        { "Rotating Ellipse", rotatingEllipseXml }
     };
 
     const int numFactoryPresets = sizeof(factoryPresets) / sizeof(Preset);

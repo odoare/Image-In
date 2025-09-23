@@ -198,6 +198,41 @@ void MapDisplayComponent_GL::renderOpenGL()
                        cy * h - radius,
                        radius * 2.0f, radius * 2.0f, 2.0f);
     }
+    {
+        g.setColour(LFOMODULATEDCOLOUR);
+        const float cx_base = apvts.getRawParameterValue("EllipseCX")->load();
+        const float cy_base = apvts.getRawParameterValue("EllipseCY")->load();
+        const float r1_base_actual = static_cast<juce::AudioParameterFloat*>(apvts.getParameter("EllipseR1"))->get();
+        const float r2_base_actual = static_cast<juce::AudioParameterFloat*>(apvts.getParameter("EllipseR2"))->get();
+        const float angle_base = apvts.getRawParameterValue("EllipseAngle")->load();
+
+        const float modCxAmount = apvts.getRawParameterValue("Mod_EllipseCX_Amount")->load();
+        const int modCxSelect = (int)apvts.getRawParameterValue("Mod_EllipseCX_Select")->load();
+        const float cx = cx_base * (1.0f + modCxAmount * (getModVal(modCxSelect) * 2.0f - 1.0f));
+
+        const float modCyAmount = apvts.getRawParameterValue("Mod_EllipseCY_Amount")->load();
+        const int modCySelect = (int)apvts.getRawParameterValue("Mod_EllipseCY_Select")->load();
+        const float cy = cy_base * (1.0f + modCyAmount * (getModVal(modCySelect) * 2.0f - 1.0f));
+
+        const float modR1Amount = apvts.getRawParameterValue("Mod_EllipseR1_Amount")->load();
+        const int modR1Select = (int)apvts.getRawParameterValue("Mod_EllipseR1_Select")->load();
+        const float r1_param = r1_base_actual * (1.0f + modR1Amount * (getModVal(modR1Select) * 2.0f - 1.0f));
+
+        const float modR2Amount = apvts.getRawParameterValue("Mod_EllipseR2_Amount")->load();
+        const int modR2Select = (int)apvts.getRawParameterValue("Mod_EllipseR2_Select")->load();
+        const float r2_param = r2_base_actual * (1.0f + modR2Amount * (getModVal(modR2Select) * 2.0f - 1.0f));
+
+        const float modAngleAmount = apvts.getRawParameterValue("Mod_EllipseAngle_Amount")->load();
+        const int modAngleSelect = (int)apvts.getRawParameterValue("Mod_EllipseAngle_Select")->load();
+        const float angle = angle_base * (1.0f + modAngleAmount * (getModVal(modAngleSelect) * 2.0f - 1.0f));
+
+        juce::Path p;
+        const float r1_pixels = r1_param * juce::jmin(w, h);
+        const float r2_pixels = r2_param * juce::jmin(w, h);
+        p.addEllipse(cx * w - r1_pixels, cy * h - r2_pixels, r1_pixels * 2.0f, r2_pixels * 2.0f);
+        p.applyTransform(juce::AffineTransform::rotation(angle, cx * w, cy * h));
+        g.strokePath(p, juce::PathStrokeType(2.0f));
+    }
 
     // Draw static unmodulated paths
     {
@@ -228,6 +263,21 @@ void MapDisplayComponent_GL::renderOpenGL()
         g.drawEllipse (cx_base * w - radius,
                        cy_base * h - radius,
                        radius * 2.0f, radius * 2.0f, 2.0f);
+    }
+    {
+        g.setColour(ELLIPSECOLOUR);
+        const float cx_base = apvts.getRawParameterValue("EllipseCX")->load();
+        const float cy_base = apvts.getRawParameterValue("EllipseCY")->load();
+        const float r1_actual = static_cast<juce::AudioParameterFloat*>(apvts.getParameter("EllipseR1"))->get();
+        const float r2_actual = static_cast<juce::AudioParameterFloat*>(apvts.getParameter("EllipseR2"))->get();
+        const float angle_base = apvts.getRawParameterValue("EllipseAngle")->load();
+
+        juce::Path p;
+        const float r1_pixels = r1_actual * juce::jmin(w, h);
+        const float r2_pixels = r2_actual * juce::jmin(w, h);
+        p.addEllipse(cx_base * w - r1_pixels, cy_base * h - r2_pixels, r1_pixels * 2.0f, r2_pixels * 2.0f);
+        p.applyTransform(juce::AffineTransform::rotation(angle_base, cx_base * w, cy_base * h));
+        g.strokePath(p, juce::PathStrokeType(2.0f));
     }
 
     // Draw handles
@@ -262,6 +312,29 @@ void MapDisplayComponent_GL::renderOpenGL()
         // Radius handle (on the right edge of the circle)
         g.fillRect (getHandleRect ({cx_base * w + radius_pixels, cy_base * h}));
     }
+    { // Ellipse handles
+        g.setColour (ELLIPSECOLOUR.withAlpha (0.7f));
+        const float cx_base = apvts.getRawParameterValue("EllipseCX")->load();
+        const float cy_base = apvts.getRawParameterValue("EllipseCY")->load();
+        const float r1_actual = static_cast<juce::AudioParameterFloat*>(apvts.getParameter("EllipseR1"))->get();
+        const float r2_actual = static_cast<juce::AudioParameterFloat*>(apvts.getParameter("EllipseR2"))->get();
+        const float angle_base = apvts.getRawParameterValue("EllipseAngle")->load();
+
+        const float r1_pixels = r1_actual * juce::jmin(w, h);
+        const float r2_pixels = r2_actual * juce::jmin(w, h);
+
+        const float cosAngle = std::cos(angle_base);
+        const float sinAngle = std::sin(angle_base);
+
+        // Center handle
+        g.fillRect(getHandleRect({ cx_base * w, cy_base * h }));
+
+        // R1 handle
+        g.fillRect(getHandleRect({ cx_base * w + r1_pixels * cosAngle, cy_base * h + r1_pixels * sinAngle }));
+
+        // R2 handle
+        g.fillRect(getHandleRect({ cx_base * w - r2_pixels * sinAngle, cy_base * h + r2_pixels * cosAngle }));
+    }
 
 
     // Draw per-voice paths
@@ -292,6 +365,16 @@ void MapDisplayComponent_GL::renderOpenGL()
                                readerInfo.cy * h - radius,
                                radius * 2.0f, radius * 2.0f, 2.0f);
             }
+            else if (readerInfo.type == ReaderBase::Type::Ellipse)
+            {
+                g.setColour(ELLIPSECOLOUR.withAlpha(readerInfo.volume));
+                juce::Path p;
+                const float r1_pixels = readerInfo.r1 * juce::jmin(w, h);
+                const float r2_pixels = readerInfo.r2 * juce::jmin(w, h);
+                p.addEllipse(readerInfo.cx * w - r1_pixels, readerInfo.cy * h - r2_pixels, r1_pixels * 2.0f, r2_pixels * 2.0f);
+                p.applyTransform(juce::AffineTransform::rotation(readerInfo.angle, readerInfo.cx * w, readerInfo.cy * h));
+                g.strokePath(p, juce::PathStrokeType(2.0f));
+            }
         }
     }
 }
@@ -313,6 +396,11 @@ void MapDisplayComponent_GL::mouseDown (const juce::MouseEvent& event)
         processor.apvts.getParameter("CX")->beginChangeGesture();
         processor.apvts.getParameter("CY")->beginChangeGesture();
         processor.apvts.getParameter("R")->beginChangeGesture();
+        processor.apvts.getParameter("EllipseCX")->beginChangeGesture();
+        processor.apvts.getParameter("EllipseCY")->beginChangeGesture();
+        processor.apvts.getParameter("EllipseR1")->beginChangeGesture();
+        processor.apvts.getParameter("EllipseR2")->beginChangeGesture();
+        processor.apvts.getParameter("EllipseAngle")->beginChangeGesture();
     }
 }
 
@@ -381,6 +469,55 @@ void MapDisplayComponent_GL::mouseDrag (const juce::MouseEvent& event)
         // Convert the clamped actual value to a normalized [0,1] value for the host.
         rParam->setValueNotifyingHost(range.convertTo0to1(clampedRadiusValue));
     }
+    else if (activeHandle == HandleType::EllipseCenter)
+    {
+        apvts.getParameter("EllipseCX")->setValueNotifyingHost(newNormX);
+        apvts.getParameter("EllipseCY")->setValueNotifyingHost(newNormY);
+    }
+    else if (activeHandle == HandleType::EllipseR1)
+    {
+        auto* cxParam = apvts.getParameter("EllipseCX");
+        auto* cyParam = apvts.getParameter("EllipseCY");
+        auto* r1Param = static_cast<juce::RangedAudioParameter*>(apvts.getParameter("EllipseR1"));
+        auto* angleParam = apvts.getParameter("EllipseAngle");
+
+        const float centerX = cxParam->getValue();
+        const float centerY = cyParam->getValue();
+        const float dx = newNormX - centerX;
+        const float dy = newNormY - centerY;
+
+        const float newR1Value = std::sqrt(dx * dx + dy * dy);
+        float newAngle = std::atan2(dy, dx);
+        if (newAngle < 0.0f)
+            newAngle += juce::MathConstants<float>::twoPi;
+
+        const auto& range = r1Param->getNormalisableRange();
+        const float clampedR1 = juce::jlimit(range.start, range.end, newR1Value);
+        r1Param->setValueNotifyingHost(range.convertTo0to1(clampedR1));
+        angleParam->setValueNotifyingHost(newAngle / juce::MathConstants<float>::twoPi);
+    }
+    else if (activeHandle == HandleType::EllipseR2)
+    {
+        auto* cxParam = apvts.getParameter("EllipseCX");
+        auto* cyParam = apvts.getParameter("EllipseCY");
+        auto* r2Param = static_cast<juce::RangedAudioParameter*>(apvts.getParameter("EllipseR2"));
+        auto* angleParam = apvts.getParameter("EllipseAngle");
+
+        const float centerX = cxParam->getValue();
+        const float centerY = cyParam->getValue();
+        const float dx = newNormX - centerX;
+        const float dy = newNormY - centerY;
+
+        const float newR2Value = std::sqrt(dx * dx + dy * dy);
+        float newAngleForR2Handle = std::atan2(dy, dx);
+        float newEllipseAngle = newAngleForR2Handle - juce::MathConstants<float>::halfPi;
+        if (newEllipseAngle < 0.0f) newEllipseAngle += juce::MathConstants<float>::twoPi;
+
+        const auto& range = r2Param->getNormalisableRange();
+        const float clampedR2 = juce::jlimit(range.start, range.end, newR2Value);
+        r2Param->setValueNotifyingHost(range.convertTo0to1(clampedR2));
+        angleParam->setValueNotifyingHost(newEllipseAngle / juce::MathConstants<float>::twoPi);
+    }
 }
 
 void MapDisplayComponent_GL::mouseUp (const juce::MouseEvent& event)
@@ -397,6 +534,11 @@ void MapDisplayComponent_GL::mouseUp (const juce::MouseEvent& event)
         processor.apvts.getParameter("CX")->endChangeGesture();
         processor.apvts.getParameter("CY")->endChangeGesture();
         processor.apvts.getParameter("R")->endChangeGesture();
+        processor.apvts.getParameter("EllipseCX")->endChangeGesture();
+        processor.apvts.getParameter("EllipseCY")->endChangeGesture();
+        processor.apvts.getParameter("EllipseR1")->endChangeGesture();
+        processor.apvts.getParameter("EllipseR2")->endChangeGesture();
+        processor.apvts.getParameter("EllipseAngle")->endChangeGesture();
     }
 }
 
@@ -411,6 +553,21 @@ MapDisplayComponent_GL::HandleType MapDisplayComponent_GL::getHandleAt (juce::Po
     const float w = (float) displayArea.getWidth();
     const float h = (float) displayArea.getHeight();
     auto& apvts = processor.apvts;
+
+    // Check ellipse handles first
+    const float cx_e = apvts.getRawParameterValue("EllipseCX")->load();
+    const float cy_e = apvts.getRawParameterValue("EllipseCY")->load();
+    const float r1_e_actual = static_cast<juce::AudioParameterFloat*>(apvts.getParameter("EllipseR1"))->get();
+    const float r2_e_actual = static_cast<juce::AudioParameterFloat*>(apvts.getParameter("EllipseR2"))->get();
+    const float angle_e = apvts.getRawParameterValue("EllipseAngle")->load();
+    const float r1_pixels = r1_e_actual * juce::jmin(w, h);
+    const float r2_pixels = r2_e_actual * juce::jmin(w, h);
+    const float cosAngle_e = std::cos(angle_e);
+    const float sinAngle_e = std::sin(angle_e);
+
+    if (getHandleRect({ cx_e * w - r2_pixels * sinAngle_e, cy_e * h + r2_pixels * cosAngle_e }).contains((float)relativePos.x, (float)relativePos.y)) return HandleType::EllipseR2;
+    if (getHandleRect({ cx_e * w + r1_pixels * cosAngle_e, cy_e * h + r1_pixels * sinAngle_e }).contains((float)relativePos.x, (float)relativePos.y)) return HandleType::EllipseR1;
+    if (getHandleRect({ cx_e * w, cy_e * h }).contains((float)relativePos.x, (float)relativePos.y)) return HandleType::EllipseCenter;
 
     // Check in reverse order of drawing to pick the one on top
     const float cx_c = apvts.getRawParameterValue("CX")->load();

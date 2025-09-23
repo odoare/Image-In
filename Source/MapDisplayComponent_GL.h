@@ -46,7 +46,10 @@ private:
         LineCenter,
         LineEndpoint,
         CircleCenter,
-        CircleRadius
+        CircleRadius,
+        EllipseCenter,
+        EllipseR1,
+        EllipseR2
     };
 
     void mouseDown (const juce::MouseEvent& event) override;

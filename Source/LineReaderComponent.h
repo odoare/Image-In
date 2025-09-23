@@ -12,8 +12,7 @@
 
 #include "ReaderComponent.h"
 #include "ModControlBox.h"
-
-#define COLOUR juce::Colours::red
+#include "colours.h"
 
 class LineReaderComponent : public ReaderComponent
 {

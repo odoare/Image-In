@@ -2,16 +2,16 @@
   ==============================================================================
 
     colours.h
-    Created: 23 Sep 2025 10:00:00am
-    Author:  Olivier Doaré
+    Created: 21 Sep 2025 10:00:00am
+    Author:  Gemini Code Assist
 
   ==============================================================================
 */
 
 #pragma once
+#include <juce_graphics/juce_graphics.h>
 
-#define CIRCLECOLOUR juce::Colours::blue
-#define LINECOLOUR juce::Colours::red
-#define BACKGROUNDCOLOUR juce::Colours::black
-#define LFOMODULATEDCOLOUR juce::Colours::grey.withAlpha(0.4f)
-
+const juce::Colour LINECOLOUR = juce::Colours::red;
+const juce::Colour CIRCLECOLOUR = juce::Colours::blue;
+const juce::Colour ELLIPSECOLOUR = juce::Colours::orange;
+const juce::Colour LFOMODULATEDCOLOUR = juce::Colours::grey.withAlpha(0.4f);

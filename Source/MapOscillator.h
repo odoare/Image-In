@@ -14,6 +14,7 @@
 #include "ReaderBase.h"
 #include "LineReader.h"
 #include "CircleReader.h"
+#include "EllipseReader.h"
 
 struct GlobalParameters;
 class LFO;
@@ -34,6 +35,7 @@ public:
     void updateParameters (const GlobalParameters& params);
     LineReader* addLineReader();
     CircleReader* addCircleReader();
+    EllipseReader* addEllipseReader();
     void removeReader (int index);
     int getNumReaders() const;
     ReaderBase* getReader (int index);
