@@ -239,6 +239,14 @@ void MapSynthAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlo
     lfo2.prepareToPlay (sampleRate);
     lfo3.prepareToPlay (sampleRate);
     lfo4.prepareToPlay (sampleRate);
+
+    // Initialise high-pass filter states
+    hpf_prevInput.clear();
+    hpf_prevOutput.clear();
+    hpf_prevInput.insertMultiple(0, 0.0f, getTotalNumOutputChannels());
+    hpf_prevOutput.insertMultiple(0, 0.0f, getTotalNumOutputChannels());
+
+    processSampleRate = sampleRate;
 }
 
 void MapSynthAudioProcessor::releaseResources()
@@ -325,6 +333,38 @@ void MapSynthAudioProcessor::parameterChanged(const juce::String& parameterID, f
         if (currentProgram < FactoryPresets::numFactoryPresets) {
             currentProgram = FactoryPresets::numFactoryPresets;
         }
+    }
+}
+
+void MapSynthAudioProcessor::highPassFilter(juce::AudioBuffer<float>& buffer, float cutoffFreq)
+{
+    const int numChannels = buffer.getNumChannels();
+    const int numSamples = buffer.getNumSamples();
+
+    // Ensure state arrays are the correct size
+    jassert(hpf_prevInput.size() == numChannels);
+    jassert(hpf_prevOutput.size() == numChannels);
+
+    // Filter coefficients (RC filter)
+    float RC = 1.0f / (2.0f * float(M_PI) * cutoffFreq);
+    float dt = 1.0f / processSampleRate;
+    float alpha = RC / (RC + dt);
+
+    for (int channel = 0; channel < numChannels; ++channel)
+    {
+        auto* channelData = buffer.getWritePointer(channel);
+        float prevInput = hpf_prevInput[channel];
+        float prevOutput = hpf_prevOutput[channel];
+
+        for (int n = 0; n < numSamples; ++n)
+        {
+            float input = channelData[n];
+            channelData[n] = alpha * (prevOutput + input - prevInput);
+            prevOutput = channelData[n];
+            prevInput = input;
+        }
+        hpf_prevInput.set(channel, prevInput);
+        hpf_prevOutput.set(channel, prevOutput);
     }
 }
 
@@ -495,6 +535,9 @@ void MapSynthAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
     synth.renderNextBlock (buffer, midiMessages, 0, buffer.getNumSamples());
 
     masterLevelSmoother.applyGain(buffer, buffer.getNumSamples());
+
+    highPassFilter(buffer, 15.0f);
+    
 }
 
 //==============================================================================

@@ -3,7 +3,7 @@
 
     ModControlBox.cpp
     Created: 18 Sep 2025 11:00:00am
-    Author:  Gemini Code Assist
+    Author:  Olivier Doaré
 
   ==============================================================================
 */

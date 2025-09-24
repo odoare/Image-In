@@ -94,12 +94,20 @@ private:
     bool isLoadingPreset = false;
     bool useOpenGL = false;
 
+    double processSampleRate = 44100.0;
+
     juce::Synthesiser synth;
     juce::LinearSmoothedValue<float> masterLevelSmoother;
     static juce::AudioProcessorValueTreeState::ParameterLayout createParameters();  
+    
+    // Updated to be multichannel and stateful
+    void highPassFilter(juce::AudioBuffer<float>& buffer, float cutoffFreq);
     void updateParameters();
     void updateVoices();
 
+    // State for the high-pass filter
+    juce::Array<float> hpf_prevInput;
+    juce::Array<float> hpf_prevOutput;
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MapSynthAudioProcessor)

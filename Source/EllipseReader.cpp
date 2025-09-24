@@ -3,7 +3,7 @@
 
     EllipseReader.cpp
     Created: 21 Sep 2025 10:00:00am
-    Author:  Gemini Code Assist
+    Author:  Olivier Doaré
 
   ==============================================================================
 */

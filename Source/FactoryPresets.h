@@ -2,8 +2,6 @@
   ==============================================================================
 
     FactoryPresets.h
-    Created: 20 Sep 2025 10:00:00am
-    Author:  Gemini Code Assist
 
     This file contains factory presets for the MapSynth plugin.
     To generate a new preset:

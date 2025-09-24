@@ -11,6 +11,15 @@
       <FILE id="oac9jW" name="03_apocalypse.png" compile="0" resource="1"
             file="Source/Assets/03_apocalypse.png"/>
       <FILE id="rOvzm5" name="04_anecho.png" compile="0" resource="1" file="Source/Assets/04_anecho.png"/>
+      <FILE id="fvuWRH" name="05_mandelbrot1.png" compile="0" resource="1"
+            file="Source/Assets/05_mandelbrot1.png"/>
+      <FILE id="AaUo1L" name="06_mandelbrot2.png" compile="0" resource="1"
+            file="Source/Assets/06_mandelbrot2.png"/>
+      <FILE id="vkFN59" name="07_sky1.png" compile="0" resource="1" file="Source/Assets/07_sky1.png"/>
+      <FILE id="SEZse9" name="08_sky2.png" compile="0" resource="1" file="Source/Assets/08_sky2.png"/>
+      <FILE id="VdzRI4" name="09_waves.png" compile="0" resource="1" file="Source/Assets/09_waves.png"/>
+      <FILE id="lxQdUJ" name="10_bessel1.png" compile="0" resource="1" file="Source/Assets/10_bessel1.png"/>
+      <FILE id="wXuAq5" name="11_bessel2.png" compile="0" resource="1" file="Source/Assets/11_bessel2.png"/>
     </GROUP>
     <GROUP id="{633F86FB-EABC-E5B3-C698-8086F97CD0F3}" name="Source">
       <FILE id="lWRedN" name="EllipseReader.cpp" compile="1" resource="0"
