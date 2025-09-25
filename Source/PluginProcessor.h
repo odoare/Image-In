@@ -100,7 +100,6 @@ private:
     juce::LinearSmoothedValue<float> masterLevelSmoother;
     static juce::AudioProcessorValueTreeState::ParameterLayout createParameters();  
     
-    // Updated to be multichannel and stateful
     void highPassFilter(juce::AudioBuffer<float>& buffer, float cutoffFreq);
     void updateParameters();
     void updateVoices();

@@ -603,6 +603,9 @@ void MapSynthAudioProcessor::setStateInformation (const void* data, int sizeInBy
                 // This will fail silently if file not found, which is acceptable.
                 imageBuffer.setImage (juce::File (imagePath));
             }
+
+            // This is useful for creating new factory presets.
+            std::cout << (apvts.copyState().createXml()->toString()) << std::endl;
         }
     }
 }
