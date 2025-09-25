@@ -59,16 +59,32 @@ namespace ParameterHelpers
     }
 }
 
-static juce::StringArray getFactoryImageChoices()
+namespace ImageResourceHelper
 {
-    juce::StringArray choices;
-    choices.add("Custom"); // For user-loaded images
-    for (int i = 0; i < BinaryData::namedResourceListSize; ++i)
+    // A struct to hold information about our image resources
+    struct ImageResource
     {
-        auto friendlyName = juce::String(BinaryData::originalFilenames[i]).fromFirstOccurrenceOf("_", false, false).upToLastOccurrenceOf(".", false, false);
-        choices.add(friendlyName);
+        juce::String friendlyName;
+        const char* resourceName; // The variable name in BinaryData
+    };
+
+    // This function now returns a list of valid image resources
+    static juce::Array<ImageResource> getFactoryImageResources()
+    {
+        juce::Array<ImageResource> resources;
+        for (int i = 0; i < BinaryData::namedResourceListSize; ++i)
+        {
+            juce::String filename(BinaryData::originalFilenames[i]);
+            if (filename.endsWithIgnoreCase(".png") || filename.endsWithIgnoreCase(".jpg") || filename.endsWithIgnoreCase(".jpeg"))
+            {
+                resources.add({
+                    filename.fromFirstOccurrenceOf("_", false, false).upToLastOccurrenceOf(".", false, false),
+                    BinaryData::namedResourceList[i]
+                });
+            }
+        }
+        return resources;
     }
-    return choices;
 }
 
 //==============================================================================
@@ -80,7 +96,7 @@ MapSynthAudioProcessor::MapSynthAudioProcessor()
                       #endif
                        .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
                      #endif
-                       )
+                       ), factoryPresets(FactoryPresets::getAvailablePresets())
 {
     synth.addSound (new SynthSound());
     for (int i = 0; i < NUM_VOICES; ++i)
@@ -158,7 +174,7 @@ double MapSynthAudioProcessor::getTailLengthSeconds() const
 int MapSynthAudioProcessor::getNumPrograms()
 {
     // N factory presets + 1 slot for "user" or "dirty" states.
-    return FactoryPresets::numFactoryPresets + 1;
+    return factoryPresets.size() + 1;
 }
 
 int MapSynthAudioProcessor::getCurrentProgram()
@@ -168,7 +184,7 @@ int MapSynthAudioProcessor::getCurrentProgram()
 
 void MapSynthAudioProcessor::setCurrentProgram (int index)
 {
-    const int userProgramIndex = FactoryPresets::numFactoryPresets;
+    const int userProgramIndex = factoryPresets.size();
 
     // If the index is for a user preset, we just update the index and do nothing else.
     // The state is assumed to be managed by the host via setStateInformation.
@@ -188,7 +204,7 @@ void MapSynthAudioProcessor::setCurrentProgram (int index)
     currentProgram = index;
 
     // Get the XML data for the preset.
-    const char* presetData = FactoryPresets::factoryPresets[index].data;
+    const char* presetData = factoryPresets.getUnchecked(index).data;
 
     // Create an XML element from the data.
     std::unique_ptr<juce::XmlElement> xmlState = juce::XmlDocument::parse (presetData);
@@ -204,10 +220,10 @@ void MapSynthAudioProcessor::setCurrentProgram (int index)
 
 const juce::String MapSynthAudioProcessor::getProgramName (int index)
 {
-    if (juce::isPositiveAndBelow (index, FactoryPresets::numFactoryPresets))
-        return FactoryPresets::factoryPresets[index].name;
+    if (juce::isPositiveAndBelow (index, factoryPresets.size()))
+        return factoryPresets.getUnchecked(index).name;
 
-    if (index == FactoryPresets::numFactoryPresets)
+    if (index == factoryPresets.size())
         return "User Preset";
 
     return {};
@@ -218,7 +234,7 @@ void MapSynthAudioProcessor::changeProgramName (int index, const juce::String& n
     // When the user saves a preset in the host, this might be called.
     // We can take this as a hint that the current state is now a "user" preset.
     // This isn't guaranteed to be called by all hosts, but it's a good fallback.
-    currentProgram = FactoryPresets::numFactoryPresets;
+    currentProgram = factoryPresets.size();
 }
 
 //==============================================================================
@@ -310,13 +326,15 @@ void MapSynthAudioProcessor::parameterChanged(const juce::String& parameterID, f
 {
     if (parameterID == "FactoryImage")
     {
-        int imageIndex = (int)newValue;
-        if (imageIndex > 0) // 0 is "Custom"
+        const int choiceIndex = (int)newValue;
+        if (choiceIndex > 0) // 0 is "Custom"
         {
-            int resourceIndex = imageIndex - 1;
-            if (juce::isPositiveAndBelow(resourceIndex, BinaryData::namedResourceListSize))
+            const auto imageResources = ImageResourceHelper::getFactoryImageResources();
+            const int resourceIndex = choiceIndex - 1; // Adjust for "Custom" item
+
+            if (juce::isPositiveAndBelow(resourceIndex, imageResources.size()))
             {
-                const char* resourceName = BinaryData::namedResourceList[resourceIndex];
+                const char* resourceName = imageResources.getUnchecked(resourceIndex).resourceName;
                 int dataSize = 0;
                 const char* resourceData = BinaryData::getNamedResource(resourceName, dataSize);
 
@@ -330,8 +348,8 @@ void MapSynthAudioProcessor::parameterChanged(const juce::String& parameterID, f
     // We check the isLoadingPreset flag to avoid this when loading a preset.
     if (!isLoadingPreset)
     {
-        if (currentProgram < FactoryPresets::numFactoryPresets) {
-            currentProgram = FactoryPresets::numFactoryPresets;
+        if (currentProgram < factoryPresets.size()) {
+            currentProgram = factoryPresets.size();
         }
     }
 }
@@ -592,7 +610,7 @@ void MapSynthAudioProcessor::setStateInformation (const void* data, int sizeInBy
             juce::ScopedValueSetter<bool> loading (isLoadingPreset, true);
 
             // Restore the program index before restoring the full state.
-            currentProgram = xmlState->getIntAttribute ("currentProgram", FactoryPresets::numFactoryPresets);
+            currentProgram = xmlState->getIntAttribute ("currentProgram", factoryPresets.size());
 
             // Restore parameters. This will trigger parameterChanged for FactoryImage if it's not "Custom".
             apvts.replaceState (juce::ValueTree::fromXml (*xmlState));
@@ -619,7 +637,14 @@ juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 
 juce::AudioProcessorValueTreeState::ParameterLayout MapSynthAudioProcessor::createParameters()
 {
-    static juce::StringArray factoryImageChoices = getFactoryImageChoices();
+    // Get the list of image resources
+    static const auto imageResources = ImageResourceHelper::getFactoryImageResources();
+    
+    // Create the string array for the ComboBox
+    juce::StringArray factoryImageChoices;
+    factoryImageChoices.add("Custom");
+    for (const auto& resource : imageResources)
+        factoryImageChoices.add(resource.friendlyName);
 
     juce::AudioProcessorValueTreeState::ParameterLayout layout;
         

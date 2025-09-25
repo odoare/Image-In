@@ -13,6 +13,7 @@
 #include "LFO.h"
 #include "SynthSound.h"
 #include "ParameterStructs.h"
+#include "FactoryPresets.h"
 #include "SynthVoice.h"
 
 // Number of voices for the synth
@@ -91,6 +92,7 @@ public:
 private:
     // Preset Management
     int currentProgram = 0;
+    const juce::Array<FactoryPresets::Preset> factoryPresets;
     bool isLoadingPreset = false;
     bool useOpenGL = false;
 

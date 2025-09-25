@@ -4,6 +4,15 @@
               addUsingNamespaceToJuceHeader="0" jucerFormatVersion="1" pluginFormats="buildStandalone,buildVST,buildVST3"
               pluginCharacteristicsValue="pluginIsSynth,pluginWantsMidiIn">
   <MAINGROUP id="qPv3X3" name="MapSynth">
+    <GROUP id="{91937B2F-EA54-82A9-8694-4B4D38C66403}" name="Presets">
+      <FILE id="PMNso9" name="DeepDive.xml" compile="0" resource="1" file="Source/Presets/DeepDive.xml"/>
+      <FILE id="ts4v0b" name="Hesitant.xml" compile="0" resource="1" file="Source/Presets/Hesitant.xml"/>
+      <FILE id="N75Zo5" name="MoonRiding.xml" compile="0" resource="1" file="Source/Presets/MoonRiding.xml"/>
+      <FILE id="nyHuNP" name="MoonRings.xml" compile="0" resource="1" file="Source/Presets/MoonRings.xml"/>
+      <FILE id="NTHp09" name="MoonRun.xml" compile="0" resource="1" file="Source/Presets/MoonRun.xml"/>
+      <FILE id="l866EH" name="WorkshopRouter.xml" compile="0" resource="1"
+            file="Source/Presets/WorkshopRouter.xml"/>
+    </GROUP>
     <GROUP id="{27D00790-75A2-E8C7-052E-0DD0E88BB159}" name="Assets">
       <FILE id="b2x9LT" name="01_world.png" compile="0" resource="1" file="Source/Assets/01_world.png"/>
       <FILE id="PSPrkY" name="02_roadatnight.jpg" compile="0" resource="1"
@@ -61,18 +70,18 @@
             file="Source/MapDisplayComponent.h"/>
       <FILE id="vf7MXx" name="MapOscillator.cpp" compile="1" resource="0"
             file="Source/MapOscillator.cpp"/>
+      <FILE id="lYkUQ8" name="MapDisplayComponent_GL.cpp" compile="1" resource="0"
+            file="Source/MapDisplayComponent_GL.cpp"/>
+      <FILE id="jdWdrV" name="MapDisplayComponent_GL.h" compile="0" resource="0"
+            file="Source/MapDisplayComponent_GL.h"/>
+      <FILE id="JPqJ1f" name="ReaderBase.cpp" compile="1" resource="0" file="Source/ReaderBase.cpp"/>
+      <FILE id="OGihh3" name="ReaderBase.h" compile="0" resource="0" file="Source/ReaderBase.h"/>
+      <FILE id="yhLOWD" name="ReaderComponent.cpp" compile="1" resource="0"
+            file="Source/ReaderComponent.cpp"/>
+      <FILE id="zgEx8J" name="ReaderComponent.h" compile="0" resource="0"
+            file="Source/ReaderComponent.h"/>
       <FILE id="abtaQR" name="MapOscillator.h" compile="0" resource="0" file="Source/MapOscillator.h"/>
     </GROUP>
-    <FILE id="lYkUQ8" name="MapDisplayComponent_GL.cpp" compile="1" resource="0"
-          file="Source/MapDisplayComponent_GL.cpp"/>
-    <FILE id="jdWdrV" name="MapDisplayComponent_GL.h" compile="0" resource="0"
-          file="Source/MapDisplayComponent_GL.h"/>
-    <FILE id="JPqJ1f" name="ReaderBase.cpp" compile="1" resource="0" file="Source/ReaderBase.cpp"/>
-    <FILE id="OGihh3" name="ReaderBase.h" compile="0" resource="0" file="Source/ReaderBase.h"/>
-    <FILE id="yhLOWD" name="ReaderComponent.cpp" compile="1" resource="0"
-          file="Source/ReaderComponent.cpp"/>
-    <FILE id="zgEx8J" name="ReaderComponent.h" compile="0" resource="0"
-          file="Source/ReaderComponent.h"/>
   </MAINGROUP>
   <MODULES>
     <MODULE id="fxme_juce_tools" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
