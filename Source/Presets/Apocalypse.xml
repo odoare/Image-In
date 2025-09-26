@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Parameters currentProgram="7" useOpenGL="1">
+  <PARAM id="FactoryImage" value="3.0"/>
+  <PARAM id="Ellipse1_CX" value="0.8199999928474426"/>
+  <PARAM id="Ellipse1_CY" value="0.5799999833106995"/>
+  <PARAM id="Ellipse1_R1" value="0.05999999865889549"/>
+  <PARAM id="Ellipse1_R2" value="0.04999999701976776"/>
+  <PARAM id="Ellipse1_Angle" value="5.739999771118164"/>
+  <PARAM id="Ellipse1_Volume" value="0.3999999761581421"/>
+  <PARAM id="Ellipse1_Pan" value="0.0"/>
+  <PARAM id="Ellipse2_Volume" value="0.3599999845027924"/>
+  <PARAM id="Ellipse3_Volume" value="0.3599999845027924"/>
+  <PARAM id="LFOFreq" value="0.1400000005960464"/>
+  <PARAM id="LFO1Sync" value="1.0"/>
+  <PARAM id="LFO1Wave" value="0.0"/>
+  <PARAM id="LFO1Phase" value="0.0"/>
+  <PARAM id="Attack" value="0.01999999955296516"/>
+  <PARAM id="Decay" value="0.3"/>
+  <PARAM id="Sustain" value="0.8"/>
+  <PARAM id="Release" value="3.869999885559082"/>
+  <PARAM id="Mod_Ellipse1_R1_Amount" value="0.0"/>
+  <PARAM id="Mod_Ellipse1_R1_Select" value="0.0"/>
+  <PARAM id="Mod_Ellipse1_Volume_Amount" value="1.0"/>
+  <PARAM id="Mod_Ellipse1_Volume_Select" value="4"/>
+  <PARAM id="Attack2" value="5.0"/>
+  <PARAM id="Attack3" value="0.8899999856948853"/>
+  <PARAM id="Decay2"/>
+  <PARAM id="Decay3"/>
+  <PARAM id="Ellipse1_FilterFreq" value="5437.0"/>
+  <PARAM id="Ellipse1_FilterQuality"/>
+  <PARAM id="Ellipse1_FilterType"/>
+  <PARAM id="Ellipse2_Angle" value="4.679999828338623"/>
+  <PARAM id="Ellipse2_CX" value="0.1799999922513962"/>
+  <PARAM id="Ellipse2_CY" value="0.5099999904632568"/>
+  <PARAM id="Ellipse2_FilterFreq" value="5764.0"/>
+  <PARAM id="Ellipse2_FilterQuality"/>
+  <PARAM id="Ellipse2_FilterType"/>
+  <PARAM id="Ellipse2_Pan" value="-0.3700000047683716"/>
+  <PARAM id="Ellipse2_R1" value="0.3299999833106995"/>
+  <PARAM id="Ellipse2_R2" value="0.05999999865889549"/>
+  <PARAM id="Ellipse3_Angle" value="3.789999961853027"/>
+  <PARAM id="Ellipse3_CX" value="0.4699999988079071"/>
+  <PARAM id="Ellipse3_CY" value="0.5099999904632568"/>
+  <PARAM id="Ellipse3_FilterFreq" value="450.0"/>
+  <PARAM id="Ellipse3_FilterQuality"/>
+  <PARAM id="Ellipse3_FilterType"/>
+  <PARAM id="Ellipse3_Pan" value="0.0"/>
+  <PARAM id="Ellipse3_R1" value="0.4599999785423279"/>
+  <PARAM id="Ellipse3_R2" value="0.429999977350235"/>
+  <PARAM id="LFO1Rate" value="13.0"/>
+  <PARAM id="LFO2Freq" value="0.9999999403953552"/>
+  <PARAM id="LFO2Phase" value="0.0"/>
+  <PARAM id="LFO2Rate" value="0.0"/>
+  <PARAM id="LFO2Sync" value="1.0"/>
+  <PARAM id="LFO2Wave" value="1.0"/>
+  <PARAM id="LFO3Freq" value="0.1800000071525574"/>
+  <PARAM id="LFO3Phase"/>
+  <PARAM id="LFO3Rate"/>
+  <PARAM id="LFO3Sync"/>
+  <PARAM id="LFO3Wave"/>
+  <PARAM id="LFO4Freq" value="0.9999999403953552"/>
+  <PARAM id="LFO4Phase" value="0.0"/>
+  <PARAM id="LFO4Rate" value="5.0"/>
+  <PARAM id="LFO4Sync" value="1.0"/>
+  <PARAM id="LFO4Wave" value="4.0"/>
+  <PARAM id="Level" value="-3.300003051757812"/>
+  <PARAM id="Mod_Ellipse1_Angle_Amount"/>
+  <PARAM id="Mod_Ellipse1_Angle_Select"/>
+  <PARAM id="Mod_Ellipse1_CX_Amount" value="0.0"/>
+  <PARAM id="Mod_Ellipse1_CX_Select" value="2.0"/>
+  <PARAM id="Mod_Ellipse1_CY_Amount" value="0.0"/>
+  <PARAM id="Mod_Ellipse1_CY_Select" value="0.0"/>
+  <PARAM id="Mod_Ellipse1_FilterFreq_Amount" value="0.2099999189376831"/>
+  <PARAM id="Mod_Ellipse1_FilterFreq_Select" value="0.0"/>
+  <PARAM id="Mod_Ellipse1_FilterQuality_Amount"/>
+  <PARAM id="Mod_Ellipse1_FilterQuality_Select"/>
+  <PARAM id="Mod_Ellipse1_Freq_Amount" value="0.01999998092651367"/>
+  <PARAM id="Mod_Ellipse1_Freq_Select" value="8.0"/>
+  <PARAM id="Mod_Ellipse1_Pan_Amount" value="0.0"/>
+  <PARAM id="Mod_Ellipse1_Pan_Select" value="0.0"/>
+  <PARAM id="Mod_Ellipse1_R2_Amount" value="0.0"/>
+  <PARAM id="Mod_Ellipse1_R2_Select" value="0.0"/>
+  <PARAM id="Mod_Ellipse2_Angle_Amount"/>
+  <PARAM id="Mod_Ellipse2_Angle_Select"/>
+  <PARAM id="Mod_Ellipse2_CX_Amount" value="0.03999996185302734"/>
+  <PARAM id="Mod_Ellipse2_CX_Select"/>
+  <PARAM id="Mod_Ellipse2_CY_Amount" value="-0.05000001192092896"/>
+  <PARAM id="Mod_Ellipse2_CY_Select"/>
+  <PARAM id="Mod_Ellipse2_FilterFreq_Amount" value="0.0"/>
+  <PARAM id="Mod_Ellipse2_FilterFreq_Select" value="13.0"/>
+  <PARAM id="Mod_Ellipse2_FilterQuality_Amount"/>
+  <PARAM id="Mod_Ellipse2_FilterQuality_Select"/>
+  <PARAM id="Mod_Ellipse2_Freq_Amount" value="0.0"/>
+  <PARAM id="Mod_Ellipse2_Freq_Select" value="1.0"/>
+  <PARAM id="Mod_Ellipse2_Pan_Amount"/>
+  <PARAM id="Mod_Ellipse2_Pan_Select"/>
+  <PARAM id="Mod_Ellipse2_R1_Amount" value="-0.449999988079071"/>
+  <PARAM id="Mod_Ellipse2_R1_Select" value="5.0"/>
+  <PARAM id="Mod_Ellipse2_R2_Amount" value="-0.3500000238418579"/>
+  <PARAM id="Mod_Ellipse2_R2_Select" value="5.0"/>
+  <PARAM id="Mod_Ellipse2_Volume_Amount"/>
+  <PARAM id="Mod_Ellipse2_Volume_Select"/>
+  <PARAM id="Mod_Ellipse3_Angle_Amount"/>
+  <PARAM id="Mod_Ellipse3_Angle_Select"/>
+  <PARAM id="Mod_Ellipse3_CX_Amount" value="0.04999995231628418"/>
+  <PARAM id="Mod_Ellipse3_CX_Select" value="2.0"/>
+  <PARAM id="Mod_Ellipse3_CY_Amount" value="-0.04000002145767212"/>
+  <PARAM id="Mod_Ellipse3_CY_Select" value="2.0"/>
+  <PARAM id="Mod_Ellipse3_FilterFreq_Amount" value="0.1399999856948853"/>
+  <PARAM id="Mod_Ellipse3_FilterFreq_Select" value="2.0"/>
+  <PARAM id="Mod_Ellipse3_FilterQuality_Amount"/>
+  <PARAM id="Mod_Ellipse3_FilterQuality_Select"/>
+  <PARAM id="Mod_Ellipse3_Freq_Amount" value="-0.01000005006790161"/>
+  <PARAM id="Mod_Ellipse3_Freq_Select" value="14.0"/>
+  <PARAM id="Mod_Ellipse3_Pan_Amount" value="0.5"/>
+  <PARAM id="Mod_Ellipse3_Pan_Select"/>
+  <PARAM id="Mod_Ellipse3_R1_Amount" value="0.0"/>
+  <PARAM id="Mod_Ellipse3_R1_Select" value="0.0"/>
+  <PARAM id="Mod_Ellipse3_R2_Amount" value="0.0"/>
+  <PARAM id="Mod_Ellipse3_R2_Select" value="0.0"/>
+  <PARAM id="Mod_Ellipse3_Volume_Amount"/>
+  <PARAM id="Mod_Ellipse3_Volume_Select"/>
+  <PARAM id="Release2" value="3.720000028610229"/>
+  <PARAM id="Release3" value="0.3999999761581421"/>
+  <PARAM id="Sustain2"/>
+  <PARAM id="Sustain3"/>
+</Parameters>

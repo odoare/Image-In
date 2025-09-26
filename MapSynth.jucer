@@ -5,11 +5,17 @@
               pluginCharacteristicsValue="pluginIsSynth,pluginWantsMidiIn">
   <MAINGROUP id="qPv3X3" name="MapSynth">
     <GROUP id="{91937B2F-EA54-82A9-8694-4B4D38C66403}" name="Presets">
+      <FILE id="oQXmVv" name="AnechoicMarch.xml" compile="0" resource="1"
+            file="Source/Presets/AnechoicMarch.xml"/>
+      <FILE id="TB802L" name="Apocalypse.xml" compile="0" resource="1" file="Source/Presets/Apocalypse.xml"/>
       <FILE id="PMNso9" name="DeepDive.xml" compile="0" resource="1" file="Source/Presets/DeepDive.xml"/>
+      <FILE id="MFCJZY" name="FractalMaze.xml" compile="0" resource="1" file="Source/Presets/FractalMaze.xml"/>
       <FILE id="ts4v0b" name="Hesitant.xml" compile="0" resource="1" file="Source/Presets/Hesitant.xml"/>
       <FILE id="N75Zo5" name="MoonRiding.xml" compile="0" resource="1" file="Source/Presets/MoonRiding.xml"/>
       <FILE id="nyHuNP" name="MoonRings.xml" compile="0" resource="1" file="Source/Presets/MoonRings.xml"/>
       <FILE id="NTHp09" name="MoonRun.xml" compile="0" resource="1" file="Source/Presets/MoonRun.xml"/>
+      <FILE id="drze65" name="OceansTides.xml" compile="0" resource="1" file="Source/Presets/OceansTides.xml"/>
+      <FILE id="tu43HI" name="SkyFall.xml" compile="0" resource="1" file="Source/Presets/SkyFall.xml"/>
       <FILE id="l866EH" name="WorkshopRouter.xml" compile="0" resource="1"
             file="Source/Presets/WorkshopRouter.xml"/>
     </GROUP>
