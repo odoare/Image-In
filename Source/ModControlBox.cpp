@@ -15,7 +15,7 @@ ModControlBox::ModControlBox(MapSynthAudioProcessor& p,
                              const juce::String& modAmountParamId,
                              const juce::String& modSelectParamId,
                              const juce::Colour& colour)
-    : amountKnob(p.apvts, modAmountParamId, colour)
+    : amountKnob(p.apvts, modAmountParamId, "", colour)
 {
     amountKnob.slider.setLookAndFeel(&fxmeLookAndFeel);
     addAndMakeVisible(amountKnob);

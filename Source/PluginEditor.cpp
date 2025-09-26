@@ -231,6 +231,9 @@ MapSynthAudioProcessorEditor::MapSynthAudioProcessorEditor (MapSynthAudioProcess
     audioProcessor.openGLStateBroadcaster.addChangeListener (this);
     updateRendererVisibility();
 
+    addAndMakeVisible(meterL);
+    addAndMakeVisible(meterR);
+
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
     setResizable(true, true);
@@ -275,10 +278,13 @@ void MapSynthAudioProcessorEditor::resized()
     auto rightPanel = bounds;
 
     auto leftPanelPadded = leftPanelArea.reduced(5);
+    auto buttonArea = leftPanelPadded.removeFromTop(30);
+    auto meterArea = leftPanelPadded.removeFromBottom(15);
+    meterL.setBounds(meterArea);
+    meterArea = leftPanelPadded.removeFromBottom(15);
+    meterR.setBounds(meterArea);
     auto volumeArea = leftPanelPadded.removeFromBottom(30);
-    auto buttonArea = leftPanelPadded.removeFromBottom(30);
     readerTabs.setBounds(leftPanelPadded);
-
     masterVolumeSlider.setBounds(volumeArea);
 
     factoryImageSelector.setBounds(buttonArea.getX() + 80, buttonArea.getY() + 3, 120, 24);

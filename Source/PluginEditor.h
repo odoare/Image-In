@@ -9,7 +9,7 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include <juce_gui_extra/juce_gui_extra.h>
+// #include <juce_gui_extra/juce_gui_extra.h>
 // #include "PluginProcessor.h" // We will forward-declare to break the include cycle
 class MapSynthAudioProcessor;
 
@@ -62,6 +62,11 @@ private:
     juce::Slider masterVolumeSlider;
     juce::Label masterVolumeLabel;
     std::unique_ptr<juce::AudioProcessorValueTreeState::SliderAttachment> masterVolumeAttachment;
+
+    fxme::HorizontalVuMeter meterL{[&]() { return audioProcessor.getMaxLevel(0); },
+                                [&]() { return audioProcessor.getSmoothedMaxLevel(0); }},
+                         meterR{[&]() { return audioProcessor.getMaxLevel(1); },
+                                [&]() { return audioProcessor.getSmoothedMaxLevel(1); }};
 
     void updateRendererVisibility();
 

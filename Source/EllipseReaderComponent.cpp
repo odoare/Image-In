@@ -16,15 +16,16 @@ EllipseReaderComponent::EllipseReaderComponent(MapSynthAudioProcessor& p, int re
 {
     juce::String idPrefix = "Ellipse" + juce::String(readerIndex) + "_";
 
-    ellipseCxKnob     = std::make_unique<fxme::FxmeKnob>(p.apvts, idPrefix + "CX", ELLIPSECOLOURS[readerIndex - 1]);
-    ellipseCyKnob     = std::make_unique<fxme::FxmeKnob>(p.apvts, idPrefix + "CY", ELLIPSECOLOURS[readerIndex - 1]);
-    ellipseR1Knob     = std::make_unique<fxme::FxmeKnob>(p.apvts, idPrefix + "R1", ELLIPSECOLOURS[readerIndex - 1]);
-    ellipseR2Knob     = std::make_unique<fxme::FxmeKnob>(p.apvts, idPrefix + "R2", ELLIPSECOLOURS[readerIndex - 1]);
-    ellipseAngleKnob  = std::make_unique<fxme::FxmeKnob>(p.apvts, idPrefix + "Angle", ELLIPSECOLOURS[readerIndex - 1]);
-    ellipseVolumeKnob = std::make_unique<fxme::FxmeKnob>(p.apvts, idPrefix + "Volume", ELLIPSECOLOURS[readerIndex - 1]);
-    filterFreqKnob    = std::make_unique<fxme::FxmeKnob>(p.apvts, idPrefix + "FilterFreq", ELLIPSECOLOURS[readerIndex - 1]);
-    filterQualityKnob = std::make_unique<fxme::FxmeKnob>(p.apvts, idPrefix + "FilterQuality", ELLIPSECOLOURS[readerIndex - 1]);
-    panKnob           = std::make_unique<fxme::FxmeKnob>(p.apvts, idPrefix + "Pan", ELLIPSECOLOURS[readerIndex - 1]);
+    ellipseCxKnob     = std::make_unique<fxme::FxmeKnob>(p.apvts, idPrefix + "CX", "X", ELLIPSECOLOURS[readerIndex - 1]);
+    ellipseCyKnob     = std::make_unique<fxme::FxmeKnob>(p.apvts, idPrefix + "CY", "Y", ELLIPSECOLOURS[readerIndex - 1]);
+    ellipseR1Knob     = std::make_unique<fxme::FxmeKnob>(p.apvts, idPrefix + "R1", "R1", ELLIPSECOLOURS[readerIndex - 1]);
+    ellipseR2Knob     = std::make_unique<fxme::FxmeKnob>(p.apvts, idPrefix + "R2", "R1", ELLIPSECOLOURS[readerIndex - 1]);
+    ellipseAngleKnob  = std::make_unique<fxme::FxmeKnob>(p.apvts, idPrefix + "Angle", "Angle", ELLIPSECOLOURS[readerIndex - 1]);
+    ellipseVolumeKnob = std::make_unique<fxme::FxmeKnob>(p.apvts, idPrefix + "Volume", "Vol", ELLIPSECOLOURS[readerIndex - 1]);
+    filterFreqKnob    = std::make_unique<fxme::FxmeKnob>(p.apvts, idPrefix + "FilterFreq", "Freq", ELLIPSECOLOURS[readerIndex - 1]);
+    filterQualityKnob = std::make_unique<fxme::FxmeKnob>(p.apvts, idPrefix + "FilterQuality", "Q", ELLIPSECOLOURS[readerIndex - 1]);
+    panKnob           = std::make_unique<fxme::FxmeKnob>(p.apvts, idPrefix + "Pan", "Pan", ELLIPSECOLOURS[readerIndex - 1]);
+    detuneKnob        = std::make_unique<fxme::FxmeKnob>(p.apvts, idPrefix + "Detune", "Detune", ELLIPSECOLOURS[readerIndex - 1]);
 
     modCx            = std::make_unique<ModControlBox>(p, "Mod_" + idPrefix + "CX_Amount", "Mod_" + idPrefix + "CX_Select", ELLIPSECOLOURS[readerIndex - 1]);
     modCy            = std::make_unique<ModControlBox>(p, "Mod_" + idPrefix + "CY_Amount", "Mod_" + idPrefix + "CY_Select", ELLIPSECOLOURS[readerIndex - 1]);
@@ -46,6 +47,8 @@ EllipseReaderComponent::EllipseReaderComponent(MapSynthAudioProcessor& p, int re
     setupKnob(*filterFreqKnob);
     setupKnob(*filterQualityKnob);
     setupKnob(*panKnob);
+    setupKnob(*detuneKnob);
+    detuneKnob->slider.setTextValueSuffix(" st");
 
     addAndMakeVisible(*modCx);
     addAndMakeVisible(*modCy);
@@ -100,6 +103,7 @@ void EllipseReaderComponent::resized()
 
     const float comboBoxHeight = getLocalBounds().getHeight()*0.05;
     fbRow3.items.add(juce::FlexItem(filterTypeBox).withFlex(1.0f).withHeight(comboBoxHeight).withAlignSelf(juce::FlexItem::AlignSelf::center));
+    fbRow3.items.add(fi(*detuneKnob).withFlex(1.f));
     fbRow3.items.add(fi(*filterFreqKnob).withFlex(1.f));
     fbRow3.items.add(fi(*filterQualityKnob).withFlex(1.f));
     fbRow3.items.add(fi(*panKnob).withFlex(1.f));

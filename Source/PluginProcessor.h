@@ -18,6 +18,7 @@
 
 // Number of voices for the synth
 #define NUM_VOICES 4
+#define NUM_METER_CHANNELS 2
 
 struct VoiceDisplayState
 {
@@ -89,6 +90,9 @@ public:
     bool getUseOpenGL() const;
     juce::ChangeBroadcaster openGLStateBroadcaster;
 
+    float getSmoothedMaxLevel(const int channel);
+    float getMaxLevel(const int channel);
+
 private:
     // Preset Management
     int currentProgram = 0;
@@ -109,6 +113,10 @@ private:
     // State for the high-pass filter
     juce::Array<float> hpf_prevInput;
     juce::Array<float> hpf_prevOutput;
+
+    juce::LinearSmoothedValue<float> smoothedMaxLevel[NUM_METER_CHANNELS]; 
+    float maxLevel[NUM_METER_CHANNELS];
+    float maxDecay{2.f};
 
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MapSynthAudioProcessor)

@@ -52,6 +52,7 @@ namespace ParameterHelpers
         layout.add(std::make_unique<juce::AudioParameterChoice>(idPrefix + "FilterType", namePrefix + "Filter Type", filterTypeChoices, 0));
         layout.add(std::make_unique<juce::AudioParameterFloat>(idPrefix + "FilterFreq", namePrefix + "Filter Freq", juce::NormalisableRange<float>(20.0f, 20000.0f, 1.0f, 0.3f), 20000.0f));
         layout.add(std::make_unique<juce::AudioParameterFloat>(idPrefix + "FilterQuality", namePrefix + "Filter Q", juce::NormalisableRange<float>(0.1f, 18.0f, 0.01f), 1.0f));
+        layout.add(std::make_unique<juce::AudioParameterFloat>(idPrefix + "Detune", namePrefix + "Detune", juce::NormalisableRange<float>(-12.f, 12.f, 0.01f), 0.0f));
         layout.add(std::make_unique<juce::AudioParameterFloat>("Mod_" + idPrefix + "FilterFreq_Amount", "Mod->" + namePrefix + "FltFreq", juce::NormalisableRange<float>(-1.f, 1.f, .01f), 0.0f));
         layout.add(std::make_unique<juce::AudioParameterChoice>("Mod_" + idPrefix + "FilterFreq_Select", "Mod Select", modulatorChoices, 0));
         layout.add(std::make_unique<juce::AudioParameterFloat>("Mod_" + idPrefix + "FilterQuality_Amount", "Mod->" + namePrefix + "FltQ", juce::NormalisableRange<float>(-1.f, 1.f, .01f), 0.0f));
@@ -308,6 +309,17 @@ void MapSynthAudioProcessor::setUseOpenGL (bool shouldUseOpenGL)
 
 bool MapSynthAudioProcessor::getUseOpenGL() const { return useOpenGL; }
 
+float MapSynthAudioProcessor::getMaxLevel(const int channel)
+{
+  return maxLevel[channel];
+}
+
+float MapSynthAudioProcessor::getSmoothedMaxLevel(const int channel)
+{
+  return smoothedMaxLevel[channel].getCurrentValue();
+}
+
+
 void MapSynthAudioProcessor::updateVoices()
 {
     juce::Array<ReaderBase::Type> types;
@@ -399,6 +411,8 @@ void MapSynthAudioProcessor::updateParameters()
         ellipseParams.r2 = apvts.getRawParameterValue(prefix + "R2")->load();
         ellipseParams.angle = apvts.getRawParameterValue(prefix + "Angle")->load();
         ellipseParams.volume = apvts.getRawParameterValue(prefix + "Volume")->load();
+        ellipseParams.detune = apvts.getRawParameterValue(prefix + "Detune")->load();
+        ellipseParams.detune = apvts.getRawParameterValue(prefix + "Detune")->load();
         ellipseParams.pan = apvts.getRawParameterValue(prefix + "Pan")->load();
 
         ellipseParams.modCxAmount = apvts.getRawParameterValue("Mod_" + prefix + "CX_Amount")->load();
@@ -555,6 +569,18 @@ void MapSynthAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
     masterLevelSmoother.applyGain(buffer, buffer.getNumSamples());
 
     highPassFilter(buffer, 15.0f);
+
+    // Vu-Meter
+    for (int i=0; i<2; ++i)
+    {
+        smoothedMaxLevel[i].skip(buffer.getNumSamples());
+        maxLevel[i] = juce::Decibels::gainToDecibels(buffer.getMagnitude(i,0,buffer.getNumSamples()));
+        if (maxLevel[i] < smoothedMaxLevel[i].getCurrentValue())
+            smoothedMaxLevel[i].setTargetValue(maxLevel[i]);
+        else
+            smoothedMaxLevel[i].setCurrentAndTargetValue(maxLevel[i]);
+
+    }
     
 }
 

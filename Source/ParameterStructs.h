@@ -96,6 +96,7 @@ struct EllipseReaderParameters
     float r2 = 0.2f;
     float angle = 0.0f;
     float volume = 1.0f;
+    float detune = 0.0f;
     float pan = 0.0f;
 
     float modCxAmount = 0.0f;

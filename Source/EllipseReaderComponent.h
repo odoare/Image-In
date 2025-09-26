@@ -25,7 +25,7 @@ public:
 private:
     std::unique_ptr<fxme::FxmeKnob> ellipseCxKnob, ellipseCyKnob, ellipseR1Knob, ellipseR2Knob, ellipseAngleKnob, ellipseVolumeKnob,
                                     filterFreqKnob, filterQualityKnob,
-                                    panKnob;
+                                    panKnob, detuneKnob;
 
     juce::ComboBox filterTypeBox;
 

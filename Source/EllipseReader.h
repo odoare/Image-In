@@ -43,6 +43,8 @@ public:
 
     std::atomic<float> modFreqAmount { 0.0f };
     std::atomic<int> modFreqSelect { 0 };
+    
+    std::atomic<float> detune { 0.0f };
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (EllipseReader)
 };

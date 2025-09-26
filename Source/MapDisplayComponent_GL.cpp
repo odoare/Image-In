@@ -149,14 +149,14 @@ void MapDisplayComponent_GL::renderOpenGL()
             p.addEllipse(cx_base * w - r1_pixels, cy_base * h - r2_pixels, r1_pixels * 2.0f, r2_pixels * 2.0f);
             p.applyTransform(juce::AffineTransform::rotation(angle_base, cx_base * w, cy_base * h));
 
-            // Create a path that represents the stroke of the ellipse
-            juce::PathStrokeType stroke (2.0f);
-            juce::Path strokedPath;
-            stroke.createStrokedPath (strokedPath, p);
+            // // Create a path that represents the stroke of the ellipse
+            // juce::PathStrokeType stroke (2.0f);
+            // juce::Path strokedPath;
+            // stroke.createStrokedPath (strokedPath, p);
 
-            // Create and draw the glow effect for the stroked path
-            juce::DropShadow shadow (ELLIPSECOLOURS[i].withMultipliedSaturation(.2f).withAlpha (volume), (int)(5 + volume * 50.0f), {});
-            shadow.drawForPath (g, strokedPath);
+            // // Create and draw the glow effect for the stroked path
+            // juce::DropShadow shadow (ELLIPSECOLOURS[i].withMultipliedSaturation(.2f).withAlpha (volume), (int)(5 + volume * 50.0f), {});
+            // shadow.drawForPath (g, strokedPath);
         }
     }
 
