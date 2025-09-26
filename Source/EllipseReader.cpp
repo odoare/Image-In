@@ -193,10 +193,15 @@ void EllipseReader::processBlock (const juce::Image& imageToRead, juce::AudioBuf
         auto getSampleAtPhase = [&] (float currentPhase) -> float
         {
             const float phaseAngle = currentPhase * twoPi;
-            const float cosPhase = juce::dsp::FastMathApproximations::cos (phaseAngle);
-            const float sinPhase = juce::dsp::FastMathApproximations::sin (phaseAngle);
-            const float cosAngle = juce::dsp::FastMathApproximations::cos (angle_sv);
-            const float sinAngle = juce::dsp::FastMathApproximations::sin (angle_sv);
+            // const float cosPhase = juce::dsp::FastMathApproximations::cos (phaseAngle);
+            // const float sinPhase = juce::dsp::FastMathApproximations::sin (phaseAngle);
+            // const float cosAngle = juce::dsp::FastMathApproximations::cos (angle_sv);
+            // const float sinAngle = juce::dsp::FastMathApproximations::sin (angle_sv);
+
+            const float cosPhase = std::cos (phaseAngle);
+            const float sinPhase = std::sin (phaseAngle);
+            const float cosAngle = std::cos (angle_sv);
+            const float sinAngle = std::sin (angle_sv);
 
             const float currentX = cx_sv + (r1_sv * cosPhase * cosAngle - r2_sv * sinPhase * sinAngle);
             const float currentY = cy_sv + (r1_sv * cosPhase * sinAngle + r2_sv * sinPhase * cosAngle);
