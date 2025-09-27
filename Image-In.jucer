@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<JUCERPROJECT id="tGIUSL" name="MapSynth" projectType="audioplug" useAppConfig="0"
+<JUCERPROJECT id="tGIUSL" name="Image-In" projectType="audioplug" useAppConfig="0"
               addUsingNamespaceToJuceHeader="0" jucerFormatVersion="1" pluginFormats="buildStandalone,buildVST,buildVST3"
-              pluginCharacteristicsValue="pluginIsSynth,pluginWantsMidiIn">
-  <MAINGROUP id="qPv3X3" name="MapSynth">
+              pluginCharacteristicsValue="pluginIsSynth,pluginWantsMidiIn"
+              version="0.1" companyName="FX-Mechanics" companyWebsite="www.fx-mechanics.com"
+              pluginManufacturerCode="FXME" pluginCode="IMGI">
+  <MAINGROUP id="qPv3X3" name="Image-In">
     <GROUP id="{91937B2F-EA54-82A9-8694-4B4D38C66403}" name="Presets">
       <FILE id="oQXmVv" name="AnechoicMarch.xml" compile="0" resource="1"
             file="Source/Presets/AnechoicMarch.xml"/>
@@ -119,7 +121,7 @@
   <EXPORTFORMATS>
     <LINUX_MAKE targetFolder="Builds/LinuxMakefile">
       <CONFIGURATIONS>
-        <CONFIGURATION isDebug="0" name="Release" targetName="MapSynth"/>
+        <CONFIGURATION isDebug="0" name="Release" targetName="Image-In"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_audio_basics" path="../JUCE/modules"/>
@@ -141,8 +143,8 @@
     </LINUX_MAKE>
     <VS2022 targetFolder="Builds/VisualStudio2022">
       <CONFIGURATIONS>
-        <CONFIGURATION isDebug="1" name="Debug" targetName="MapSynth"/>
-        <CONFIGURATION isDebug="0" name="Release" targetName="MapSynth"/>
+        <CONFIGURATION isDebug="1" name="Debug" targetName="Image-In"/>
+        <CONFIGURATION isDebug="0" name="Release" targetName="Image-In"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_audio_basics" path="../JUCE/modules"/>
