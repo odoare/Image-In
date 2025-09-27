@@ -75,12 +75,17 @@ void EllipseReaderComponent::resized()
 {
     auto bounds = getLocalBounds().reduced(10);
 
-    juce::FlexBox fbM, fbRow1, fbRow2, fbRow3, fbRow4;
+    juce::FlexBox fbM, fbRow1, fbRow2, fbColumn1, fbColumn2, fbColumn3, fbR1, fbR2, fbRow3, fbRow4;
     fbM.flexDirection = juce::FlexBox::Direction::column;
     fbRow1.flexDirection = juce::FlexBox::Direction::row;
     fbRow2.flexDirection = juce::FlexBox::Direction::row;
     fbRow3.flexDirection = juce::FlexBox::Direction::row;
     fbRow4.flexDirection = juce::FlexBox::Direction::row;
+    fbColumn1.flexDirection = juce::FlexBox::Direction::column;
+    fbColumn2.flexDirection = juce::FlexBox::Direction::column;
+    fbColumn3.flexDirection = juce::FlexBox::Direction::column;
+    fbR1.flexDirection = juce::FlexBox::Direction::row;
+    fbR2.flexDirection = juce::FlexBox::Direction::row;
 
     // auto addItem = [&fb](juce::Component& c) {
     //     fb.items.add(juce::FlexItem(c).withMinWidth(70.0f).withMinHeight(70.0f).withFlex(1.0f));
@@ -100,27 +105,34 @@ void EllipseReaderComponent::resized()
     fbRow2.items.add(fi(*modR2).withFlex(1.f));
     fbRow2.items.add(fi(*modAngle).withFlex(1.f));
     fbRow2.performLayout(bounds);
+    
+    fbColumn1.items.add(fi(*filterFreqKnob).withFlex(2.f));
+    fbColumn1.items.add(fi(*modFilterFreq).withFlex(2.f));
 
-    const float comboBoxHeight = getLocalBounds().getHeight()*0.05;
-    fbRow3.items.add(juce::FlexItem(filterTypeBox).withFlex(1.0f).withHeight(comboBoxHeight).withAlignSelf(juce::FlexItem::AlignSelf::center));
+    fbColumn2.items.add(fi(filterTypeBox).withFlex(0.5f));
+    fbColumn2.items.add(fi(*filterQualityKnob).withFlex(2.f));
+    fbColumn2.items.add(fi(*modFilterQuality).withFlex(2.f));
+
+    fbR1.items.add(fi(fbColumn1).withFlex(1.0f));
+    fbR1.items.add(fi(fbColumn2).withFlex(1.0f));
+
     fbRow3.items.add(fi(*detuneKnob).withFlex(1.f));
-    fbRow3.items.add(fi(*filterFreqKnob).withFlex(1.f));
-    fbRow3.items.add(fi(*filterQualityKnob).withFlex(1.f));
     fbRow3.items.add(fi(*panKnob).withFlex(1.f));
     fbRow3.items.add(fi(*ellipseVolumeKnob).withFlex(1.f));
-    fbRow3.performLayout(bounds);
 
     fbRow4.items.add(fi(*modFreq).withFlex(1.f));
-    fbRow4.items.add(fi(*modFilterFreq).withFlex(1.f));
-    fbRow4.items.add(fi(*modFilterQuality).withFlex(1.f));
     fbRow4.items.add(fi(*modPan).withFlex(1.f));
     fbRow4.items.add(fi(*modVolume).withFlex(1.f));
-    fbRow4.performLayout(bounds);
+
+    fbColumn3.items.add(fi(fbRow3).withFlex(1.0f));
+    fbColumn3.items.add(fi(fbRow4).withFlex(1.0f));
+
+    fbR2.items.add(fi(fbR1).withFlex(2.f));
+    fbR2.items.add(fi(fbColumn3).withFlex(3.f));
 
     fbM.items.add(fi(fbRow1).withFlex(1.f));
     fbM.items.add(fi(fbRow2).withFlex(1.f));
-    fbM.items.add(fi(fbRow3).withFlex(1.f).withMargin(juce::FlexItem::Margin(10.f,0.f,0.f,0.f)));
-    fbM.items.add(fi(fbRow4).withFlex(1.f));
+    fbM.items.add(fi(fbR2).withFlex(2.f).withMargin(juce::FlexItem::Margin(20.f,0.f,0.f,0.f)));
 
     fbM.performLayout(bounds.toFloat());
 }

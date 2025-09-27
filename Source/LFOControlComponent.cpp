@@ -9,6 +9,7 @@
 */
 
 #include "LFOControlComponent.h"
+#include "colours.h"
 
 LFOControlComponent::SyncControls::SyncControls(juce::ToggleButton& button, juce::ComboBox& box)
     : syncButton(button), rateBox(box)
@@ -30,8 +31,8 @@ void LFOControlComponent::SyncControls::resized()
 LFOControlComponent::LFOControlComponent(MapSynthAudioProcessor& p, int lfoIndex)
     : audioProcessor(p),
       index(lfoIndex),
-      freqKnob(p.apvts, getFreqParamId(lfoIndex), juce::Colours::hotpink),
-      phaseKnob(p.apvts, "LFO" + juce::String(index) + "Phase", juce::Colours::hotpink),
+      freqKnob(p.apvts, getFreqParamId(lfoIndex), LFOCONTROLCOLOUR),
+      phaseKnob(p.apvts, "LFO" + juce::String(index) + "Phase", LFOCONTROLCOLOUR),
       syncControls(syncButton, rateBox)
 {
     addAndMakeVisible(freqKnob);

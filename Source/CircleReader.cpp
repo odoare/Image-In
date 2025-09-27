@@ -134,7 +134,10 @@ void CircleReader::processBlock (const juce::Image& imageToRead, juce::AudioBuff
         float cy_sv = applyMod (cy_base, modCyAmount.load(), modulatorBuffer.getSample (modCySelect.load(), sample), true);
         float r_sv = applyMod (r_base, modRadiusAmount.load(), modulatorBuffer.getSample (modRadiusSelect.load(), sample), true);
         float volume_sv = applyMod (volume_base, modVolumeAmount.load(), modulatorBuffer.getSample (modVolumeSelect.load(), sample), false);
-        float pan_sv = applyMod(pan_base, modPanAmount.load(), modulatorBuffer.getSample(modPanSelect.load(), sample), true);
+
+        // Pan is additive, not multiplicative
+        const float panModSignal = modulatorBuffer.getSample(modPanSelect.load(), sample) * 2.0f - 1.0f; // to [-1, 1]
+        float pan_sv = pan_base + modPanAmount.load() * panModSignal;
 
         // --- Frequency Modulation ---
         const float freqModSignal = modulatorBuffer.getSample(modFreqSelect.load(), sample);

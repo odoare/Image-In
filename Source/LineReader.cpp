@@ -151,7 +151,10 @@ void LineReader::processBlock (const juce::Image& imageToRead, juce::AudioBuffer
         float length_sv = applyMod (length_base, modLengthAmount.load(), modulatorBuffer.getSample (modLengthSelect.load(), sample), true);
         float angle_sv = applyMod (angle_base, modAngleAmount.load(), modulatorBuffer.getSample (modAngleSelect.load(), sample), true);
         float volume_sv = applyMod (volume_base, modVolumeAmount.load(), modulatorBuffer.getSample (modVolumeSelect.load(), sample), false);
-        float pan_sv = applyMod(pan_base, modPanAmount.load(), modulatorBuffer.getSample(modPanSelect.load(), sample), true);
+
+        // Pan is additive, not multiplicative
+        const float panModSignal = modulatorBuffer.getSample(modPanSelect.load(), sample) * 2.0f - 1.0f; // to [-1, 1]
+        float pan_sv = pan_base + modPanAmount.load() * panModSignal;
 
         // --- Frequency Modulation ---
         const float freqModSignal = modulatorBuffer.getSample(modFreqSelect.load(), sample);

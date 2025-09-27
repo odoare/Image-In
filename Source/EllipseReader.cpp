@@ -139,7 +139,10 @@ void EllipseReader::processBlock (const juce::Image& imageToRead, juce::AudioBuf
         float r2_sv = applyMod (r2_base, modR2Amount.load(), modulatorBuffer.getSample (modR2Select.load(), sample), true);
         float angle_sv = applyMod (angle_base, modAngleAmount.load(), modulatorBuffer.getSample (modAngleSelect.load(), sample), true);
         float volume_sv = applyMod (volume_base, modVolumeAmount.load(), modulatorBuffer.getSample (modVolumeSelect.load(), sample), false);
-        float pan_sv = applyMod(pan_base, modPanAmount.load(), modulatorBuffer.getSample(modPanSelect.load(), sample), true);
+
+        // Pan is additive, not multiplicative
+        const float panModSignal = modulatorBuffer.getSample(modPanSelect.load(), sample) * 2.0f - 1.0f; // to [-1, 1]
+        float pan_sv = pan_base + modPanAmount.load() * panModSignal;
 
         // --- Frequency Modulation ---
         const float freqModSignal = modulatorBuffer.getSample(modFreqSelect.load(), sample);
@@ -195,15 +198,15 @@ void EllipseReader::processBlock (const juce::Image& imageToRead, juce::AudioBuf
         auto getSampleAtPhase = [&] (float currentPhase) -> float
         {
             const float phaseAngle = currentPhase * twoPi;
-            const float cosPhase = juce::dsp::FastMathApproximations::cos (phaseAngle);
-            const float sinPhase = juce::dsp::FastMathApproximations::sin (phaseAngle);
-            const float cosAngle = juce::dsp::FastMathApproximations::cos (angle_sv);
-            const float sinAngle = juce::dsp::FastMathApproximations::sin (angle_sv);
+            // const float cosPhase = juce::dsp::FastMathApproximations::cos (phaseAngle);
+            // const float sinPhase = juce::dsp::FastMathApproximations::sin (phaseAngle);
+            // const float cosAngle = juce::dsp::FastMathApproximations::cos (angle_sv);
+            // const float sinAngle = juce::dsp::FastMathApproximations::sin (angle_sv);
 
-            // const float cosPhase = std::cos (phaseAngle);
-            // const float sinPhase = std::sin (phaseAngle);
-            // const float cosAngle = std::cos (angle_sv);
-            // const float sinAngle = std::sin (angle_sv);
+            const float cosPhase = std::cos (phaseAngle);
+            const float sinPhase = std::sin (phaseAngle);
+            const float cosAngle = std::cos (angle_sv);
+            const float sinAngle = std::sin (angle_sv);
 
             const float currentX = cx_sv + (r1_sv * cosPhase * cosAngle - r2_sv * sinPhase * sinAngle);
             const float currentY = cy_sv + (r1_sv * cosPhase * sinAngle + r2_sv * sinPhase * cosAngle);
