@@ -50,6 +50,9 @@ EllipseReaderComponent::EllipseReaderComponent(MapSynthAudioProcessor& p, int re
     setupKnob(*detuneKnob);
     detuneKnob->slider.setTextValueSuffix(" st");
 
+    addAndMakeVisible(filterLabel);
+    filterLabel.setText("Filter",juce::dontSendNotification);
+    filterLabel.setJustificationType(juce::Justification::centred);
     addAndMakeVisible(*modCx);
     addAndMakeVisible(*modCy);
     addAndMakeVisible(*modR1);
@@ -62,6 +65,8 @@ EllipseReaderComponent::EllipseReaderComponent(MapSynthAudioProcessor& p, int re
     addAndMakeVisible(*modFreq);
 
     addAndMakeVisible(filterTypeBox);
+    filterTypeBox.setColour(juce::ComboBox::backgroundColourId,juce::Colours::transparentBlack);
+    filterTypeBox.setColour(juce::ComboBox::outlineColourId, juce::Colours::transparentBlack);
     filterTypeBox.addItemList(filterTypeChoices, 1);
     filterTypeAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(audioProcessor.apvts, idPrefix + "FilterType", filterTypeBox);
 }
@@ -106,6 +111,7 @@ void EllipseReaderComponent::resized()
     fbRow2.items.add(fi(*modAngle).withFlex(1.f));
     fbRow2.performLayout(bounds);
     
+    fbColumn1.items.add(fi(filterLabel).withFlex(0.5f));
     fbColumn1.items.add(fi(*filterFreqKnob).withFlex(2.f));
     fbColumn1.items.add(fi(*modFilterFreq).withFlex(2.f));
 
@@ -115,7 +121,7 @@ void EllipseReaderComponent::resized()
 
     fbR1.items.add(fi(fbColumn1).withFlex(1.0f));
     fbR1.items.add(fi(fbColumn2).withFlex(1.0f));
-
+    
     fbRow3.items.add(fi(*detuneKnob).withFlex(1.f));
     fbRow3.items.add(fi(*panKnob).withFlex(1.f));
     fbRow3.items.add(fi(*ellipseVolumeKnob).withFlex(1.f));

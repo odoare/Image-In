@@ -27,6 +27,8 @@ private:
                                     filterFreqKnob, filterQualityKnob,
                                     panKnob, detuneKnob;
 
+    juce::Label filterLabel;
+
     juce::ComboBox filterTypeBox;
 
     std::unique_ptr<ModControlBox> modCx, modCy, modR1, modR2, modAngle, modVolume,
