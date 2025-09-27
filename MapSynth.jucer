@@ -9,12 +9,19 @@
             file="Source/Presets/AnechoicMarch.xml"/>
       <FILE id="TB802L" name="Apocalypse.xml" compile="0" resource="1" file="Source/Presets/Apocalypse.xml"/>
       <FILE id="PMNso9" name="DeepDive.xml" compile="0" resource="1" file="Source/Presets/DeepDive.xml"/>
+      <FILE id="qncMfu" name="FractalGrains.xml" compile="0" resource="1"
+            file="Source/Presets/FractalGrains.xml"/>
       <FILE id="MFCJZY" name="FractalMaze.xml" compile="0" resource="1" file="Source/Presets/FractalMaze.xml"/>
       <FILE id="ts4v0b" name="Hesitant.xml" compile="0" resource="1" file="Source/Presets/Hesitant.xml"/>
+      <FILE id="wTvsHl" name="LifeBubbles.xml" compile="0" resource="1" file="Source/Presets/LifeBubbles.xml"/>
       <FILE id="N75Zo5" name="MoonRiding.xml" compile="0" resource="1" file="Source/Presets/MoonRiding.xml"/>
       <FILE id="nyHuNP" name="MoonRings.xml" compile="0" resource="1" file="Source/Presets/MoonRings.xml"/>
       <FILE id="NTHp09" name="MoonRun.xml" compile="0" resource="1" file="Source/Presets/MoonRun.xml"/>
       <FILE id="drze65" name="OceansTides.xml" compile="0" resource="1" file="Source/Presets/OceansTides.xml"/>
+      <FILE id="Xd4g4L" name="RythmicGrainsMaj.xml" compile="0" resource="1"
+            file="Source/Presets/RythmicGrainsMaj.xml"/>
+      <FILE id="k87sOi" name="RythmicGrainsMin.xml" compile="0" resource="1"
+            file="Source/Presets/RythmicGrainsMin.xml"/>
       <FILE id="tu43HI" name="SkyFall.xml" compile="0" resource="1" file="Source/Presets/SkyFall.xml"/>
       <FILE id="l866EH" name="WorkshopRouter.xml" compile="0" resource="1"
             file="Source/Presets/WorkshopRouter.xml"/>
