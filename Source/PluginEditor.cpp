@@ -162,7 +162,7 @@ MapSynthAudioProcessorEditor::MapSynthAudioProcessorEditor (MapSynthAudioProcess
     addAndMakeVisible(mapDisplayComponentGL.get());
 
     addAndMakeVisible(factoryImageLabel);
-    factoryImageLabel.setText("Preset Image:", juce::dontSendNotification);
+    factoryImageLabel.setText("Image:", juce::dontSendNotification);
     factoryImageLabel.setJustificationType(juce::Justification::right);
     factoryImageLabel.attachToComponent(&factoryImageSelector, true);
     addAndMakeVisible(factoryImageSelector);
@@ -205,10 +205,63 @@ MapSynthAudioProcessorEditor::MapSynthAudioProcessorEditor (MapSynthAudioProcess
     };
 
     addAndMakeVisible(useOpenGLButton);
-    useOpenGLButton.setButtonText("Use OpenGL");
+    useOpenGLButton.setButtonText("OpenGL");
     useOpenGLButton.onClick = [this]
     {
         audioProcessor.setUseOpenGL (useOpenGLButton.getToggleState());
+    };
+
+    addAndMakeVisible(importStateButton);
+    importStateButton.setButtonText("Import");
+    importStateButton.onClick = [this]
+    {
+        fileChooser = std::make_unique<juce::FileChooser> ("Select an XML state file to load...",
+                                                           juce::File{},
+                                                           "*.xml");
+
+        auto chooserFlags = juce::FileBrowserComponent::openMode | juce::FileBrowserComponent::canSelectFiles;
+
+        fileChooser->launchAsync (chooserFlags, [this] (const juce::FileChooser& fc)
+        {
+            auto file = fc.getResult();
+            if (file == juce::File{})
+                return;
+
+            std::unique_ptr<juce::XmlElement> xmlState (juce::XmlDocument::parse(file));
+
+            if (xmlState != nullptr && xmlState->hasTagName(audioProcessor.apvts.state.getType()))
+            {
+                // Use replaceState for loading parameters from an XML file.
+                audioProcessor.apvts.replaceState (juce::ValueTree::fromXml (*xmlState));
+            }
+            else
+            {
+                juce::AlertWindow::showMessageBoxAsync(juce::AlertWindow::WarningIcon, "Load Error", "Selected file is not a valid preset for this plugin.");
+            }
+        });
+    };
+
+    addAndMakeVisible(exportStateButton);
+    exportStateButton.setButtonText("Export");
+    exportStateButton.onClick = [this]
+    {
+        fileChooser = std::make_unique<juce::FileChooser> ("Save plugin state as XML...",
+                                                           juce::File{},
+                                                           "*.xml");
+
+        auto chooserFlags = juce::FileBrowserComponent::saveMode | juce::FileBrowserComponent::canSelectFiles;
+
+        fileChooser->launchAsync (chooserFlags, [this] (const juce::FileChooser& fc)
+        {
+            auto file = fc.getResult();
+            if (file == juce::File{})
+                return;
+
+            // Get the state directly from the APVTS and convert to XML.
+            auto state = audioProcessor.apvts.copyState();
+            std::unique_ptr<juce::XmlElement> xml (state.createXml());
+            file.replaceWithText (xml->toString());
+        });
     };
 
     addAndMakeVisible(masterVolumeSlider);
@@ -287,9 +340,11 @@ void MapSynthAudioProcessorEditor::resized()
     readerTabs.setBounds(leftPanelPadded);
     masterVolumeSlider.setBounds(volumeArea);
 
-    factoryImageSelector.setBounds(buttonArea.getX() + 80, buttonArea.getY() + 3, 120, 24);
+    factoryImageSelector.setBounds(buttonArea.getX() + 50, buttonArea.getY() + 3, 120, 24);
     loadImageButton.setBounds(factoryImageSelector.getRight() + 10, buttonArea.getY() + 3, 80, 24);
-    useOpenGLButton.setBounds(loadImageButton.getRight() + 10, buttonArea.getY() + 3, 100, 24);
+    useOpenGLButton.setBounds(loadImageButton.getRight() + 10, buttonArea.getY() + 3, 80, 24);
+    importStateButton.setBounds(useOpenGLButton.getRight() + 5, buttonArea.getY() + 3, 60, 24);
+    exportStateButton.setBounds(importStateButton.getRight() + 5, buttonArea.getY() + 3, 60, 24);
 
     auto mapArea = rightPanel.reduced(5);
 
