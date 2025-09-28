@@ -19,7 +19,7 @@ public:
     EllipseReader();
     ~EllipseReader() override;
 
-    void processBlock (const juce::Image& image, juce::AudioBuffer<float>& buffer, int startSample, int numSamples, const juce::AudioBuffer<float>& modulatorBuffer) override;
+    void processBlock (const juce::Image::BitmapData& bitmapData, juce::AudioBuffer<float>& buffer, int startSample, int numSamples, const juce::AudioBuffer<float>& modulatorBuffer) override;
 
     void setCentre (float newCx, float newCy);
     void setRadii (float newR1, float newR2);

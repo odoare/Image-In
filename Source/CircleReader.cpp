@@ -72,20 +72,12 @@ void CircleReader::updateParameters (const CircleReaderParameters& params)
     modFreqSelect = params.modFreqSelect;
 }
 
-void CircleReader::processBlock (const juce::Image& imageToRead, juce::AudioBuffer<float>& buffer, int startSample, int numSamples,
+void CircleReader::processBlock (const juce::Image::BitmapData& bitmapData, juce::AudioBuffer<float>& buffer, int startSample, int numSamples,
                                  const juce::AudioBuffer<float>& modulatorBuffer)
-{
-    if (! imageToRead.isValid())
     {
-        buffer.clear (startSample, numSamples);
-        return;
-    }
-
-    juce::Image::BitmapData bitmapData (imageToRead, juce::Image::BitmapData::readOnly);
-
     if (bitmapData.data == nullptr || bitmapData.width <= 1 || bitmapData.height <= 1)
     {
-        buffer.clear (startSample, numSamples);
+        buffer.clear(startSample, numSamples);
         return;
     }
 

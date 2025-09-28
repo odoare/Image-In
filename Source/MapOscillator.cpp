@@ -34,25 +34,32 @@ void MapOscillator::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBu
 
     auto image = imageBuffer.getImage();
     if (! image.isValid())
+    {
+        buffer.clear(startSample, numSamples);
         return;
+    }
+
+    juce::Image::BitmapData bitmapData (image, juce::Image::BitmapData::readOnly);
+    if (bitmapData.data == nullptr)
+    {
+        buffer.clear(startSample, numSamples);
+        return;
+    }
 
     auto numChannels = buffer.getNumChannels();
 
-    // If there's only one reader, we can process it directly.
-    // Since the reader now uses addSample, this will correctly add its output.
     if (readers.size() == 1)
     {
-        readers[0]->processBlock (image, buffer, startSample, numSamples, modulatorBuffer);
+        readers[0]->processBlock (bitmapData, buffer, startSample, numSamples, modulatorBuffer);
     }
     else
     {
-        // For multiple readers, we use an intermediate buffer to sum their outputs.
         readerBuffer.setSize (numChannels, numSamples, false, true, true);
         readerBuffer.clear();
 
         // Each reader adds its output to the intermediate buffer.
         for (auto* reader : readers)
-            reader->processBlock (image, readerBuffer, 0, numSamples, modulatorBuffer);
+            reader->processBlock (bitmapData, readerBuffer, 0, numSamples, modulatorBuffer);
 
         // Finally, add the summed output to the main output buffer.
         for (int channel = 0; channel < numChannels; ++channel)

@@ -36,7 +36,7 @@ public:
     virtual ~ReaderBase() = default;
 
     virtual void prepareToPlay (double sampleRate);
-    virtual void processBlock (const juce::Image& image, juce::AudioBuffer<float>& buffer, int startSample, int numSamples, const juce::AudioBuffer<float>& modulatorBuffer) = 0;
+    virtual void processBlock (const juce::Image::BitmapData& bitmapData, juce::AudioBuffer<float>& buffer, int startSample, int numSamples, const juce::AudioBuffer<float>& modulatorBuffer) = 0;
 
     void setFrequency (float freq);
     float getFrequency() const;
