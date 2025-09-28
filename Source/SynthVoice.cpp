@@ -142,7 +142,7 @@ void SynthVoice::renderNextBlock (juce::AudioBuffer<float>& outputBuffer, int st
     tempRenderBuffer.clear();
 
     juce::MidiBuffer emptyMidi;
-    mapOscillator.processBlock (tempRenderBuffer, emptyMidi, 0, numSamples, processor.imageBuffer, modulatorBuffer);
+    mapOscillator.processBlock (tempRenderBuffer, emptyMidi, 0, numSamples, processor.bitmapDataManager, modulatorBuffer);
 
     tempRenderBuffer.applyGain (0, numSamples, noteVel);
 

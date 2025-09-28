@@ -15,6 +15,7 @@
 #include "ParameterStructs.h"
 #include "FactoryPresets.h"
 #include "SynthVoice.h"
+#include "BitmapDataManager.h"
 
 // Number of voices for the synth
 #define NUM_VOICES 4
@@ -81,6 +82,7 @@ public:
     LFO lfo4;
     juce::AudioBuffer<float> lfoBuffer;
     GlobalParameters globalParams; // This now contains all parameter structs
+    BitmapDataManager bitmapDataManager { imageBuffer };
 
     std::array<VoiceDisplayState, NUM_VOICES> voiceDisplayStates;
     juce::CriticalSection displayStateLock;
