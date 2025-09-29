@@ -10,7 +10,7 @@
 
 #pragma once
 
-#include "BitmapDataManager.h"
+#include "ImageBuffer.h"
 #include "ReaderBase.h"
 #include "EllipseReader.h"
 
@@ -28,7 +28,7 @@ public:
     ~MapOscillator();
 
     void prepareToPlay (double sampleRate);
-    void processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages, int startSample, int numSamples, const BitmapDataManager& bitmapDataManager, const juce::AudioBuffer<float>& modulatorBuffer);
+    void processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages, int startSample, int numSamples, ImageBuffer& imageBuffer, const juce::AudioBuffer<float>& modulatorBuffer); // Note: imageBuffer is not const
     void rebuildReaders (const juce::Array<ReaderBase::Type>& types);
     void updateParameters (const GlobalParameters& params);
     EllipseReader* addEllipseReader();

@@ -27,13 +27,19 @@ void MapOscillator::prepareToPlay (double sampleRate)
         reader->prepareToPlay (sampleRate);
 }
 
-void MapOscillator::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& /*midiMessages*/, int startSample, int numSamples, const BitmapDataManager& bitmapDataManager, const juce::AudioBuffer<float>& modulatorBuffer)
+void MapOscillator::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& /*midiMessages*/, int startSample, int numSamples, ImageBuffer& imageBuffer, const juce::AudioBuffer<float>& modulatorBuffer)
 {
     if (readers.isEmpty())
         return;
 
-    const auto& bitmapData = bitmapDataManager.getReadonlyBitmap();
+    auto image = imageBuffer.getImage();
+    if (! image.isValid())
+    {
+        buffer.clear(startSample, numSamples);
+        return;
+    }
 
+    juce::Image::BitmapData bitmapData (image, juce::Image::BitmapData::readOnly);
     if (bitmapData.data == nullptr)
     {
         buffer.clear(startSample, numSamples);

@@ -13,7 +13,6 @@
 #include "SynthSound.h"
 #include "MapOscillator.h"
 #include "ADSR.h"
-#include "BitmapDataManager.h"
 
 class MapSynthAudioProcessor;
 class SynthVoice : public juce::SynthesiserVoice
