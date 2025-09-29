@@ -27,20 +27,15 @@ void MapOscillator::prepareToPlay (double sampleRate)
         reader->prepareToPlay (sampleRate);
 }
 
-void MapOscillator::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& /*midiMessages*/, int startSample, int numSamples, ImageBuffer& imageBuffer, const juce::AudioBuffer<float>& modulatorBuffer)
+void MapOscillator::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& /*midiMessages*/, int startSample, int numSamples, BitmapDataManager& bitmapDataManager, const juce::AudioBuffer<float>& modulatorBuffer)
 {
     if (readers.isEmpty())
         return;
 
-    auto image = imageBuffer.getImage();
-    if (! image.isValid())
-    {
-        buffer.clear(startSample, numSamples);
-        return;
-    }
+    BitmapDataManager::ScopedAccess bitmapAccess (bitmapDataManager);
+    const auto* bitmapData = bitmapAccess.get();
 
-    juce::Image::BitmapData bitmapData (image, juce::Image::BitmapData::readOnly);
-    if (bitmapData.data == nullptr)
+    if (bitmapData->data == nullptr)
     {
         buffer.clear(startSample, numSamples);
         return;
@@ -50,7 +45,7 @@ void MapOscillator::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBu
 
     if (readers.size() == 1)
     {
-        readers[0]->processBlock (bitmapData, buffer, startSample, numSamples, modulatorBuffer);
+        readers[0]->processBlock (*bitmapData, buffer, startSample, numSamples, modulatorBuffer);
     }
     else
     {
@@ -59,7 +54,7 @@ void MapOscillator::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBu
 
         // Each reader adds its output to the intermediate buffer.
         for (auto* reader : readers)
-            reader->processBlock (bitmapData, readerBuffer, 0, numSamples, modulatorBuffer);
+            reader->processBlock (*bitmapData, readerBuffer, 0, numSamples, modulatorBuffer);
 
         // Finally, add the summed output to the main output buffer.
         for (int channel = 0; channel < numChannels; ++channel)

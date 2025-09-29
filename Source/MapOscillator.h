@@ -13,6 +13,7 @@
 #include "ImageBuffer.h"
 #include "ReaderBase.h"
 #include "EllipseReader.h"
+#include "BitmapDataManager.h"
 
 struct GlobalParameters;
 class LFO;
@@ -28,7 +29,7 @@ public:
     ~MapOscillator();
 
     void prepareToPlay (double sampleRate);
-    void processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages, int startSample, int numSamples, ImageBuffer& imageBuffer, const juce::AudioBuffer<float>& modulatorBuffer); // Note: imageBuffer is not const
+    void processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages, int startSample, int numSamples, BitmapDataManager& bitmapDataManager, const juce::AudioBuffer<float>& modulatorBuffer);
     void rebuildReaders (const juce::Array<ReaderBase::Type>& types);
     void updateParameters (const GlobalParameters& params);
     EllipseReader* addEllipseReader();

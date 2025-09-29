@@ -47,6 +47,10 @@
       <FILE id="wXuAq5" name="11_bessel2.png" compile="0" resource="1" file="Source/Assets/11_bessel2.png"/>
     </GROUP>
     <GROUP id="{633F86FB-EABC-E5B3-C698-8086F97CD0F3}" name="Source">
+      <FILE id="kg5oE4" name="BitmapDataManager.cpp" compile="1" resource="0"
+            file="Source/BitmapDataManager.cpp"/>
+      <FILE id="ynO3x2" name="BitmapDataManager.h" compile="0" resource="0"
+            file="Source/BitmapDataManager.h"/>
       <FILE id="lWRedN" name="EllipseReader.cpp" compile="1" resource="0"
             file="Source/EllipseReader.cpp"/>
       <FILE id="JxeKgW" name="EllipseReader.h" compile="0" resource="0" file="Source/EllipseReader.h"/>

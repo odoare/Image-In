@@ -376,7 +376,7 @@ void MapSynthAudioProcessor::highPassFilter(juce::AudioBuffer<float>& buffer, fl
     jassert(hpf_prevOutput.size() == numChannels);
 
     // Filter coefficients (RC filter)
-    float RC = 1.0f / (2.0f * float(M_PI) * cutoffFreq);
+    float RC = 1.0f / (juce::MathConstants<float>::twoPi * cutoffFreq);
     float dt = 1.0f / processSampleRate;
     float alpha = RC / (RC + dt);
 

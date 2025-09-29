@@ -15,6 +15,7 @@
 #include "ParameterStructs.h"
 #include "FactoryPresets.h"
 #include "SynthVoice.h"
+#include "BitmapDataManager.h"
 
 // Number of voices for the synth
 #define NUM_VOICES 4
@@ -74,6 +75,7 @@ public:
     void parameterChanged (const juce::String& parameterID, float newValue) override;
 
     ImageBuffer imageBuffer;
+    BitmapDataManager bitmapDataManager { imageBuffer };
     juce::AudioProcessorValueTreeState apvts {*this, nullptr, "Parameters", createParameters()};
     LFO lfo;
     LFO lfo2;
