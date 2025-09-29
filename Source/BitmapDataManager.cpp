@@ -12,9 +12,6 @@
   ==============================================================================
 */
 
-  ==============================================================================
-*/
-
 #include "BitmapDataManager.h"
 
 BitmapDataManager::BitmapDataManager (ImageBuffer& bufferToFollow)
