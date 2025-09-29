@@ -1,10 +1,17 @@
 /*
   ==============================================================================
 
-    This file contains the basic framework code for a JUCE plugin processor.
+    PluginProcessor.h
+    Created: 16 Sep 2025 10:00:00am
+    Author:  Olivier Doaré
+
+    Part of Image-In project
+
+    Licenced under the LGPLv3
 
   ==============================================================================
 */
+
 
 #pragma once
 

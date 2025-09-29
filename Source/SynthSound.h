@@ -3,7 +3,11 @@
 
     SynthSound.h
     Created: 8 Jan 2024 8:48:39pm
-    Author:  od
+    Author:  Olivier Doaré
+
+    Part of Image-In project
+
+    Licenced under the LGPLv3
 
   ==============================================================================
 */

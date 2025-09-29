@@ -3,7 +3,11 @@
 
     BitmapDataManager.h
     Created: 24 May 2024 10:00:00am
-    Author:  Gemini Code Assist
+    Author:  Olivier Doaré
+
+    Part of Image-In project
+
+    Licenced under the LGPLv3
 
   ==============================================================================
 */

@@ -5,6 +5,10 @@
     Created: 16 Sep 2025 10:00:00am
     Author:  Olivier Doaré
 
+    Part of Image-In project
+
+    Licenced under the LGPLv3
+
   ==============================================================================
 */
 
