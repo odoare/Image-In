@@ -75,14 +75,14 @@ public:
     void parameterChanged (const juce::String& parameterID, float newValue) override;
 
     ImageBuffer imageBuffer;
+    GlobalParameters globalParams; // This now contains all parameter structs
+    BitmapDataManager bitmapDataManager { imageBuffer };
     juce::AudioProcessorValueTreeState apvts {*this, nullptr, "Parameters", createParameters()};
     LFO lfo;
     LFO lfo2;
     LFO lfo3;
     LFO lfo4;
     juce::AudioBuffer<float> lfoBuffer;
-    GlobalParameters globalParams; // This now contains all parameter structs
-    BitmapDataManager bitmapDataManager { imageBuffer };
 
     std::array<VoiceDisplayState, NUM_VOICES> voiceDisplayStates;
     juce::CriticalSection displayStateLock;
