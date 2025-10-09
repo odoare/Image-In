@@ -79,3 +79,7 @@ The shape, position, and orientation of these ellipses can be freely adjusted an
 ### Bottom Bar
 *   **Master Volume:** Controls the final output gain.
 *   **VU Meters:** Shows the output level for the left and right channels.
+
+## Contact
+
+olivier.doare@ensta.fr
