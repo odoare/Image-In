@@ -1,0 +1,18 @@
+{
+	"folders": [
+		{
+			"path": ".."
+		},
+		{
+			"path": "../../FxmeJuceTools"
+		}
+	],
+	"settings": {
+		"files.associations": {
+			"*.pd_lua": "lua",
+			"*.mm": "cpp",
+			"chrono": "cpp",
+			"variant": "cpp"
+		}
+	}
+}

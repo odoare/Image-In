@@ -35,8 +35,8 @@ void LFOControlComponent::SyncControls::resized()
 LFOControlComponent::LFOControlComponent(MapSynthAudioProcessor& p, int lfoIndex)
     : audioProcessor(p),
       index(lfoIndex),
-      freqKnob(p.apvts, getFreqParamId(lfoIndex), LFOCONTROLCOLOUR),
-      phaseKnob(p.apvts, "LFO" + juce::String(index) + "Phase", LFOCONTROLCOLOUR),
+      freqKnob(p.apvts, getFreqParamId(lfoIndex), getFreqParamId(lfoIndex), LFOCONTROLCOLOUR),
+      phaseKnob(p.apvts, "LFO" + juce::String(index) + "Phase", "LFO" + juce::String(index) + "Phase", LFOCONTROLCOLOUR),
       syncControls(syncButton, rateBox)
 {
     addAndMakeVisible(freqKnob);

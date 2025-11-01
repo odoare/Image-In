@@ -64,18 +64,18 @@ class ADSRsComponent : public juce::Component
 public:
     ADSRsComponent(MapSynthAudioProcessor& p)
         : audioProcessor(p),
-          attackKnob (p.apvts, "Attack", ADSRCONTROLCOLOUR),
-          decayKnob (p.apvts, "Decay", ADSRCONTROLCOLOUR),
-          sustainKnob (p.apvts, "Sustain", ADSRCONTROLCOLOUR),
-          releaseKnob (p.apvts, "Release", ADSRCONTROLCOLOUR),
-          attack2Knob (p.apvts, "Attack2", ADSRCONTROLCOLOUR),
-          decay2Knob (p.apvts, "Decay2", ADSRCONTROLCOLOUR),
-          sustain2Knob (p.apvts, "Sustain2", ADSRCONTROLCOLOUR),
-          release2Knob (p.apvts, "Release2", ADSRCONTROLCOLOUR),
-          attack3Knob (p.apvts, "Attack3", ADSRCONTROLCOLOUR),
-          decay3Knob (p.apvts, "Decay3", ADSRCONTROLCOLOUR),
-          sustain3Knob (p.apvts, "Sustain3", ADSRCONTROLCOLOUR),
-          release3Knob (p.apvts, "Release3", ADSRCONTROLCOLOUR)
+          attackKnob (p.apvts, "Attack", "Attack", ADSRCONTROLCOLOUR),
+          decayKnob (p.apvts, "Decay", "Decay", ADSRCONTROLCOLOUR),
+          sustainKnob (p.apvts, "Sustain", "Sustain", ADSRCONTROLCOLOUR),
+          releaseKnob (p.apvts, "Release", "Release", ADSRCONTROLCOLOUR),
+          attack2Knob (p.apvts, "Attack2", "Attack2", ADSRCONTROLCOLOUR),
+          decay2Knob (p.apvts, "Decay2", "Decay2", ADSRCONTROLCOLOUR),
+          sustain2Knob (p.apvts, "Sustain2", "Sustain2", ADSRCONTROLCOLOUR),
+          release2Knob (p.apvts, "Release2", "Release2", ADSRCONTROLCOLOUR),
+          attack3Knob (p.apvts, "Attack3", "Attack3", ADSRCONTROLCOLOUR),
+          decay3Knob (p.apvts, "Decay3", "Decay3", ADSRCONTROLCOLOUR),
+          sustain3Knob (p.apvts, "Sustain3", "Sustain3", ADSRCONTROLCOLOUR),
+          release3Knob (p.apvts, "Release3", "Release3", ADSRCONTROLCOLOUR)
     {
         mainAdsrContainer.flexDirection = juce::FlexBox::Direction::column;
         adsrBox.flexDirection = juce::FlexBox::Direction::row;

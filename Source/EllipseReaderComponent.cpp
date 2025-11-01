@@ -23,7 +23,7 @@ EllipseReaderComponent::EllipseReaderComponent(MapSynthAudioProcessor& p, int re
     ellipseCxKnob     = std::make_unique<fxme::FxmeKnob>(p.apvts, idPrefix + "CX", "X", ELLIPSECOLOURS[readerIndex - 1]);
     ellipseCyKnob     = std::make_unique<fxme::FxmeKnob>(p.apvts, idPrefix + "CY", "Y", ELLIPSECOLOURS[readerIndex - 1]);
     ellipseR1Knob     = std::make_unique<fxme::FxmeKnob>(p.apvts, idPrefix + "R1", "R1", ELLIPSECOLOURS[readerIndex - 1]);
-    ellipseR2Knob     = std::make_unique<fxme::FxmeKnob>(p.apvts, idPrefix + "R2", "R1", ELLIPSECOLOURS[readerIndex - 1]);
+    ellipseR2Knob     = std::make_unique<fxme::FxmeKnob>(p.apvts, idPrefix + "R2", "R2", ELLIPSECOLOURS[readerIndex - 1]);
     ellipseAngleKnob  = std::make_unique<fxme::FxmeKnob>(p.apvts, idPrefix + "Angle", "Angle", ELLIPSECOLOURS[readerIndex - 1]);
     ellipseVolumeKnob = std::make_unique<fxme::FxmeKnob>(p.apvts, idPrefix + "Volume", "Vol", ELLIPSECOLOURS[readerIndex - 1]);
     filterFreqKnob    = std::make_unique<fxme::FxmeKnob>(p.apvts, idPrefix + "FilterFreq", "Freq", ELLIPSECOLOURS[readerIndex - 1]);
