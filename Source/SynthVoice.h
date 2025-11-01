@@ -17,6 +17,7 @@
 #include "SynthSound.h"
 #include "MapOscillator.h"
 #include "ADSR.h"
+#include "SimpleCircularBuffer.h"
 
 class MapSynthAudioProcessor;
 class SynthVoice : public juce::SynthesiserVoice
@@ -42,6 +43,8 @@ public:
 
     void rebuildReaders (const juce::Array<ReaderBase::Type>& types);
 
+    SimpleCircularBuffer& getScopeBuffer() { return *scopeBuffer; }
+
 private:
     MapSynthAudioProcessor& processor;
     MapOscillator mapOscillator;
@@ -53,4 +56,7 @@ private:
     float noteVel{0.f};
 
     juce::AudioBuffer<float> modulatorBuffer;
+
+    static constexpr int scopeBufferSize = 512;
+    std::unique_ptr<SimpleCircularBuffer> scopeBuffer;
 };

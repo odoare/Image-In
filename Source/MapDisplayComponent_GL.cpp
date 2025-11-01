@@ -266,8 +266,10 @@ void MapDisplayComponent_GL::renderOpenGL()
         statesCopy = processor.voiceDisplayStates;
     }
 
-    for (const auto& voiceState : statesCopy)
+    for (int voiceIdx = 0; voiceIdx < statesCopy.size(); ++voiceIdx)
     {
+        const auto& voiceState = statesCopy[voiceIdx];
+
         if (! voiceState.isActive)
             continue;
 
@@ -276,13 +278,63 @@ void MapDisplayComponent_GL::renderOpenGL()
             const auto& readerInfo = voiceState.readerInfos.getUnchecked(i);
             if (readerInfo.type == ReaderBase::Type::Ellipse)
             {
-                g.setColour(ELLIPSECOLOURS[i].withAlpha(readerInfo.volume));
-                juce::Path p;
-                const float r1_pixels = readerInfo.r1 * juce::jmin(w, h);
-                const float r2_pixels = readerInfo.r2 * juce::jmin(w, h);
-                p.addEllipse(readerInfo.cx * w - r1_pixels, readerInfo.cy * h - r2_pixels, r1_pixels * 2.0f, r2_pixels * 2.0f);
-                p.applyTransform(juce::AffineTransform::rotation(readerInfo.angle, readerInfo.cx * w, readerInfo.cy * h));
-                g.strokePath(p, juce::PathStrokeType(2.0f));
+                const float alpha = readerInfo.volume;
+                if (alpha < 0.01f) continue;
+
+                if (processor.apvts.getRawParameterValue("OscilloscopeEnabled")->load() > 0.5f)
+                {
+                    g.setColour(ELLIPSECOLOURS[i].withAlpha(alpha));
+
+                    auto* voice = processor.getVoice(voiceIdx);
+                    if (voice == nullptr) continue;
+
+                    auto& scopeBuffer = voice->getScopeBuffer();
+                    juce::AudioBuffer<float> scopeData;
+                    scopeBuffer.readFullBuffer(scopeData);
+                    const int numScopeSamples = scopeData.getNumSamples();
+                    auto* scopeSamples = scopeData.getReadPointer(0);
+
+                    juce::Path p;
+                    const float baseMagnitude = 150.0f; // Adjusted to match CPU renderer
+                    const float scopeMagnitude = baseMagnitude * alpha * (readerInfo.pathLength + 0.1f);
+
+                    for (int j = 0; j <= numScopeSamples; ++j)
+                    {
+                        const float proportion = (float)j / (float)numScopeSamples;
+                        const float phaseAngle = proportion * juce::MathConstants<float>::twoPi;
+
+                        const float cosPhase = std::cos(phaseAngle);
+                        const float sinPhase = std::sin(phaseAngle);
+                        const float cosAngle = std::cos(readerInfo.angle);
+                        const float sinAngle = std::sin(readerInfo.angle);
+
+                        const float x = readerInfo.cx * w + (readerInfo.r1 * cosPhase * cosAngle - readerInfo.r2 * sinPhase * sinAngle) * w;
+                        const float y = readerInfo.cy * h + (readerInfo.r1 * cosPhase * sinAngle + readerInfo.r2 * sinPhase * cosAngle) * h;
+
+                        const float sampleValue = scopeSamples[j % numScopeSamples];
+                        const float perpendicularOffsetX = -sinAngle * cosPhase - cosAngle * sinPhase;
+                        const float perpendicularOffsetY = cosAngle * cosPhase - sinAngle * sinPhase;
+
+                        const float finalX = x + perpendicularOffsetX * sampleValue * scopeMagnitude;
+                        const float finalY = y + perpendicularOffsetY * sampleValue * scopeMagnitude;
+
+                        if (j == 0)
+                            p.startNewSubPath(finalX, finalY);
+                        else
+                            p.lineTo(finalX, finalY);
+                    }
+                    g.strokePath(p, juce::PathStrokeType(1.5f));
+                }
+                else
+                {
+                    g.setColour(ELLIPSECOLOURS[i].withAlpha(alpha));
+                    juce::Path p;
+                    const float r1_pixels = readerInfo.r1 * juce::jmin(w, h);
+                    const float r2_pixels = readerInfo.r2 * juce::jmin(w, h);
+                    p.addEllipse(readerInfo.cx * w - r1_pixels, readerInfo.cy * h - r2_pixels, r1_pixels * 2.0f, r2_pixels * 2.0f);
+                    p.applyTransform(juce::AffineTransform::rotation(readerInfo.angle, readerInfo.cx * w, readerInfo.cy * h));
+                    g.strokePath(p, juce::PathStrokeType(2.0f));
+                }
             }
         }
     }

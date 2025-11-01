@@ -181,6 +181,7 @@ void EllipseReader::processBlock (const juce::Image::BitmapData& bitmapData, juc
             lastDrawingInfo.r1 = r1_sv;
             lastDrawingInfo.r2 = r2_sv;
             lastDrawingInfo.angle = angle_sv;
+            lastDrawingInfo.pathLength = (r1_sv + r2_sv);
         }
 
         const float normalizedLength = (r1_sv + r2_sv); // Map average radius to [0, 1] for amplitude calculation

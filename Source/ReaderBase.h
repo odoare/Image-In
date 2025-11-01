@@ -33,6 +33,7 @@ public:
         // For Ellipse
         float cx = 0.0f, cy = 0.0f;
         float r1 = 0.0f, r2 = 0.0f, angle = 0.0f;
+        float pathLength = 0.0f;
     };
 
 

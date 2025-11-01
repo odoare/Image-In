@@ -683,6 +683,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout MapSynthAudioProcessor::crea
         
     layout.add(std::make_unique<juce::AudioParameterChoice>("FactoryImage", "Factory Image", factoryImageChoices, 1));
     layout.add(std::make_unique<juce::AudioParameterFloat>("Level","Level",juce::NormalisableRange<float>(-60.f,12.f,1e-2f,1.f),0.f));
+    layout.add(std::make_unique<juce::AudioParameterBool>("OscilloscopeEnabled", "Enable Oscilloscope", true));
 
     layout.add(std::make_unique<juce::AudioParameterFloat>("LFOFreq", "LFO 1 Freq", juce::NormalisableRange<float>(0.01f, 200.0f, 0.01f, 0.3f), 1.0f));
     layout.add(std::make_unique<juce::AudioParameterBool>("LFO1Sync", "LFO 1 Sync", false));

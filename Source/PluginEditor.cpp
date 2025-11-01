@@ -217,6 +217,11 @@ MapSynthAudioProcessorEditor::MapSynthAudioProcessorEditor (MapSynthAudioProcess
         audioProcessor.setUseOpenGL (useOpenGLButton.getToggleState());
     };
 
+    addAndMakeVisible(oscilloscopeButton);
+    oscilloscopeButton.setButtonText("Oscilloscope");
+    oscilloscopeAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(audioProcessor.apvts, "OscilloscopeEnabled", oscilloscopeButton);
+    oscilloscopeButton.setToggleState(audioProcessor.apvts.getRawParameterValue("OscilloscopeEnabled")->load() > 0.5f, juce::dontSendNotification);
+
     addAndMakeVisible(importStateButton);
     importStateButton.setButtonText("Import");
     importStateButton.onClick = [this]
@@ -348,8 +353,9 @@ void MapSynthAudioProcessorEditor::resized()
 
     factoryImageSelector.setBounds(buttonArea.getX() + 50, buttonArea.getY() + 3, 120, 24);
     loadImageButton.setBounds(factoryImageSelector.getRight() + 10, buttonArea.getY() + 3, 80, 24);
-    useOpenGLButton.setBounds(loadImageButton.getRight() + 10, buttonArea.getY() + 3, 80, 24);
-    importStateButton.setBounds(useOpenGLButton.getRight() + 5, buttonArea.getY() + 3, 60, 24);
+    useOpenGLButton.setBounds(loadImageButton.getRight() + 10, buttonArea.getY() + 3, 70, 24);
+    oscilloscopeButton.setBounds(useOpenGLButton.getRight() + 5, buttonArea.getY() + 3, 90, 24);
+    importStateButton.setBounds(oscilloscopeButton.getRight() + 5, buttonArea.getY() + 3, 60, 24);
     exportStateButton.setBounds(importStateButton.getRight() + 5, buttonArea.getY() + 3, 60, 24);
 
     auto mapArea = rightPanel.reduced(5);

@@ -102,6 +102,11 @@ public:
     float getSmoothedMaxLevel(const int channel);
     float getMaxLevel(const int channel);
 
+    SynthVoice* getVoice(int index) const
+    {
+        return dynamic_cast<SynthVoice*>(synth.getVoice(index));
+    }
+
 private:
     // Preset Management
     int currentProgram = 0;

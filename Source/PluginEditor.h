@@ -65,6 +65,8 @@ private:
     juce::TextButton loadImageButton;
     std::unique_ptr<juce::FileChooser> fileChooser;
     juce::ToggleButton useOpenGLButton;
+    juce::ToggleButton oscilloscopeButton;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> oscilloscopeAttachment;
     juce::TextButton importStateButton;
     juce::TextButton exportStateButton;
 

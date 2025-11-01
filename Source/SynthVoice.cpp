@@ -16,7 +16,10 @@
 #include "PluginProcessor.h"
 #include "ParameterStructs.h"
 
-SynthVoice::SynthVoice(MapSynthAudioProcessor& p, int index) : processor(p), voiceIndex(index)
+SynthVoice::SynthVoice(MapSynthAudioProcessor& p, int index)
+    : processor(p),
+      voiceIndex(index),
+      scopeBuffer(std::make_unique<SimpleCircularBuffer>(scopeBufferSize))
 {
 }
 
@@ -37,6 +40,7 @@ void SynthVoice::startNote (int midiNoteNumber, float velocity, juce::Synthesise
     adsr.noteOn();
     adsr2.noteOn();
     adsr3.noteOn();
+    scopeBuffer->clear();
 }
 
 void SynthVoice::stopNote (float velocity, bool allowTailOff)
@@ -152,6 +156,18 @@ void SynthVoice::renderNextBlock (juce::AudioBuffer<float>& outputBuffer, int st
 
     for (int ch = 0; ch < outputBuffer.getNumChannels(); ++ch)
         outputBuffer.addFrom (ch, startSample, tempRenderBuffer, ch, 0, numSamples);
+
+    // Write mono signal to scope buffer
+    if (processor.apvts.getRawParameterValue("OscilloscopeEnabled")->load() > 0.5f)
+    {
+        for (int i = 0; i < numSamples; ++i)
+        {
+            float monoSample = 0.0f;
+            for (int ch = 0; ch < tempRenderBuffer.getNumChannels(); ++ch)
+                monoSample += tempRenderBuffer.getSample(ch, i);
+            scopeBuffer->writeSample(monoSample / (float)juce::jmax(1, tempRenderBuffer.getNumChannels()));
+        }
+    }
 
     // Report state to GUI
     {
