@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <Parameters>
   <PARAM id="FactoryImage" value="1.0"/>
   <PARAM id="Ellipse1_CX" value="0.4399999976158142"/>
@@ -124,4 +125,20 @@
   <PARAM id="Release3" value="0.3999999761581421"/>
   <PARAM id="Sustain2"/>
   <PARAM id="Sustain3"/>
+  <PARAM id="Ellipse1_Detune"/>
+  <PARAM id="Ellipse1_MidiChannel"/>
+  <PARAM id="Ellipse1_On"/>
+  <PARAM id="Ellipse1_ShowLFO"/>
+  <PARAM id="Ellipse1_ShowMaster"/>
+  <PARAM id="Ellipse2_Detune"/>
+  <PARAM id="Ellipse2_MidiChannel"/>
+  <PARAM id="Ellipse2_On" value="1.0"/>
+  <PARAM id="Ellipse2_ShowLFO"/>
+  <PARAM id="Ellipse2_ShowMaster" value="1.0"/>
+  <PARAM id="Ellipse3_Detune"/>
+  <PARAM id="Ellipse3_MidiChannel"/>
+  <PARAM id="Ellipse3_On" value="1.0"/>
+  <PARAM id="Ellipse3_ShowLFO"/>
+  <PARAM id="Ellipse3_ShowMaster" value="1.0"/>
+  <PARAM id="OscilloscopeEnabled"/>
 </Parameters>

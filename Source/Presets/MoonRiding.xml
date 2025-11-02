@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <Parameters>
   <PARAM id="FactoryImage" value="2.0"/>
   <PARAM id="Ellipse1_CX" value="0.5"/>
@@ -24,8 +25,8 @@
   <PARAM id="Mod_Ellipse1_Volume_Select" value="4"/>
   <PARAM id="Attack2" value="2.059999942779541"/>
   <PARAM id="Attack3" value="0.8899999856948853"/>
-  <PARAM id="Decay2"/>
-  <PARAM id="Decay3"/>
+  <PARAM id="Decay2" value="0.09999999403953552"/>
+  <PARAM id="Decay3" value="0.09999999403953552"/>
   <PARAM id="Ellipse1_FilterFreq" value="590.0"/>
   <PARAM id="Ellipse1_FilterQuality"/>
   <PARAM id="Ellipse1_FilterType"/>
@@ -36,7 +37,7 @@
   <PARAM id="Ellipse2_FilterQuality"/>
   <PARAM id="Ellipse2_FilterType"/>
   <PARAM id="Ellipse2_Pan" value="-0.2800000309944153"/>
-  <PARAM id="Ellipse2_R1"/>
+  <PARAM id="Ellipse2_R1" value="0.2999999821186066"/>
   <PARAM id="Ellipse2_R2" value="0.1099999994039536"/>
   <PARAM id="Ellipse3_Angle" value="4.71999979019165"/>
   <PARAM id="Ellipse3_CX" value="0.7699999809265137"/>
@@ -47,7 +48,7 @@
   <PARAM id="Ellipse3_Pan" value="0.0"/>
   <PARAM id="Ellipse3_R1" value="0.3499999940395355"/>
   <PARAM id="Ellipse3_R2" value="0.01999999955296516"/>
-  <PARAM id="LFO1Rate"/>
+  <PARAM id="LFO1Rate" value="8.0"/>
   <PARAM id="LFO2Freq"/>
   <PARAM id="LFO2Phase"/>
   <PARAM id="LFO2Rate" value="2.0"/>
@@ -66,10 +67,10 @@
   <PARAM id="Level" value="-3.300003051757812"/>
   <PARAM id="Mod_Ellipse1_Angle_Amount"/>
   <PARAM id="Mod_Ellipse1_Angle_Select"/>
-  <PARAM id="Mod_Ellipse1_CX_Amount"/>
-  <PARAM id="Mod_Ellipse1_CX_Select"/>
-  <PARAM id="Mod_Ellipse1_CY_Amount"/>
-  <PARAM id="Mod_Ellipse1_CY_Select"/>
+  <PARAM id="Mod_Ellipse1_CX_Amount" value="0.0"/>
+  <PARAM id="Mod_Ellipse1_CX_Select" value="0.0"/>
+  <PARAM id="Mod_Ellipse1_CY_Amount" value="0.0"/>
+  <PARAM id="Mod_Ellipse1_CY_Select" value="0.0"/>
   <PARAM id="Mod_Ellipse1_FilterFreq_Amount" value="0.3799999952316284"/>
   <PARAM id="Mod_Ellipse1_FilterFreq_Select" value="1.0"/>
   <PARAM id="Mod_Ellipse1_FilterQuality_Amount"/>
@@ -86,7 +87,7 @@
   <PARAM id="Mod_Ellipse2_CX_Select"/>
   <PARAM id="Mod_Ellipse2_CY_Amount"/>
   <PARAM id="Mod_Ellipse2_CY_Select"/>
-  <PARAM id="Mod_Ellipse2_FilterFreq_Amount"/>
+  <PARAM id="Mod_Ellipse2_FilterFreq_Amount" value="0.0"/>
   <PARAM id="Mod_Ellipse2_FilterFreq_Select"/>
   <PARAM id="Mod_Ellipse2_FilterQuality_Amount"/>
   <PARAM id="Mod_Ellipse2_FilterQuality_Select"/>
@@ -99,7 +100,7 @@
   <PARAM id="Mod_Ellipse2_R2_Amount" value="0.2699999809265137"/>
   <PARAM id="Mod_Ellipse2_R2_Select"/>
   <PARAM id="Mod_Ellipse2_Volume_Amount"/>
-  <PARAM id="Mod_Ellipse2_Volume_Select"/>
+  <PARAM id="Mod_Ellipse2_Volume_Select" value="4.0"/>
   <PARAM id="Mod_Ellipse3_Angle_Amount"/>
   <PARAM id="Mod_Ellipse3_Angle_Select"/>
   <PARAM id="Mod_Ellipse3_CX_Amount" value="0.1799999475479126"/>
@@ -119,9 +120,25 @@
   <PARAM id="Mod_Ellipse3_R2_Amount" value="0.0"/>
   <PARAM id="Mod_Ellipse3_R2_Select" value="0.0"/>
   <PARAM id="Mod_Ellipse3_Volume_Amount"/>
-  <PARAM id="Mod_Ellipse3_Volume_Select"/>
+  <PARAM id="Mod_Ellipse3_Volume_Select" value="4.0"/>
   <PARAM id="Release2" value="2.609999895095825"/>
-  <PARAM id="Release3"/>
-  <PARAM id="Sustain2"/>
-  <PARAM id="Sustain3"/>
+  <PARAM id="Release3" value="0.3999999761581421"/>
+  <PARAM id="Sustain2" value="1.0"/>
+  <PARAM id="Sustain3" value="1.0"/>
+  <PARAM id="Ellipse1_Detune"/>
+  <PARAM id="Ellipse1_MidiChannel"/>
+  <PARAM id="Ellipse1_On"/>
+  <PARAM id="Ellipse1_ShowLFO"/>
+  <PARAM id="Ellipse1_ShowMaster"/>
+  <PARAM id="Ellipse2_Detune" value="0.0"/>
+  <PARAM id="Ellipse2_MidiChannel"/>
+  <PARAM id="Ellipse2_On" value="1.0"/>
+  <PARAM id="Ellipse2_ShowLFO"/>
+  <PARAM id="Ellipse2_ShowMaster"/>
+  <PARAM id="Ellipse3_Detune" value="0.0"/>
+  <PARAM id="Ellipse3_MidiChannel"/>
+  <PARAM id="Ellipse3_On" value="1.0"/>
+  <PARAM id="Ellipse3_ShowLFO"/>
+  <PARAM id="Ellipse3_ShowMaster"/>
+  <PARAM id="OscilloscopeEnabled"/>
 </Parameters>

@@ -128,5 +128,17 @@
   <PARAM id="Mod_Ellipse3_Volume_Select"/>
   <PARAM id="Release3"/>
   <PARAM id="Sustain3"/>
+  <PARAM id="Ellipse1_MidiChannel"/>
+  <PARAM id="Ellipse1_On"/>
+  <PARAM id="Ellipse1_ShowLFO"/>
+  <PARAM id="Ellipse1_ShowMaster" value="0.0"/>
+  <PARAM id="Ellipse2_MidiChannel"/>
+  <PARAM id="Ellipse2_On" value="1.0"/>
+  <PARAM id="Ellipse2_ShowLFO"/>
+  <PARAM id="Ellipse2_ShowMaster" value="0.0"/>
+  <PARAM id="Ellipse3_MidiChannel"/>
+  <PARAM id="Ellipse3_On" value="1.0"/>
+  <PARAM id="Ellipse3_ShowLFO"/>
+  <PARAM id="Ellipse3_ShowMaster" value="0.0"/>
+  <PARAM id="OscilloscopeEnabled"/>
 </Parameters>
-
