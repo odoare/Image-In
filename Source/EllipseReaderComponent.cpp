@@ -73,6 +73,27 @@ EllipseReaderComponent::EllipseReaderComponent(MapSynthAudioProcessor& p, int re
     filterTypeBox.setColour(juce::ComboBox::outlineColourId, juce::Colours::transparentBlack);
     filterTypeBox.addItemList(filterTypeChoices, 1);
     filterTypeAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(audioProcessor.apvts, idPrefix + "FilterType", filterTypeBox);
+
+    addAndMakeVisible(midiChannelBox);
+    midiChannelBox.setColour(juce::ComboBox::backgroundColourId, juce::Colours::transparentBlack);
+    midiChannelBox.setColour(juce::ComboBox::outlineColourId, juce::Colours::transparentBlack);
+    if (auto* choiceParam = dynamic_cast<juce::AudioParameterChoice*>(p.apvts.getParameter(idPrefix + "MidiChannel")))
+        midiChannelBox.addItemList(choiceParam->choices, 1);
+    midiChannelAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ComboBoxAttachment>(p.apvts, idPrefix + "MidiChannel", midiChannelBox);
+
+    addAndMakeVisible(onButton);
+    onButton.setButtonText("On");
+    onAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(p.apvts, idPrefix + "On", onButton);
+
+    addAndMakeVisible(showMasterButton);
+    showMasterButton.setButtonText("Show Master");
+    showMasterAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(p.apvts, idPrefix + "ShowMaster", showMasterButton);
+
+    addAndMakeVisible(showLFOButton);
+    showLFOButton.setButtonText("Show LFO");
+    showLFOAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(p.apvts, idPrefix + "ShowLFO", showLFOButton);
+
+
 }
 
 void EllipseReaderComponent::paint(juce::Graphics& g)
@@ -101,6 +122,14 @@ void EllipseReaderComponent::resized()
     // };
 
     using fi = juce::FlexItem;
+
+    juce::FlexBox midiAndTogglesBox;
+    midiAndTogglesBox.flexDirection = juce::FlexBox::Direction::row;
+    midiAndTogglesBox.items.add(fi(onButton).withFlex(1.f));
+    midiAndTogglesBox.items.add(fi(showMasterButton).withFlex(1.f));
+    midiAndTogglesBox.items.add(fi(showLFOButton).withFlex(1.f));
+    midiAndTogglesBox.items.add(fi(midiChannelBox).withFlex(1.f));
+
     fbRow1.items.add(fi(*ellipseCxKnob).withFlex(1.f));
     fbRow1.items.add(fi(*ellipseCyKnob).withFlex(1.f));
     fbRow1.items.add(fi(*ellipseR1Knob).withFlex(1.f));
@@ -137,12 +166,13 @@ void EllipseReaderComponent::resized()
     fbColumn3.items.add(fi(fbRow3).withFlex(1.0f));
     fbColumn3.items.add(fi(fbRow4).withFlex(1.0f));
 
-    fbR2.items.add(fi(fbR1).withFlex(2.f));
-    fbR2.items.add(fi(fbColumn3).withFlex(3.f));
+    fbR2.items.add(fi(fbR1).withFlex(1.7f));
+    fbR2.items.add(fi(fbColumn3).withFlex(2.f));
 
+    fbM.items.add(fi(midiAndTogglesBox).withFlex(.25f).withMargin(juce::FlexItem::Margin(0.f,0.f,10.f,0.f)));
     fbM.items.add(fi(fbRow1).withFlex(1.f));
     fbM.items.add(fi(fbRow2).withFlex(1.f));
-    fbM.items.add(fi(fbR2).withFlex(2.f).withMargin(juce::FlexItem::Margin(20.f,0.f,0.f,0.f)));
+    fbM.items.add(fi(fbR2).withFlex(2.f).withMargin(juce::FlexItem::Margin(10.f,0.f,0.f,0.f)));
 
     fbM.performLayout(bounds.toFloat());
 }

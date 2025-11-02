@@ -22,7 +22,7 @@ class MapSynthAudioProcessor;
 class SynthVoice : public juce::SynthesiserVoice
 {
 public:
-    SynthVoice (MapSynthAudioProcessor& p, int voiceIndex);
+    SynthVoice (MapSynthAudioProcessor& p, int voiceIndex, int readerIndex);
     
     bool canPlaySound (juce::SynthesiserSound* sound) override;
     
@@ -42,6 +42,8 @@ public:
 
     void rebuildReaders (const juce::Array<ReaderBase::Type>& types);
 
+    int getReaderIndex() const { return readerIndex; }
+
 private:
     MapSynthAudioProcessor& processor;
     MapOscillator mapOscillator;
@@ -49,6 +51,7 @@ private:
     ADSR adsr2; // Modulation ADSR
     ADSR adsr3; // Modulation ADSR
     juce::AudioBuffer<float> tempRenderBuffer;
+    int readerIndex;
     int voiceIndex;
     float noteVel{0.f};
 

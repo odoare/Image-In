@@ -34,9 +34,16 @@ private:
     juce::Label filterLabel;
 
     juce::ComboBox filterTypeBox;
+    juce::ComboBox midiChannelBox;
 
     std::unique_ptr<ModControlBox> modCx, modCy, modR1, modR2, modAngle, modVolume,
                                    modFilterFreq, modFilterQuality, modPan, modFreq;
 
     std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> filterTypeAttachment;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> midiChannelAttachment;
+
+    juce::ToggleButton onButton;
+    juce::ToggleButton showMasterButton;
+    juce::ToggleButton showLFOButton;
+    std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> onAttachment, showMasterAttachment, showLFOAttachment;
 };

@@ -35,7 +35,7 @@ public:
     void prepareToPlay (double sampleRate);
     void processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages, int startSample, int numSamples, BitmapDataManager& bitmapDataManager, const juce::AudioBuffer<float>& modulatorBuffer);
     void rebuildReaders (const juce::Array<ReaderBase::Type>& types);
-    void updateParameters (const GlobalParameters& params);
+    void updateParameters (const GlobalParameters& params, int readerIndex);
     EllipseReader* addEllipseReader();
     void removeReader (int index);
     int getNumReaders() const;

@@ -35,7 +35,7 @@ void ModControlBox::resized()
 {
     juce::FlexBox flexBox;
     flexBox.flexDirection = juce::FlexBox::Direction::column;
-    flexBox.items.add(juce::FlexItem(selectBox).withFlex(1.0f).withMargin(juce::FlexItem::Margin(10.f, 0, 0.f, 0.f)));
+    flexBox.items.add(juce::FlexItem(selectBox).withFlex(1.0f).withMargin(juce::FlexItem::Margin(5.f, 0, 0.f, 0.f)));
     flexBox.items.add(juce::FlexItem(amountKnob).withFlex(4.0f));
     flexBox.performLayout(getLocalBounds());
 }

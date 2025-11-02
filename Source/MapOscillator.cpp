@@ -70,22 +70,15 @@ void MapOscillator::rebuildReaders (const juce::Array<ReaderBase::Type>& types)
 {
     readers.clear();
 
-    for (int i = 0; i < 3; ++i)
-    {
-        auto* newReader = addEllipseReader();
-        if (newReader != nullptr)
-            newReader->prepareToPlay (currentSampleRate);
-    }
+    auto* newReader = addEllipseReader();
+    if (newReader != nullptr)
+        newReader->prepareToPlay (currentSampleRate);
 }
 
-void MapOscillator::updateParameters (const GlobalParameters& params)
+void MapOscillator::updateParameters (const GlobalParameters& params, int readerIndex)
 {
-    // Assuming the number of readers matches the number of parameter sets
-    for (int i = 0; i < readers.size() && i < params.ellipses.size(); ++i)
-    {
-        if (auto* ellipseReader = dynamic_cast<EllipseReader*> (readers[i]))
-            ellipseReader->updateParameters (params.ellipses[i]);
-    }
+    if (auto* ellipseReader = dynamic_cast<EllipseReader*> (readers[0]))
+        ellipseReader->updateParameters (params.ellipses[readerIndex]);
 }
 
 EllipseReader* MapOscillator::addEllipseReader()

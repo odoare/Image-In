@@ -168,7 +168,8 @@ void MapDisplayComponent_GL::renderOpenGL()
     for (int i = 0; i < 3; ++i)
     {
         juce::String prefix = "Ellipse" + juce::String(i + 1) + "_";
-        if (apvts.getRawParameterValue(prefix + "Volume")->load() > 0.01f)
+        const bool showLFO = apvts.getRawParameterValue(prefix + "ShowLFO")->load() > 0.5f;
+        if (showLFO && apvts.getRawParameterValue(prefix + "Volume")->load() > 0.01f)
         {
             g.setColour(LFOMODULATEDCOLOUR);
             const float cx_base = apvts.getRawParameterValue(prefix + "CX")->load();
@@ -210,7 +211,9 @@ void MapDisplayComponent_GL::renderOpenGL()
     for (int i = 0; i < 3; ++i)
     {
         juce::String prefix = "Ellipse" + juce::String(i + 1) + "_";
-        if (apvts.getRawParameterValue(prefix + "Volume")->load() > 0.01f)
+        const bool showMaster = apvts.getRawParameterValue(prefix + "ShowMaster")->load() > 0.5f;
+
+        if (showMaster && apvts.getRawParameterValue(prefix + "Volume")->load() > 0.01f)
         {
             g.setColour(ELLIPSECOLOURS[i]);
             const float cx_base = apvts.getRawParameterValue(prefix + "CX")->load();
@@ -232,7 +235,8 @@ void MapDisplayComponent_GL::renderOpenGL()
     for (int i = 0; i < 3; ++i)
     {
         juce::String prefix = "Ellipse" + juce::String(i + 1) + "_";
-        if (apvts.getRawParameterValue(prefix + "Volume")->load() > 0.01f)
+        const bool showMaster = apvts.getRawParameterValue(prefix + "ShowMaster")->load() > 0.5f;
+        if (showMaster && apvts.getRawParameterValue(prefix + "Volume")->load() > 0.01f)
         {
             g.setColour (ELLIPSECOLOURS[i].withAlpha (0.7f));
             const float cx_base = apvts.getRawParameterValue(prefix + "CX")->load();
@@ -260,23 +264,29 @@ void MapDisplayComponent_GL::renderOpenGL()
 
 
     // Draw per-voice paths
-    std::array<VoiceDisplayState, NUM_VOICES> statesCopy;
+    std::array<std::array<VoiceDisplayState, NUM_VOICES>, 3> statesCopy;
     {
         juce::ScopedLock lock (processor.displayStateLock);
         statesCopy = processor.voiceDisplayStates;
     }
 
-    for (const auto& voiceState : statesCopy)
+    for (int synthIndex = 0; synthIndex < 3; ++synthIndex)
     {
-        if (! voiceState.isActive)
-            continue;
-
-        for (int i = 0; i < voiceState.readerInfos.size(); ++i)
+        for (int voiceIndex = 0; voiceIndex < NUM_VOICES; ++voiceIndex)
         {
-            const auto& readerInfo = voiceState.readerInfos.getUnchecked(i);
+            const auto& voiceState = statesCopy[synthIndex][voiceIndex];
+
+            if (! voiceState.isActive)
+                continue;
+
+            // A voice only has one reader, so we can get the first one.
+            if (voiceState.readerInfos.isEmpty())
+                continue;
+
+            const auto& readerInfo = voiceState.readerInfos.getUnchecked(0);
             if (readerInfo.type == ReaderBase::Type::Ellipse)
             {
-                g.setColour(ELLIPSECOLOURS[i].withAlpha(readerInfo.volume));
+                g.setColour(ELLIPSECOLOURS[synthIndex].withAlpha(readerInfo.volume));
                 juce::Path p;
                 const float r1_pixels = readerInfo.r1 * juce::jmin(w, h);
                 const float r2_pixels = readerInfo.r2 * juce::jmin(w, h);

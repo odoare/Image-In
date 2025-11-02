@@ -91,7 +91,7 @@ public:
     juce::AudioBuffer<float> lfoBuffer;
     GlobalParameters globalParams; // This now contains all parameter structs
 
-    std::array<VoiceDisplayState, NUM_VOICES> voiceDisplayStates;
+    std::array<std::array<VoiceDisplayState, NUM_VOICES>, 3> voiceDisplayStates;
     juce::CriticalSection displayStateLock;
 
     // OpenGL state management
@@ -102,6 +102,8 @@ public:
     float getSmoothedMaxLevel(const int channel);
     float getMaxLevel(const int channel);
 
+    SynthVoice* getVoice(int synthIndex, int voiceIndex) const;
+
 private:
     // Preset Management
     int currentProgram = 0;
@@ -111,7 +113,7 @@ private:
 
     double processSampleRate = 44100.0;
 
-    juce::Synthesiser synth;
+    std::array<juce::Synthesiser, 3> synths;
     juce::LinearSmoothedValue<float> masterLevelSmoother;
     static juce::AudioProcessorValueTreeState::ParameterLayout createParameters();  
     

@@ -94,6 +94,10 @@ struct LineReaderParameters
 
 struct EllipseReaderParameters
 {
+    bool on = true;
+    bool showMaster = true;
+    bool showLFO = true;
+    int midiChannel = 0;
     float cx = 0.5f;
     float cy = 0.5f;
     float r1 = 0.4f;

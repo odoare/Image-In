@@ -22,6 +22,13 @@ namespace ParameterHelpers
 {
     void addEllipseParameters(juce::AudioProcessorValueTreeState::ParameterLayout& layout, int index, const juce::StringArray& modulatorChoices, const juce::StringArray& filterTypeChoices)
     {
+        juce::StringArray midiChannelChoices;
+        midiChannelChoices.add("Omni");
+        for (int i = 1; i <= 16; ++i)
+        {
+            midiChannelChoices.add("Channel " + juce::String(i));
+        }
+
         juce::String idPrefix = "Ellipse" + juce::String(index) + "_";
         juce::String namePrefix = "Ellipse " + juce::String(index) + " ";
 
@@ -29,6 +36,10 @@ namespace ParameterHelpers
         float defaultR1 = 0.4f - (index - 1) * 0.1f;
         float defaultR2 = 0.2f - (index - 1) * 0.05f;
 
+        layout.add(std::make_unique<juce::AudioParameterBool>(idPrefix + "On", namePrefix + "On", index == 1));
+        layout.add(std::make_unique<juce::AudioParameterBool>(idPrefix + "ShowMaster", namePrefix + "Show Master", true));
+        layout.add(std::make_unique<juce::AudioParameterBool>(idPrefix + "ShowLFO", namePrefix + "Show LFO", true));
+        layout.add(std::make_unique<juce::AudioParameterChoice>(idPrefix + "MidiChannel", namePrefix + "MIDI Ch", midiChannelChoices, 0));
         layout.add(std::make_unique<juce::AudioParameterFloat>(idPrefix + "CX", namePrefix + "CX", juce::NormalisableRange<float>(0.f, 1.f, .01f, 1.f), 0.5f));
         layout.add(std::make_unique<juce::AudioParameterFloat>(idPrefix + "CY", namePrefix + "CY", juce::NormalisableRange<float>(0.f, 1.f, .01f, 1.f), 0.5f));
         layout.add(std::make_unique<juce::AudioParameterFloat>(idPrefix + "R1", namePrefix + "R1", juce::NormalisableRange<float>(0.f, 0.5f, .01f, 1.f), defaultR1));
@@ -105,11 +116,14 @@ MapSynthAudioProcessor::MapSynthAudioProcessor()
                        .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
                      #endif
                        ), factoryPresets(FactoryPresets::getAvailablePresets())
-{
-    synth.addSound (new SynthSound());
-    for (int i = 0; i < NUM_VOICES; ++i)
+{    
+    for (int synthIndex = 0; synthIndex < 3; ++synthIndex)
     {
-        synth.addVoice (new SynthVoice (*this, i));
+        synths[synthIndex].addSound(new SynthSound());
+        for (int i = 0; i < NUM_VOICES; ++i)
+        {
+            synths[synthIndex].addVoice(new SynthVoice(*this, i, synthIndex));
+        }
     }
 
     // This must be called after voices are created.
@@ -248,7 +262,10 @@ void MapSynthAudioProcessor::changeProgramName (int index, const juce::String& n
 //==============================================================================
 void MapSynthAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
-    synth.setCurrentPlaybackSampleRate (sampleRate);
+    for (auto& synth : synths)
+    {
+        synth.setCurrentPlaybackSampleRate(sampleRate);
+    }
 
     juce::dsp::ProcessSpec spec;
     spec.sampleRate = sampleRate;
@@ -331,12 +348,15 @@ void MapSynthAudioProcessor::updateVoices()
 {
     juce::Array<ReaderBase::Type> types;
     for (int i = 0; i < 3; ++i)
-        types.add (ReaderBase::Type::Ellipse);
-    for (int i = 0; i < synth.getNumVoices(); ++i)
     {
-        if (auto* voice = dynamic_cast<SynthVoice*> (synth.getVoice (i)))
+        types.clear();
+        types.add(ReaderBase::Type::Ellipse); // Only one reader type per synth
+        for (int j = 0; j < synths[i].getNumVoices(); ++j)
         {
-            voice->rebuildReaders (types);
+            if (auto* voice = dynamic_cast<SynthVoice*>(synths[i].getVoice(j)))
+            {
+                voice->rebuildReaders(types);
+            }
         }
     }
 }
@@ -412,6 +432,9 @@ void MapSynthAudioProcessor::updateParameters()
         auto& ellipseParams = globalParams.ellipses[i];
         juce::String prefix = "Ellipse" + juce::String(i + 1) + "_";
 
+        ellipseParams.on = apvts.getRawParameterValue(prefix + "On")->load() > 0.5f;
+        ellipseParams.showMaster = apvts.getRawParameterValue(prefix + "ShowMaster")->load() > 0.5f;
+        ellipseParams.midiChannel = (int)apvts.getRawParameterValue(prefix + "MidiChannel")->load();
         ellipseParams.cx = apvts.getRawParameterValue(prefix + "CX")->load();
         ellipseParams.cy = apvts.getRawParameterValue(prefix + "CY")->load();
         ellipseParams.r1 = apvts.getRawParameterValue(prefix + "R1")->load();
@@ -494,9 +517,30 @@ void MapSynthAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
 {
     juce::ScopedNoDenormals noDenormals;
 
+    updateParameters();
+
     masterLevelSmoother.setTargetValue(juce::Decibels::decibelsToGain(apvts.getRawParameterValue("Level")->load()));
 
-    updateParameters();
+    buffer.clear();
+
+    // Split MIDI buffer by channel for each synth
+    std::array<juce::MidiBuffer, 3> midiBuffers;
+    for (int i = 0; i < 3; ++i)
+    {
+        const int targetChannel = globalParams.ellipses[i].midiChannel;
+        if (targetChannel == 0) // Omni
+        {
+            midiBuffers[i].addEvents(midiMessages, 0, -1, 0);
+        }
+        else
+        {
+            for (const auto metadata : midiMessages)
+            {
+                if (metadata.getMessage().getChannel() == targetChannel)
+                    midiBuffers[i].addEvent(metadata.getMessage(), metadata.samplePosition);
+            }
+        }
+    }
 
     double bpm = 120.0;
     if (auto* playHead = getPlayHead())
@@ -570,8 +614,11 @@ void MapSynthAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
         lfo4Data[i] = lfo4.process();
     }
 
-    buffer.clear();
-    synth.renderNextBlock (buffer, midiMessages, 0, buffer.getNumSamples());
+    for (int i = 0; i < 3; ++i)
+    {
+        if (globalParams.ellipses[i].on)
+            synths[i].renderNextBlock(buffer, midiBuffers[i], 0, buffer.getNumSamples());
+    }
 
     masterLevelSmoother.applyGain(buffer, buffer.getNumSamples());
 
@@ -683,6 +730,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout MapSynthAudioProcessor::crea
         
     layout.add(std::make_unique<juce::AudioParameterChoice>("FactoryImage", "Factory Image", factoryImageChoices, 1));
     layout.add(std::make_unique<juce::AudioParameterFloat>("Level","Level",juce::NormalisableRange<float>(-60.f,12.f,1e-2f,1.f),0.f));
+    layout.add(std::make_unique<juce::AudioParameterBool>("OscilloscopeEnabled", "Enable Oscilloscope", true));
 
     layout.add(std::make_unique<juce::AudioParameterFloat>("LFOFreq", "LFO 1 Freq", juce::NormalisableRange<float>(0.01f, 200.0f, 0.01f, 0.3f), 1.0f));
     layout.add(std::make_unique<juce::AudioParameterBool>("LFO1Sync", "LFO 1 Sync", false));

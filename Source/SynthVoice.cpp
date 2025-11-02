@@ -16,7 +16,10 @@
 #include "PluginProcessor.h"
 #include "ParameterStructs.h"
 
-SynthVoice::SynthVoice(MapSynthAudioProcessor& p, int index) : processor(p), voiceIndex(index)
+SynthVoice::SynthVoice(MapSynthAudioProcessor& p, int vIndex, int rIndex)
+    : processor(p),
+      readerIndex(rIndex),
+      voiceIndex(vIndex)
 {
 }
 
@@ -28,10 +31,7 @@ bool SynthVoice::canPlaySound (juce::SynthesiserSound* sound)
 void SynthVoice::startNote (int midiNoteNumber, float velocity, juce::SynthesiserSound* sound, int currentPitchWheelPosition)
 {
     const double frequency = juce::MidiMessage::getMidiNoteInHertz(midiNoteNumber);
-    for (auto* reader : mapOscillator.getReaders())
-    {
-        reader->setFrequency(frequency);
-    }
+    mapOscillator.getReader(0)->setFrequency(frequency); // This voice's oscillator only has one reader
     noteVel = velocity;
 
     adsr.noteOn();
@@ -73,9 +73,9 @@ void SynthVoice::renderNextBlock (juce::AudioBuffer<float>& outputBuffer, int st
     if (! isVoiceActive())
     {
         // Ensure the GUI knows this voice is off
-        juce::ScopedLock lock (processor.displayStateLock);
-        if (processor.voiceDisplayStates[voiceIndex].isActive)
-            processor.voiceDisplayStates[voiceIndex].isActive = false;
+        juce::ScopedLock lock(processor.displayStateLock);
+        if (processor.voiceDisplayStates[readerIndex][voiceIndex].isActive)
+            processor.voiceDisplayStates[readerIndex][voiceIndex].isActive = false;
         return;
     }
     
@@ -83,7 +83,7 @@ void SynthVoice::renderNextBlock (juce::AudioBuffer<float>& outputBuffer, int st
     adsr.setParameters (processor.globalParams.adsr);
     adsr2.setParameters (processor.globalParams.adsr2);
     adsr3.setParameters (processor.globalParams.adsr3);
-    mapOscillator.updateParameters (processor.globalParams);
+    mapOscillator.updateParameters (processor.globalParams, readerIndex);
 
     // Prepare modulator buffer
     modulatorBuffer.setSize (ModulatorSources::NumModulators, numSamples, false, false, true);
@@ -156,8 +156,8 @@ void SynthVoice::renderNextBlock (juce::AudioBuffer<float>& outputBuffer, int st
     // Report state to GUI
     {
         juce::ScopedLock lock (processor.displayStateLock);
-        auto& displayState = processor.voiceDisplayStates[voiceIndex];
-        displayState.isActive = isVoiceActive();
+        auto& displayState = processor.voiceDisplayStates[readerIndex][voiceIndex];
+        displayState.isActive = true;
 
         const auto& readers = mapOscillator.getReaders();
         displayState.readerInfos.resize (readers.size());
@@ -169,7 +169,7 @@ void SynthVoice::renderNextBlock (juce::AudioBuffer<float>& outputBuffer, int st
     {
         clearCurrentNote();
         // Final update to ensure GUI shows inactive state
-        juce::ScopedLock lock (processor.displayStateLock);
-        processor.voiceDisplayStates[voiceIndex].isActive = false;
+        juce::ScopedLock lock(processor.displayStateLock);
+        processor.voiceDisplayStates[readerIndex][voiceIndex].isActive = false;
     }
 }
