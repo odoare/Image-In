@@ -15,7 +15,7 @@
 #include "LFOControlComponent.h"
 #include "colours.h"
 
-LFOControlComponent::SyncControls::SyncControls(juce::ToggleButton& button, juce::ComboBox& box)
+LFOControlComponent::SyncControls::SyncControls(juce::Component& button, juce::ComboBox& box)
     : syncButton(button), rateBox(box)
 {
     addAndMakeVisible(syncButton);
@@ -37,7 +37,8 @@ LFOControlComponent::LFOControlComponent(MapSynthAudioProcessor& p, int lfoIndex
       index(lfoIndex),
       freqKnob(p.apvts, getFreqParamId(lfoIndex), getFreqParamId(lfoIndex), LFOCONTROLCOLOUR),
       phaseKnob(p.apvts, "LFO" + juce::String(index) + "Phase", "LFO" + juce::String(index) + "Phase", LFOCONTROLCOLOUR),
-      syncControls(syncButton, rateBox)
+      syncButton(std::make_unique<fxme::FxmeButton>(p.apvts, "LFO" + juce::String(index) + "Sync", "Sync", LFOCONTROLCOLOUR)),
+      syncControls(*syncButton, rateBox)
 {
     addAndMakeVisible(freqKnob);
     freqKnob.slider.setLookAndFeel(&fxmeLookAndFeel);
@@ -45,12 +46,10 @@ LFOControlComponent::LFOControlComponent(MapSynthAudioProcessor& p, int lfoIndex
     addAndMakeVisible(phaseKnob);
     phaseKnob.slider.setLookAndFeel(&fxmeLookAndFeel);
 
-    juce::String syncParamId = "LFO" + juce::String(index) + "Sync";
+    syncButton->setLookAndFeel(&fxmeLookAndFeel);
+
     juce::String rateParamId = "LFO" + juce::String(index) + "Rate";
     juce::String waveParamId = "LFO" + juce::String(index) + "Wave";
-
-    syncButton.setButtonText("Sync");
-    syncAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(audioProcessor.apvts, syncParamId, syncButton);
 
     addAndMakeVisible(syncControls);
 
@@ -63,12 +62,12 @@ LFOControlComponent::LFOControlComponent(MapSynthAudioProcessor& p, int lfoIndex
 
     auto updateKnobEnabledState = [this]
     {
-        bool syncEnabled = syncButton.getToggleState();
+        bool syncEnabled = syncButton->button.getToggleState();
         freqKnob.slider.setEnabled(!syncEnabled);
         rateBox.setEnabled(syncEnabled);
     };
-
-    syncButton.onStateChange = updateKnobEnabledState;
+    
+    syncButton->button.onStateChange = updateKnobEnabledState;
     updateKnobEnabledState(); // Set initial state
 
     // Init FlexBoxes

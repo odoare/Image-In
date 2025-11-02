@@ -42,8 +42,7 @@ private:
     std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> filterTypeAttachment;
     std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> midiChannelAttachment;
 
-    juce::ToggleButton onButton;
-    juce::ToggleButton showMasterButton;
-    juce::ToggleButton showLFOButton;
-    std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> onAttachment, showMasterAttachment, showLFOAttachment;
+    std::unique_ptr<fxme::FxmeButton> onButton;
+    std::unique_ptr<fxme::FxmeButton> showMasterButton;
+    std::unique_ptr<fxme::FxmeButton> showLFOButton;
 };

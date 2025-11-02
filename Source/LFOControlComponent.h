@@ -32,11 +32,11 @@ private:
     class SyncControls : public juce::Component
     {
     public:
-        SyncControls(juce::ToggleButton& button, juce::ComboBox& box);
+        SyncControls(juce::Component& button, juce::ComboBox& box);
         void resized() override;
 
     private:
-        juce::ToggleButton& syncButton;
+        juce::Component& syncButton;
         juce::ComboBox& rateBox;
         juce::FlexBox flexBox;
     };
@@ -49,12 +49,11 @@ private:
 
     fxme::FxmeKnob freqKnob;
     fxme::FxmeKnob phaseKnob;
-    juce::ToggleButton syncButton;
+    std::unique_ptr<fxme::FxmeButton> syncButton;
     juce::ComboBox rateBox;
     juce::ComboBox waveformBox;
     SyncControls syncControls;
 
-    std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> syncAttachment;
     std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> rateAttachment;
     std::unique_ptr<juce::AudioProcessorValueTreeState::ComboBoxAttachment> waveformAttachment;
 

@@ -155,7 +155,7 @@ void MapDisplayComponent::paint (juce::Graphics& g)
         juce::String prefix = "Ellipse" + juce::String(i + 1) + "_";
         const bool showMaster = apvts.getRawParameterValue(prefix + "ShowMaster")->load() > 0.5f;
 
-        if (showMaster && apvts.getRawParameterValue(prefix + "Volume")->load() > 0.01f)
+        if (showMaster)
         {
             g.setColour(ELLIPSECOLOURS[i]);
             const float cx_base = apvts.getRawParameterValue(prefix + "CX")->load();
@@ -180,7 +180,7 @@ void MapDisplayComponent::paint (juce::Graphics& g)
         juce::String prefix = "Ellipse" + juce::String(i + 1) + "_";
         const bool showMaster = apvts.getRawParameterValue(prefix + "ShowMaster")->load() > 0.5f;
 
-        if (showMaster && apvts.getRawParameterValue(prefix + "Volume")->load() > 0.01f)
+        if (showMaster)
         {
             g.setColour(ELLIPSECOLOURS[i].withAlpha(0.7f));
             const float cx_base = apvts.getRawParameterValue(prefix + "CX")->load();
