@@ -71,7 +71,7 @@
   <PARAM id="LFO4Rate"/>
   <PARAM id="LFO4Sync"/>
   <PARAM id="LFO4Wave"/>
-  <PARAM id="LFOFreq" value="0.9999999403953552"/>
+  <PARAM id="LFO1Freq" value="0.9999999403953552"/>
   <PARAM id="Mod_Ellipse1_Angle_Amount"/>
   <PARAM id="Mod_Ellipse1_Angle_Select"/>
   <PARAM id="Mod_Ellipse1_CY_Amount" value="0.1000000238418579"/>

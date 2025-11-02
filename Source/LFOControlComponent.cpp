@@ -35,7 +35,7 @@ void LFOControlComponent::SyncControls::resized()
 LFOControlComponent::LFOControlComponent(MapSynthAudioProcessor& p, int lfoIndex)
     : audioProcessor(p),
       index(lfoIndex),
-      freqKnob(p.apvts, getFreqParamId(lfoIndex), getFreqParamId(lfoIndex), LFOCONTROLCOLOUR),
+      freqKnob(p.apvts, "LFO" + juce::String(index) + "Freq", "Freq", LFOCONTROLCOLOUR),
       phaseKnob(p.apvts, "LFO" + juce::String(index) + "Phase", "LFO" + juce::String(index) + "Phase", LFOCONTROLCOLOUR),
       syncButton(std::make_unique<fxme::FxmeButton>(p.apvts, "LFO" + juce::String(index) + "Sync", "Sync", LFOCONTROLCOLOUR)),
       syncControls(*syncButton, rateBox)

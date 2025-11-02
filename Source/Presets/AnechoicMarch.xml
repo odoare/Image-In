@@ -11,7 +11,7 @@
   <PARAM id="Ellipse1_Pan" value="0.0"/>
   <PARAM id="Ellipse2_Volume" value="0.0"/>
   <PARAM id="Ellipse3_Volume" value="0.0"/>
-  <PARAM id="LFOFreq" value="0.1400000005960464"/>
+  <PARAM id="LFO1Freq" value="0.1400000005960464"/>
   <PARAM id="LFO1Sync" value="1.0"/>
   <PARAM id="LFO1Wave" value="0.0"/>
   <PARAM id="LFO1Phase" value="0.0"/>

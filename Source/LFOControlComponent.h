@@ -41,8 +41,6 @@ private:
         juce::FlexBox flexBox;
     };
 
-    static juce::String getFreqParamId(int index) { return (index == 1) ? "LFOFreq" : "LFO" + juce::String(index) + "Freq"; }
-
     MapSynthAudioProcessor& audioProcessor;
     fxme::FxmeLookAndFeel fxmeLookAndFeel;
     int index;

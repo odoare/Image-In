@@ -585,7 +585,7 @@ void MapSynthAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
     // Set up the LFOs
 
     lfo.setWaveform((LFO::Waveform)(int)apvts.getRawParameterValue("LFO1Wave")->load());
-    lfo.setFrequency(getLfoFreq("LFO1Sync", "LFO1Rate", "LFOFreq"));
+    lfo.setFrequency(getLfoFreq("LFO1Sync", "LFO1Rate", "LFO1Freq"));
     lfo.setPhaseOffset(apvts.getRawParameterValue("LFO1Phase")->load());
 
     lfo2.setWaveform((LFO::Waveform)(int)apvts.getRawParameterValue("LFO2Wave")->load());
@@ -749,7 +749,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout MapSynthAudioProcessor::crea
     layout.add(std::make_unique<juce::AudioParameterFloat>("Level","Level",juce::NormalisableRange<float>(-60.f,12.f,1e-2f,1.f),0.f));
     layout.add(std::make_unique<juce::AudioParameterBool>("OscilloscopeEnabled", "Enable Oscilloscope", true));
 
-    layout.add(std::make_unique<juce::AudioParameterFloat>("LFOFreq", "LFO 1 Freq", juce::NormalisableRange<float>(0.01f, 200.0f, 0.01f, 0.3f), 1.0f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>("LFO1Freq", "LFO 1 Freq", juce::NormalisableRange<float>(0.01f, 200.0f, 0.01f, 0.3f), 1.0f));
     layout.add(std::make_unique<juce::AudioParameterBool>("LFO1Sync", "LFO 1 Sync", false));
     layout.add(std::make_unique<juce::AudioParameterChoice>("LFO1Wave", "LFO 1 Wave", lfoWaveformChoices, 0));
     layout.add(std::make_unique<juce::AudioParameterChoice>("LFO1Rate", "LFO 1 Rate", tempoSyncRateChoices, 8)); // Default to 1/4
