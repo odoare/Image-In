@@ -32,6 +32,7 @@ void SynthVoice::startNote (int midiNoteNumber, float velocity, juce::Synthesise
 {
     const double frequency = juce::MidiMessage::getMidiNoteInHertz(midiNoteNumber);
     mapOscillator.getReader(0)->setFrequency(frequency); // This voice's oscillator only has one reader
+    mapOscillator.getReader(0)->resetPhase();
     noteVel = velocity;
 
     adsr.noteOn();
@@ -61,6 +62,13 @@ void SynthVoice::setCurrentPlaybackSampleRate (double newRate)
     adsr.prepareToPlay (getSampleRate());
     adsr2.prepareToPlay (getSampleRate());
     adsr3.prepareToPlay (getSampleRate());
+}
+
+void SynthVoice::resetADSRs()
+{
+    adsr.reset();
+    adsr2.reset();
+    adsr3.reset();
 }
 
 void SynthVoice::rebuildReaders (const juce::Array<ReaderBase::Type>& types)

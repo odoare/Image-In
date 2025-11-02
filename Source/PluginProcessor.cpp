@@ -616,8 +616,25 @@ void MapSynthAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juc
 
     for (int i = 0; i < 3; ++i)
     {
-        if (globalParams.ellipses[i].on)
+        const auto& params = globalParams.ellipses[i];
+        if (params.on) {
             synths[i].renderNextBlock(buffer, midiBuffers[i], 0, buffer.getNumSamples());
+        }
+        else if (params.wasOn) // It was on, but now it's off
+        {
+            synths[i].allNotesOff(0, false); // Kill all notes for this synth
+
+            // Manually update the display state and reset the ADSRs for the voices of the turned-off synth
+            juce::ScopedLock lock(displayStateLock);
+            for (int voiceIndex = 0; voiceIndex < NUM_VOICES; ++voiceIndex)
+            {
+                if (auto* voice = getVoice(i, voiceIndex))
+                {
+                    voice->resetADSRs();
+                }
+                voiceDisplayStates[i][voiceIndex].isActive = false;
+            }
+        }
     }
 
     masterLevelSmoother.applyGain(buffer, buffer.getNumSamples());

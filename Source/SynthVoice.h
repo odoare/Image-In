@@ -42,6 +42,8 @@ public:
 
     void rebuildReaders (const juce::Array<ReaderBase::Type>& types);
 
+    void resetADSRs();
+
     int getReaderIndex() const { return readerIndex; }
 
 private:

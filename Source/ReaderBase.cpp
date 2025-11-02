@@ -62,6 +62,13 @@ void ReaderBase::updateFilterParameters(const FilterParameters& params)
     modFilterQualitySelect = params.modQualitySelect;
 }
 
+void ReaderBase::resetPhase()
+{
+    phase = 0.0f;
+    phaseLow = 0.0f;
+    phaseHigh = 0.0f;
+}
+
 float ReaderBase::applyFilter(float inputSample, float modFreqSignal, float modQualitySignal)
 {
     auto& f = filter; // for brevity

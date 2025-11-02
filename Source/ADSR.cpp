@@ -52,3 +52,8 @@ bool ADSR::isActive() const
 {
     return adsr.isActive();
 }
+
+void ADSR::reset()
+{
+    adsr.reset();
+}

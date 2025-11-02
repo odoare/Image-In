@@ -33,6 +33,7 @@ public:
     void noteOn();
     void noteOff();
     bool isActive() const;
+    void reset();
 
 private:
     juce::ADSR adsr;

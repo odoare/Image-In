@@ -96,6 +96,7 @@ struct EllipseReaderParameters
 {
     bool on = true;
     bool showMaster = true;
+    bool wasOn = true;
     bool showLFO = true;
     int midiChannel = 0;
     float cx = 0.5f;

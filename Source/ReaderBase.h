@@ -48,6 +48,7 @@ public:
     float getVolume() const;
     void setPan (float newPan);
     void updateFilterParameters(const FilterParameters& params);
+    void resetPhase();
 
     virtual Type getType() const = 0;
 
