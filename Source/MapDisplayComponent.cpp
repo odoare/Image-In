@@ -35,7 +35,7 @@ MapDisplayComponent::~MapDisplayComponent()
 
 void MapDisplayComponent::paint (juce::Graphics& g)
 {
-    g.fillAll (juce::Colours::darkgrey);
+    g.fillAll (juce::Colours::black);
 
     if (displayArea.isEmpty())
         return;

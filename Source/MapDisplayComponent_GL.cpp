@@ -67,7 +67,7 @@ void MapDisplayComponent_GL::openGLContextClosing()
 
 void MapDisplayComponent_GL::renderOpenGL()
 {
-    juce::OpenGLHelpers::clear (juce::Colours::darkgrey);
+    juce::OpenGLHelpers::clear (juce::Colours::black);
 
     if (displayArea.isEmpty())
         return;

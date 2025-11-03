@@ -18,6 +18,51 @@
 #include "colours.h"
 #include "LFOControlComponent.h"
 
+
+namespace
+{
+    /** A helper component to manage displaying the plugin editor in a fullscreen window. */
+    class FullscreenComponent  : public juce::Component
+    {
+    public:
+        FullscreenComponent (juce::Component* content)
+            : contentToShow (content)
+        {
+            originalParent = content->getParentComponent();
+            originalBounds = content->getBounds();
+
+            addAndMakeVisible (content);
+
+            setOpaque (true);
+            addToDesktop (juce::ComponentPeer::windowIsTemporary);
+            setAlwaysOnTop (true);
+        }
+
+        ~FullscreenComponent() override
+        {
+            // When this component is destroyed, it puts the editor back where it was.
+            if (originalParent != nullptr)
+                originalParent->addAndMakeVisible (contentToShow);
+
+            contentToShow->setBounds (originalBounds);
+        }
+
+        void resized() override
+        {
+            if (contentToShow != nullptr)
+                contentToShow->setBounds (getLocalBounds());
+        }
+
+        void paint (juce::Graphics& g) override { g.fillAll (juce::Colours::black); }
+        void mouseDown (const juce::MouseEvent&) override { delete this; }
+
+    private:
+        juce::Component* contentToShow;
+        juce::Component* originalParent;
+        juce::Rectangle<int> originalBounds;
+    };
+};
+
 class LFOsComponent : public juce::Component
 {
 public:
@@ -43,13 +88,17 @@ public:
         auto bounds = getLocalBounds().reduced(5);
         lfoRow1.items.clear();
         lfoRow2.items.clear();
+        lfoCol.items.clear();
+
         const auto margin = juce::FlexItem::Margin(10.f);
         lfoRow1.items.add(juce::FlexItem(lfo1Controls).withFlex(1.0f).withMargin(margin));
         lfoRow1.items.add(juce::FlexItem(lfo2Controls).withFlex(1.0f).withMargin(margin));
         lfoRow2.items.add(juce::FlexItem(lfo3Controls).withFlex(1.0f).withMargin(margin));
         lfoRow2.items.add(juce::FlexItem(lfo4Controls).withFlex(1.0f).withMargin(margin));
+
         lfoCol.items.add(juce::FlexItem(lfoRow1).withFlex(1.0f));
         lfoCol.items.add(juce::FlexItem(lfoRow2).withFlex(1.0f));
+
         lfoCol.performLayout(bounds);
     }
 
@@ -290,6 +339,40 @@ MapSynthAudioProcessorEditor::MapSynthAudioProcessorEditor (MapSynthAudioProcess
     audioProcessor.openGLStateBroadcaster.addChangeListener (this);
     updateRendererVisibility();
 
+    addAndMakeVisible(togglePanelButton);
+    togglePanelButton.setButtonText("<");
+    togglePanelButton.onClick = [this]
+    {
+        if (auto* param = audioProcessor.apvts.getParameter("ShowPanel"))
+        {
+            // Toggling the parameter will automatically trigger parameterChanged, which calls resized().
+            param->setValueNotifyingHost(param->getValue() > 0.5f ? 0.0f : 1.0f);
+        }
+    };
+
+    addAndMakeVisible(fullscreenButton);
+    fullscreenButton.onClick = [this] {
+        if (fullscreenComponent == nullptr)
+        {
+            // Enter fullscreen
+            fullscreenComponent = new FullscreenComponent (this);
+            fullscreenComponent->setBounds (juce::Desktop::getInstance().getDisplays()
+                                                .getPrimaryDisplay()->userArea);
+            fullscreenComponent->setVisible (true);
+            fullscreenButton.setToggleState (true, juce::dontSendNotification);
+        }
+        else
+        {
+            // Exit fullscreen
+            // The FullscreenComponent will delete itself on mouse-click,
+            // but we also delete it here if the button is clicked again.
+            delete fullscreenComponent;
+            fullscreenComponent = nullptr;
+            fullscreenButton.setToggleState (false, juce::dontSendNotification);
+        }
+    };
+
+
     addAndMakeVisible(meterL);
     addAndMakeVisible(meterR);
 
@@ -297,6 +380,9 @@ MapSynthAudioProcessorEditor::MapSynthAudioProcessorEditor (MapSynthAudioProcess
     // editor's size to whatever you need it to be.
     setResizable(true, true);
     setSize (1024, 512);
+
+    audioProcessor.apvts.addParameterListener("ShowPanel", this);
+
 }
 
 MapSynthAudioProcessorEditor::~MapSynthAudioProcessorEditor()
@@ -309,6 +395,16 @@ void MapSynthAudioProcessorEditor::changeListenerCallback (juce::ChangeBroadcast
     if (source == &audioProcessor.openGLStateBroadcaster)
     {
         updateRendererVisibility();
+    }
+}
+
+//==============================================================================
+void MapSynthAudioProcessorEditor::parameterChanged(const juce::String& parameterID, float /*newValue*/)
+{
+    if (parameterID == "ShowPanel")
+    {
+        // The parameter has changed, so we need to update the layout.
+        resized();
     }
 }
 
@@ -332,30 +428,90 @@ void MapSynthAudioProcessorEditor::resized()
 {
     // This is generally where you'll want to lay out the positions of any
     // subcomponents in your editor..
-    auto bounds = getLocalBounds();
-    auto leftPanelArea = bounds.removeFromLeft(juce::jmin(500, bounds.getWidth() / 2));
-    auto rightPanel = bounds;
+    auto totalBounds = getLocalBounds();
+    juce::Rectangle<int> leftPanelArea;
+    juce::Rectangle<int> rightPanel;
 
-    auto leftPanelPadded = leftPanelArea.reduced(5);
-    auto buttonArea = leftPanelPadded.removeFromTop(30);
-    auto meterArea = leftPanelPadded.removeFromBottom(15);
-    meterL.setBounds(meterArea);
-    meterArea = leftPanelPadded.removeFromBottom(15);
-    meterR.setBounds(meterArea);
-    auto volumeArea = leftPanelPadded.removeFromBottom(30);
-    readerTabs.setBounds(leftPanelPadded);
-    masterVolumeSlider.setBounds(volumeArea);
+    bool isPanelVisible = audioProcessor.apvts.getRawParameterValue("ShowPanel")->load() > 0.5f;
 
-    factoryImageSelector.setBounds(buttonArea.getX() + 50, buttonArea.getY() + 3, 120, 24);
-    loadImageButton.setBounds(factoryImageSelector.getRight() + 10, buttonArea.getY() + 3, 80, 24);
-    useOpenGLButton.setBounds(loadImageButton.getRight() + 10, buttonArea.getY() + 3, 80, 24);
-    importStateButton.setBounds(useOpenGLButton.getRight() + 5, buttonArea.getY() + 3, 60, 24);
-    exportStateButton.setBounds(importStateButton.getRight() + 5, buttonArea.getY() + 3, 60, 24);
+    if (isPanelVisible)
+    {
+        leftPanelArea = totalBounds.removeFromLeft(juce::jmin(500, getWidth() / 2));
+        rightPanel = totalBounds;
+
+        meterL.setVisible(true);
+        meterR.setVisible(true);
+        masterVolumeSlider.setVisible(true);
+        masterVolumeLabel.setVisible(true);
+        factoryImageLabel.setVisible(true);
+        factoryImageSelector.setVisible(true); 
+        loadImageButton.setVisible(true);
+        useOpenGLButton.setVisible(true);
+        importStateButton.setVisible(true);
+        exportStateButton.setVisible(true);
+        readerTabs.setVisible(true);
+
+
+        // auto leftPanelPadded = leftPanelArea.reduced(5);
+        // auto buttonArea = leftPanelPadded.removeFromTop(30);
+        // auto meterArea = leftPanelPadded.removeFromBottom(15);
+        // meterL.setBounds(meterArea);
+        // meterArea = leftPanelPadded.removeFromBottom(15);
+        // meterR.setBounds(meterArea);
+        // auto volumeArea = leftPanelPadded.removeFromBottom(30);
+        // readerTabs.setBounds(leftPanelPadded);
+        // masterVolumeSlider.setBounds(volumeArea);
+
+        // factoryImageSelector.setBounds(buttonArea.getX() + 50, buttonArea.getY() + 3, 120, 24);
+        // loadImageButton.setBounds(factoryImageSelector.getRight() + 10, buttonArea.getY() + 3, 80, 24);
+        // useOpenGLButton.setBounds(loadImageButton.getRight() + 10, buttonArea.getY() + 3, 80, 24);
+        // importStateButton.setBounds(useOpenGLButton.getRight() + 5, buttonArea.getY() + 3, 60, 24);
+        // exportStateButton.setBounds(importStateButton.getRight() + 5, buttonArea.getY() + 3, 60, 24);
+
+        auto leftPanelPadded = leftPanelArea.reduced(5);
+        auto buttonArea = leftPanelPadded.removeFromTop(30);
+        auto fadeArea = leftPanelPadded.removeFromTop(20);
+        auto meterArea = leftPanelPadded.removeFromBottom(15);
+        meterL.setBounds(meterArea);
+        meterArea = leftPanelPadded.removeFromBottom(15);
+        meterR.setBounds(meterArea);
+        auto volumeArea = leftPanelPadded.removeFromBottom(30);
+
+        readerTabs.setBounds(leftPanelPadded);
+        masterVolumeSlider.setBounds(volumeArea);
+
+        factoryImageSelector.setBounds(buttonArea.getX() + 60, buttonArea.getY() + 3, 120, 24);
+        loadImageButton.setBounds(factoryImageSelector.getRight() + 10, buttonArea.getY() + 3, 80, 24);
+        useOpenGLButton.setBounds(loadImageButton.getRight() + 10, buttonArea.getY() + 3, 80, 24);
+        
+        importStateButton.setBounds(useOpenGLButton.getRight() + 10, buttonArea.getY() + 3, 60, 24);
+        exportStateButton.setBounds(importStateButton.getRight() + 5, buttonArea.getY() + 3, 60, 24);
+
+        togglePanelButton.setButtonText("<");    
+
+    }
+    else
+    {
+        rightPanel = totalBounds;
+        meterL.setVisible(false);
+        meterR.setVisible(false);
+        masterVolumeSlider.setVisible(false);
+        masterVolumeLabel.setVisible(false);
+        factoryImageLabel.setVisible(false);
+        factoryImageSelector.setVisible(false); 
+        loadImageButton.setVisible(false);
+        useOpenGLButton.setVisible(false);
+        importStateButton.setVisible(false);
+        exportStateButton.setVisible(false);
+        readerTabs.setVisible(false);
+        togglePanelButton.setButtonText(">");
+    }
 
     auto mapArea = rightPanel.reduced(5);
-
     mapDisplayComponentCPU->setBounds(mapArea);
     mapDisplayComponentGL->setBounds(mapArea);
+    togglePanelButton.setBounds(mapArea.getX() + 10, mapArea.getY() + 5, 20, 20);
+    fullscreenButton.setBounds(togglePanelButton.getRight() + 5, mapArea.getY() + 5, 20, 20);
 }
 
 void MapSynthAudioProcessorEditor::updateRendererVisibility()

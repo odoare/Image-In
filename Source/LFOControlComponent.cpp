@@ -83,10 +83,10 @@ void LFOControlComponent::resized()
     fbRow1.items.clear();
     fbRow2.items.clear();
 
-    fbRow1.items.add(juce::FlexItem(waveformBox).withFlex(.8f));
-    fbRow1.items.add(juce::FlexItem(syncControls).withFlex(1.f));
-    fbRow2.items.add(juce::FlexItem(freqKnob).withFlex(1.f));
-    fbRow2.items.add(juce::FlexItem(phaseKnob).withFlex(1.f));
+    fbRow1.items.add(juce::FlexItem(waveformBox).withFlex(0.8f));
+    fbRow1.items.add(juce::FlexItem(syncControls).withFlex(1.0f));
+    fbRow2.items.add(juce::FlexItem(freqKnob).withFlex(1.0f));
+    fbRow2.items.add(juce::FlexItem(phaseKnob).withFlex(1.0f));
     
     fbM.items.add(juce::FlexItem(fbRow1).withFlex(0.2));
     fbM.items.add(juce::FlexItem(fbRow2).withFlex(1));

@@ -29,7 +29,9 @@ class ADSRsComponent;
 //==============================================================================
 /**
 */
-class MapSynthAudioProcessorEditor  : public juce::AudioProcessorEditor, public juce::ChangeListener
+class MapSynthAudioProcessorEditor  : public juce::AudioProcessorEditor,
+                                      public juce::ChangeListener,
+                                      public juce::AudioProcessorValueTreeState::Listener
 {
 public:
     MapSynthAudioProcessorEditor (MapSynthAudioProcessor&);
@@ -39,6 +41,8 @@ public:
     void changeListenerCallback (juce::ChangeBroadcaster* source) override;
     void paint (juce::Graphics&) override;
     void resized() override;
+    void parameterChanged (const juce::String& parameterID, float newValue) override;
+
 
 private:
     // This reference is provided as a quick way for your editor to
@@ -49,6 +53,10 @@ private:
 
     std::unique_ptr<MapDisplayComponent> mapDisplayComponentCPU;
     std::unique_ptr<MapDisplayComponent_GL> mapDisplayComponentGL;
+
+    juce::TextButton fullscreenButton { "[]" };
+    juce::Component* fullscreenComponent = nullptr;
+    juce::TextButton togglePanelButton;
 
     EllipseReaderComponent ellipseReaderComponent1;
     EllipseReaderComponent ellipseReaderComponent2;
