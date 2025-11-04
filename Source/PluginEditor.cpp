@@ -211,10 +211,16 @@ MapSynthAudioProcessorEditor::MapSynthAudioProcessorEditor (MapSynthAudioProcess
     adsrsComponent = std::make_unique<ADSRsComponent>(p);
 
     mapDisplayComponentCPU = std::make_unique<MapDisplayComponent>(p);
+    mapDisplayComponentCPU->setEditor(this);
     addAndMakeVisible(mapDisplayComponentCPU.get());
 
     mapDisplayComponentGL = std::make_unique<MapDisplayComponent_GL>(p);
+    mapDisplayComponentGL->setEditor(this);
     addAndMakeVisible(mapDisplayComponentGL.get());
+
+    // Give buttons IDs so they can be found by their new parents
+    togglePanelButton.setComponentID("togglePanelButton");
+    fullscreenButton.setComponentID("fullscreenButton");
 
     addAndMakeVisible(factoryImageLabel);
     factoryImageLabel.setText("Image:", juce::dontSendNotification);
@@ -339,7 +345,6 @@ MapSynthAudioProcessorEditor::MapSynthAudioProcessorEditor (MapSynthAudioProcess
     audioProcessor.openGLStateBroadcaster.addChangeListener (this);
     updateRendererVisibility();
 
-    addAndMakeVisible(togglePanelButton);
     togglePanelButton.setButtonText("<");
     togglePanelButton.onClick = [this]
     {
@@ -350,25 +355,40 @@ MapSynthAudioProcessorEditor::MapSynthAudioProcessorEditor (MapSynthAudioProcess
         }
     };
 
-    addAndMakeVisible(fullscreenButton);
     fullscreenButton.onClick = [this] {
         if (fullscreenComponent == nullptr)
         {
+            const bool useOpenGL = audioProcessor.getUseOpenGL();
+
+            if (useOpenGL)
+                mapDisplayComponentGL->detachGLContext();
+
             // Enter fullscreen
             fullscreenComponent = new FullscreenComponent (this);
             fullscreenComponent->setBounds (juce::Desktop::getInstance().getDisplays()
                                                 .getPrimaryDisplay()->userArea);
             fullscreenComponent->setVisible (true);
             fullscreenButton.setToggleState (true, juce::dontSendNotification);
+
+            if (useOpenGL)
+                mapDisplayComponentGL->attachGLContext();
         }
         else
         {
+            const bool useOpenGL = audioProcessor.getUseOpenGL();
+
+            if (useOpenGL)
+                mapDisplayComponentGL->detachGLContext();
+
             // Exit fullscreen
             // The FullscreenComponent will delete itself on mouse-click,
             // but we also delete it here if the button is clicked again.
             delete fullscreenComponent;
             fullscreenComponent = nullptr;
             fullscreenButton.setToggleState (false, juce::dontSendNotification);
+
+            if (useOpenGL)
+                mapDisplayComponentGL->attachGLContext();
         }
     };
 
@@ -510,15 +530,19 @@ void MapSynthAudioProcessorEditor::resized()
     auto mapArea = rightPanel.reduced(5);
     mapDisplayComponentCPU->setBounds(mapArea);
     mapDisplayComponentGL->setBounds(mapArea);
-    togglePanelButton.setBounds(mapArea.getX() + 10, mapArea.getY() + 5, 20, 20);
-    fullscreenButton.setBounds(togglePanelButton.getRight() + 5, mapArea.getY() + 5, 20, 20);
 }
 
 void MapSynthAudioProcessorEditor::updateRendererVisibility()
 {
     const bool useOpenGL = audioProcessor.getUseOpenGL();
 
+    // Re-parent the buttons to the currently visible component
+    auto* newParent = useOpenGL ? (juce::Component*)mapDisplayComponentGL.get() : (juce::Component*)mapDisplayComponentCPU.get();
+    newParent->addAndMakeVisible(togglePanelButton);
+    newParent->addAndMakeVisible(fullscreenButton);
+
     useOpenGLButton.setToggleState (useOpenGL, juce::dontSendNotification);
     mapDisplayComponentGL->setVisible (useOpenGL);
     mapDisplayComponentCPU->setVisible (!useOpenGL);
+    resized(); // Call resized to update button positions within their new parent
 }

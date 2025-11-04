@@ -18,6 +18,7 @@
 #include "colours.h"
 
 class MapSynthAudioProcessor;
+class MapSynthAudioProcessorEditor;
 
 /**
     This component displays the image from an ImageBuffer and overlays the
@@ -31,6 +32,8 @@ public:
     MapDisplayComponent (MapSynthAudioProcessor& p);
     ~MapDisplayComponent() override;
     void paint (juce::Graphics& g) override;
+    void setEditor(MapSynthAudioProcessorEditor* editor);
+    void addButtons(juce::Component& toggleButton, juce::Component& fsButton);
     void resized() override;
 
 private:
@@ -67,6 +70,7 @@ private:
     juce::Rectangle<int> displayArea;
 
     MapSynthAudioProcessor& processor;
+    MapSynthAudioProcessorEditor* editor = nullptr;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MapDisplayComponent)
 };

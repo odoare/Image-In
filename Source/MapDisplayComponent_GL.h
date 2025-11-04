@@ -18,6 +18,7 @@
 #include "colours.h"
 
 class MapSynthAudioProcessor;
+class MapSynthAudioProcessorEditor;
 
 /**
     This component displays the image from an ImageBuffer and overlays the
@@ -34,6 +35,11 @@ public:
 
     void paint (juce::Graphics& g) override;
     void resized() override;
+    void setEditor(MapSynthAudioProcessorEditor* editor);
+    void addButtons(juce::Component& toggleButton, juce::Component& fsButton);
+
+    void detachGLContext();
+    void attachGLContext();
 
     void newOpenGLContextCreated() override;
     void openGLContextClosing() override;
@@ -73,6 +79,7 @@ private:
     juce::Rectangle<int> displayArea;
 
     MapSynthAudioProcessor& processor;
+    MapSynthAudioProcessorEditor* editor = nullptr;
     juce::OpenGLContext openGLContext;
     
     juce::Image lastImage;

@@ -14,6 +14,7 @@
 
 #include "MapDisplayComponent_GL.h"
 #include "PluginProcessor.h"
+#include "PluginEditor.h"
 
 MapDisplayComponent_GL::MapDisplayComponent_GL (MapSynthAudioProcessor& p)
     : processor (p)
@@ -39,6 +40,28 @@ MapDisplayComponent_GL::~MapDisplayComponent_GL()
     processor.imageBuffer.removeChangeListener (this);
 }
 
+void MapDisplayComponent_GL::setEditor(MapSynthAudioProcessorEditor* e)
+{
+    editor = e;
+}
+
+void MapDisplayComponent_GL::addButtons(juce::Component& toggleButton, juce::Component& fsButton)
+{
+    // We take ownership of making them visible within this component
+    addAndMakeVisible(toggleButton);
+    addAndMakeVisible(fsButton);
+}
+
+void MapDisplayComponent_GL::detachGLContext()
+{
+    openGLContext.detach();
+}
+
+void MapDisplayComponent_GL::attachGLContext()
+{
+    openGLContext.attachTo(*this);
+}
+
 void MapDisplayComponent_GL::paint (juce::Graphics& g)
 {
     // This method is intentionally left blank.
@@ -50,6 +73,13 @@ void MapDisplayComponent_GL::resized()
     auto bounds = getLocalBounds();
     int squareSize = juce::jmin (bounds.getWidth(), bounds.getHeight());
     displayArea = juce::Rectangle<int> (squareSize, squareSize).withCentre (bounds.getCentre());
+
+    // The buttons are now children, so their bounds are relative to this component
+    if (auto* tb = findChildWithID("togglePanelButton"))
+        tb->setBounds(displayArea.getX() + 10, displayArea.getY() + 5, 20, 20);
+
+    if (auto* fb = findChildWithID("fullscreenButton"))
+        fb->setBounds(displayArea.getX() + 35, displayArea.getY() + 5, 20, 20);
 
     openGLContext.triggerRepaint();
 }
