@@ -266,10 +266,10 @@ void MapDisplayComponent::resized()
 
     // The buttons are now children, so their bounds are relative to this component
     if (auto* tb = findChildWithID("togglePanelButton"))
-        tb->setBounds(displayArea.getX() + 10, displayArea.getY() + 5, 20, 20);
+        tb->setBounds(displayArea.getX() + 10, displayArea.getY() + 5, 25, 20);
 
     if (auto* fb = findChildWithID("fullscreenButton"))
-        fb->setBounds(displayArea.getX() + 35, displayArea.getY() + 5, 20, 20);
+        fb->setBounds(displayArea.getX() + 40, displayArea.getY() + 5, 25, 20);
 
     repaint();
 }
