@@ -19,7 +19,6 @@ The shape, position, and orientation of these ellipses can be freely adjusted an
     *   An interactive display shows the loaded image and the reader paths.
     *   Drag handles directly on the display to manipulate the center, radii, and angle of the ellipses.
     *   Real-time visualization of parameter modulations.
-    *   Switch between a CPU-based renderer and a smoother OpenGL-based renderer.
 *   **Preset System:** Comes with a set of factory presets and built-in factory images to get started.
 
 ## How to Use
