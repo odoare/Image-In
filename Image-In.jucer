@@ -3,7 +3,7 @@
 <JUCERPROJECT id="tGIUSL" name="Image-In" projectType="audioplug" useAppConfig="0"
               addUsingNamespaceToJuceHeader="0" jucerFormatVersion="1" pluginFormats="buildStandalone,buildVST,buildVST3"
               pluginCharacteristicsValue="pluginIsSynth,pluginWantsMidiIn"
-              version="0.1" companyName="FX-Mechanics" companyWebsite="www.fx-mechanics.com"
+              version="0.2" companyName="FX-Mechanics" companyWebsite="www.fx-mechanics.com"
               pluginManufacturerCode="FXME" pluginCode="IMGI">
   <MAINGROUP id="qPv3X3" name="Image-In">
     <GROUP id="{91937B2F-EA54-82A9-8694-4B4D38C66403}" name="Presets">
@@ -90,10 +90,6 @@
             file="Source/MapDisplayComponent.h"/>
       <FILE id="vf7MXx" name="MapOscillator.cpp" compile="1" resource="0"
             file="Source/MapOscillator.cpp"/>
-      <FILE id="lYkUQ8" name="MapDisplayComponent_GL.cpp" compile="1" resource="0"
-            file="Source/MapDisplayComponent_GL.cpp"/>
-      <FILE id="jdWdrV" name="MapDisplayComponent_GL.h" compile="0" resource="0"
-            file="Source/MapDisplayComponent_GL.h"/>
       <FILE id="JPqJ1f" name="ReaderBase.cpp" compile="1" resource="0" file="Source/ReaderBase.cpp"/>
       <FILE id="OGihh3" name="ReaderBase.h" compile="0" resource="0" file="Source/ReaderBase.h"/>
       <FILE id="yhLOWD" name="ReaderComponent.cpp" compile="1" resource="0"
@@ -147,7 +143,6 @@
     </LINUX_MAKE>
     <VS2022 targetFolder="Builds/VisualStudio2022">
       <CONFIGURATIONS>
-        <CONFIGURATION isDebug="1" name="Debug" targetName="Image-In"/>
         <CONFIGURATION isDebug="0" name="Release" targetName="Image-In"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
