@@ -2,11 +2,11 @@
 
 <Parameters>
   <PARAM id="FactoryImage" value="1.0"/>
-  <PARAM id="Ellipse1_CX" value="0.4399999976158142"/>
-  <PARAM id="Ellipse1_CY" value="0.4599999785423279"/>
-  <PARAM id="Ellipse1_R1" value="0.09999999403953552"/>
-  <PARAM id="Ellipse1_R2" value="0.2699999809265137"/>
-  <PARAM id="Ellipse1_Angle" value="5.989999771118164"/>
+  <PARAM id="Ellipse1_CX" value="0.429999977350235"/>
+  <PARAM id="Ellipse1_CY" value="0.5299999713897705"/>
+  <PARAM id="Ellipse1_R1" value="0.07999999821186066"/>
+  <PARAM id="Ellipse1_R2" value="0.25"/>
+  <PARAM id="Ellipse1_Angle" value="5.909999847412109"/>
   <PARAM id="Ellipse1_Volume" value="0.699999988079071"/>
   <PARAM id="Ellipse1_Pan" value="0.0"/>
   <PARAM id="Ellipse2_Volume" value="0.2699999809265137"/>
@@ -129,7 +129,7 @@
   <PARAM id="Ellipse1_MidiChannel"/>
   <PARAM id="Ellipse1_On"/>
   <PARAM id="Ellipse1_ShowLFO"/>
-  <PARAM id="Ellipse1_ShowMaster"/>
+  <PARAM id="Ellipse1_ShowMaster" value="1.0"/>
   <PARAM id="Ellipse2_Detune"/>
   <PARAM id="Ellipse2_MidiChannel"/>
   <PARAM id="Ellipse2_On" value="1.0"/>
@@ -141,4 +141,5 @@
   <PARAM id="Ellipse3_ShowLFO"/>
   <PARAM id="Ellipse3_ShowMaster" value="1.0"/>
   <PARAM id="OscilloscopeEnabled"/>
+  <PARAM id="ShowPanel"/>
 </Parameters>
