@@ -102,8 +102,12 @@ void MapDisplayComponent_GL::renderOpenGL()
     if (displayArea.isEmpty())
         return;
 
+    // Get the scale factor from the context to handle high-DPI displays correctly.
+    const float scale = (float) openGLContext.getRenderingScale();
+
     // Set the viewport to the square display area
-    juce::gl::glViewport (displayArea.getX(), getHeight() - displayArea.getBottom(), displayArea.getWidth(), displayArea.getHeight());
+    juce::gl::glViewport ((GLint) (displayArea.getX() * scale), (GLint) ((getHeight() - displayArea.getBottom()) * scale),
+                          (GLsizei) (displayArea.getWidth() * scale), (GLsizei) (displayArea.getHeight() * scale));
     
     auto image = processor.imageBuffer.getImage();
 
