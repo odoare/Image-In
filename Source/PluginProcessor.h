@@ -94,11 +94,6 @@ public:
     std::array<std::array<VoiceDisplayState, NUM_VOICES>, 3> voiceDisplayStates;
     juce::CriticalSection displayStateLock;
 
-    // OpenGL state management
-    void setUseOpenGL (bool shouldUseOpenGL);
-    bool getUseOpenGL() const;
-    juce::ChangeBroadcaster openGLStateBroadcaster;
-
     float getSmoothedMaxLevel(const int channel);
     float getMaxLevel(const int channel);
 
@@ -109,7 +104,6 @@ private:
     int currentProgram = 0;
     const juce::Array<FactoryPresets::Preset> factoryPresets;
     bool isLoadingPreset = false;
-    bool useOpenGL = false;
 
     double processSampleRate = 44100.0;
 

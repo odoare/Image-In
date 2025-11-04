@@ -20,7 +20,6 @@
 class MapSynthAudioProcessor;
 
 #include "MapDisplayComponent.h"
-#include "MapDisplayComponent_GL.h"
 #include "EllipseReaderComponent.h"
 
 class LFOsComponent;
@@ -29,8 +28,7 @@ class ADSRsComponent;
 //==============================================================================
 /**
 */
-class MapSynthAudioProcessorEditor  : public juce::AudioProcessorEditor,
-                                      public juce::ChangeListener,
+class MapSynthAudioProcessorEditor  : public juce::AudioProcessorEditor,                                      
                                       public juce::AudioProcessorValueTreeState::Listener
 {
 public:
@@ -38,7 +36,6 @@ public:
     ~MapSynthAudioProcessorEditor() override;
 
     //==============================================================================
-    void changeListenerCallback (juce::ChangeBroadcaster* source) override;
     void paint (juce::Graphics&) override;
     void resized() override;
     void parameterChanged (const juce::String& parameterID, float newValue) override;
@@ -52,7 +49,6 @@ private:
     fxme::FxmeLookAndFeel fxmeLookAndFeel;
 
     std::unique_ptr<MapDisplayComponent> mapDisplayComponentCPU;
-    std::unique_ptr<MapDisplayComponent_GL> mapDisplayComponentGL;
 
     juce::TextButton fullscreenButton { "[]" };
     juce::Component* fullscreenComponent = nullptr;
@@ -72,7 +68,6 @@ private:
 
     juce::TextButton loadImageButton;
     std::unique_ptr<juce::FileChooser> fileChooser;
-    juce::ToggleButton useOpenGLButton;
     juce::TextButton importStateButton;
     juce::TextButton exportStateButton;
 
@@ -84,8 +79,6 @@ private:
                                 [&]() { return audioProcessor.getSmoothedMaxLevel(0); }},
                          meterR{[&]() { return audioProcessor.getMaxLevel(1); },
                                 [&]() { return audioProcessor.getSmoothedMaxLevel(1); }};
-
-    void updateRendererVisibility();
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MapSynthAudioProcessorEditor)
 };

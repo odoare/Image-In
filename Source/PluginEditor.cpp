@@ -213,11 +213,7 @@ MapSynthAudioProcessorEditor::MapSynthAudioProcessorEditor (MapSynthAudioProcess
     mapDisplayComponentCPU = std::make_unique<MapDisplayComponent>(p);
     mapDisplayComponentCPU->setEditor(this);
     addAndMakeVisible(mapDisplayComponentCPU.get());
-
-    mapDisplayComponentGL = std::make_unique<MapDisplayComponent_GL>(p);
-    mapDisplayComponentGL->setEditor(this);
-    addAndMakeVisible(mapDisplayComponentGL.get());
-
+    mapDisplayComponentCPU->addButtons(togglePanelButton, fullscreenButton);
     // Give buttons IDs so they can be found by their new parents
     togglePanelButton.setComponentID("togglePanelButton");
     fullscreenButton.setComponentID("fullscreenButton");
@@ -263,13 +259,6 @@ MapSynthAudioProcessorEditor::MapSynthAudioProcessorEditor (MapSynthAudioProcess
                 }
             }
         });
-    };
-
-    addAndMakeVisible(useOpenGLButton);
-    useOpenGLButton.setButtonText("OpenGL");
-    useOpenGLButton.onClick = [this]
-    {
-        audioProcessor.setUseOpenGL (useOpenGLButton.getToggleState());
     };
 
     addAndMakeVisible(importStateButton);
@@ -342,9 +331,6 @@ MapSynthAudioProcessorEditor::MapSynthAudioProcessorEditor (MapSynthAudioProcess
     readerTabs.addTab("LFOs", juce::Colours::transparentBlack, lfosComponent.get(), false);
     readerTabs.addTab("ADSRs", juce::Colours::transparentBlack, adsrsComponent.get(), false);
 
-    audioProcessor.openGLStateBroadcaster.addChangeListener (this);
-    updateRendererVisibility();
-
     togglePanelButton.setButtonText("<");
     togglePanelButton.onClick = [this]
     {
@@ -358,37 +344,21 @@ MapSynthAudioProcessorEditor::MapSynthAudioProcessorEditor (MapSynthAudioProcess
     fullscreenButton.onClick = [this] {
         if (fullscreenComponent == nullptr)
         {
-            const bool useOpenGL = audioProcessor.getUseOpenGL();
-
-            if (useOpenGL)
-                mapDisplayComponentGL->detachGLContext();
-
             // Enter fullscreen
             fullscreenComponent = new FullscreenComponent (this);
             fullscreenComponent->setBounds (juce::Desktop::getInstance().getDisplays()
                                                 .getPrimaryDisplay()->userArea);
             fullscreenComponent->setVisible (true);
             fullscreenButton.setToggleState (true, juce::dontSendNotification);
-
-            if (useOpenGL)
-                mapDisplayComponentGL->attachGLContext();
         }
         else
         {
-            const bool useOpenGL = audioProcessor.getUseOpenGL();
-
-            if (useOpenGL)
-                mapDisplayComponentGL->detachGLContext();
-
             // Exit fullscreen
             // The FullscreenComponent will delete itself on mouse-click,
             // but we also delete it here if the button is clicked again.
             delete fullscreenComponent;
             fullscreenComponent = nullptr;
             fullscreenButton.setToggleState (false, juce::dontSendNotification);
-
-            if (useOpenGL)
-                mapDisplayComponentGL->attachGLContext();
         }
     };
 
@@ -407,15 +377,7 @@ MapSynthAudioProcessorEditor::MapSynthAudioProcessorEditor (MapSynthAudioProcess
 
 MapSynthAudioProcessorEditor::~MapSynthAudioProcessorEditor()
 {
-    audioProcessor.openGLStateBroadcaster.removeChangeListener (this);
-}
-
-void MapSynthAudioProcessorEditor::changeListenerCallback (juce::ChangeBroadcaster* source)
-{
-    if (source == &audioProcessor.openGLStateBroadcaster)
-    {
-        updateRendererVisibility();
-    }
+    audioProcessor.apvts.removeParameterListener("ShowPanel", this);
 }
 
 //==============================================================================
@@ -465,28 +427,10 @@ void MapSynthAudioProcessorEditor::resized()
         masterVolumeLabel.setVisible(true);
         factoryImageLabel.setVisible(true);
         factoryImageSelector.setVisible(true); 
-        loadImageButton.setVisible(true);
-        useOpenGLButton.setVisible(true);
+        loadImageButton.setVisible(true);        
         importStateButton.setVisible(true);
         exportStateButton.setVisible(true);
         readerTabs.setVisible(true);
-
-
-        // auto leftPanelPadded = leftPanelArea.reduced(5);
-        // auto buttonArea = leftPanelPadded.removeFromTop(30);
-        // auto meterArea = leftPanelPadded.removeFromBottom(15);
-        // meterL.setBounds(meterArea);
-        // meterArea = leftPanelPadded.removeFromBottom(15);
-        // meterR.setBounds(meterArea);
-        // auto volumeArea = leftPanelPadded.removeFromBottom(30);
-        // readerTabs.setBounds(leftPanelPadded);
-        // masterVolumeSlider.setBounds(volumeArea);
-
-        // factoryImageSelector.setBounds(buttonArea.getX() + 50, buttonArea.getY() + 3, 120, 24);
-        // loadImageButton.setBounds(factoryImageSelector.getRight() + 10, buttonArea.getY() + 3, 80, 24);
-        // useOpenGLButton.setBounds(loadImageButton.getRight() + 10, buttonArea.getY() + 3, 80, 24);
-        // importStateButton.setBounds(useOpenGLButton.getRight() + 5, buttonArea.getY() + 3, 60, 24);
-        // exportStateButton.setBounds(importStateButton.getRight() + 5, buttonArea.getY() + 3, 60, 24);
 
         auto leftPanelPadded = leftPanelArea.reduced(5);
         auto buttonArea = leftPanelPadded.removeFromTop(30);
@@ -502,9 +446,8 @@ void MapSynthAudioProcessorEditor::resized()
 
         factoryImageSelector.setBounds(buttonArea.getX() + 60, buttonArea.getY() + 3, 120, 24);
         loadImageButton.setBounds(factoryImageSelector.getRight() + 10, buttonArea.getY() + 3, 80, 24);
-        useOpenGLButton.setBounds(loadImageButton.getRight() + 10, buttonArea.getY() + 3, 80, 24);
         
-        importStateButton.setBounds(useOpenGLButton.getRight() + 10, buttonArea.getY() + 3, 60, 24);
+        importStateButton.setBounds(loadImageButton.getRight() + 10, buttonArea.getY() + 3, 60, 24);
         exportStateButton.setBounds(importStateButton.getRight() + 5, buttonArea.getY() + 3, 60, 24);
 
         togglePanelButton.setButtonText("<");    
@@ -519,8 +462,7 @@ void MapSynthAudioProcessorEditor::resized()
         masterVolumeLabel.setVisible(false);
         factoryImageLabel.setVisible(false);
         factoryImageSelector.setVisible(false); 
-        loadImageButton.setVisible(false);
-        useOpenGLButton.setVisible(false);
+        loadImageButton.setVisible(false);        
         importStateButton.setVisible(false);
         exportStateButton.setVisible(false);
         readerTabs.setVisible(false);
@@ -529,20 +471,4 @@ void MapSynthAudioProcessorEditor::resized()
 
     auto mapArea = rightPanel.reduced(5);
     mapDisplayComponentCPU->setBounds(mapArea);
-    mapDisplayComponentGL->setBounds(mapArea);
-}
-
-void MapSynthAudioProcessorEditor::updateRendererVisibility()
-{
-    const bool useOpenGL = audioProcessor.getUseOpenGL();
-
-    // Re-parent the buttons to the currently visible component
-    auto* newParent = useOpenGL ? (juce::Component*)mapDisplayComponentGL.get() : (juce::Component*)mapDisplayComponentCPU.get();
-    newParent->addAndMakeVisible(togglePanelButton);
-    newParent->addAndMakeVisible(fullscreenButton);
-
-    useOpenGLButton.setToggleState (useOpenGL, juce::dontSendNotification);
-    mapDisplayComponentGL->setVisible (useOpenGL);
-    mapDisplayComponentCPU->setVisible (!useOpenGL);
-    resized(); // Call resized to update button positions within their new parent
 }

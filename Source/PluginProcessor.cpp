@@ -322,17 +322,6 @@ bool MapSynthAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts)
 }
 #endif
 
-void MapSynthAudioProcessor::setUseOpenGL (bool shouldUseOpenGL)
-{
-    if (useOpenGL != shouldUseOpenGL)
-    {
-        useOpenGL = shouldUseOpenGL;
-        openGLStateBroadcaster.sendChangeMessage();
-    }
-}
-
-bool MapSynthAudioProcessor::getUseOpenGL() const { return useOpenGL; }
-
 float MapSynthAudioProcessor::getMaxLevel(const int channel)
 {
   return maxLevel[channel];
@@ -675,9 +664,6 @@ void MapSynthAudioProcessor::getStateInformation (juce::MemoryBlock& destData)
     // Store the current program index so the host can recall it.
     xml->setAttribute ("currentProgram", currentProgram);
 
-    // Also store the OpenGL state, but outside the main parameter block
-    xml->setAttribute ("useOpenGL", useOpenGL);
-
     // If the current image is a custom user-loaded one, save its path.
     // The "FactoryImage" parameter will be at index 0 ("Custom").
     if (static_cast<int>(apvts.getRawParameterValue("FactoryImage")->load()) == 0)
@@ -700,9 +686,6 @@ void MapSynthAudioProcessor::setStateInformation (const void* data, int sizeInBy
     {
         if (xmlState->hasTagName (apvts.state.getType()))
         {
-            // Restore OpenGL state. Default to false if not present.
-            setUseOpenGL (xmlState->getBoolAttribute ("useOpenGL", false));
-
             // Use a flag to prevent parameterChanged from marking this as a user edit.
             juce::ScopedValueSetter<bool> loading (isLoadingPreset, true);
 
