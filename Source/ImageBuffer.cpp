@@ -50,14 +50,13 @@ void ImageBuffer::setImage (const juce::Image& newImage)
         if (w > h) // Landscape image
         {
             const int yOffset = (finalSize - h) / 2;
-            g.drawImageAt (newImage, 0, yOffset);
+            g.drawImageAt (newImage, 0, yOffset); // Draw the original image in the center
 
             // Mirrored top
             {
                 g.saveState();
-//                g.setClipRegion (juce::Rectangle<int> (0, 0, w, yOffset));
                 auto transform = juce::AffineTransform::scale (1.0f, -1.0f)
-                                                      .translated (0.0f, (float) yOffset);
+                                                      .translated (0.0f, (float)yOffset);
                 g.drawImageTransformed (newImage, transform);
                 g.restoreState();
             }
@@ -65,9 +64,8 @@ void ImageBuffer::setImage (const juce::Image& newImage)
             // Mirrored bottom
             {
                 g.saveState();
-                //g.setClipRegion (juce::Rectangle<int> (0, yOffset + h, w, yOffset));
                 auto transform = juce::AffineTransform::scale (1.0f, -1.0f)
-                                                      .translated (0.0f, (float) (yOffset + 2 * h));
+                                                      .translated (0.0f, (float)(yOffset + 2 * h));
                 g.drawImageTransformed (newImage, transform);
                 g.restoreState();
             }
@@ -75,14 +73,13 @@ void ImageBuffer::setImage (const juce::Image& newImage)
         else // Portrait image
         {
             const int xOffset = (finalSize - w) / 2;
-            g.drawImageAt (newImage, xOffset, 0);
+            g.drawImageAt (newImage, xOffset, 0); // Draw the original image in the center
 
             // Mirrored left
             {
                 g.saveState();
-                //g.setClipRegion (juce::Rectangle<int> (0, 0, xOffset, h));
                 auto transform = juce::AffineTransform::scale (-1.0f, 1.0f)
-                                                      .translated ((float) xOffset, 0.0f);
+                                                      .translated ((float)xOffset, 0.0f);
                 g.drawImageTransformed (newImage, transform);
                 g.restoreState();
             }
@@ -90,9 +87,8 @@ void ImageBuffer::setImage (const juce::Image& newImage)
             // Mirrored right
             {
                 g.saveState();
-                //g.setClipRegion (juce::Rectangle<int> (xOffset + w, 0, xOffset, h));
                 auto transform = juce::AffineTransform::scale (-1.0f, 1.0f)
-                                                      .translated ((float) (xOffset + 2 * w), 0.0f);
+                                                      .translated ((float)(xOffset + 2 * w), 0.0f);
                 g.drawImageTransformed (newImage, transform);
                 g.restoreState();
             }
